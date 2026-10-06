@@ -3,7 +3,7 @@ DROP DATABASE IF EXISTS private_place_db;
 
 CREATE DATABASE private_place_db;
 
-CREATE USER IF NOT EXISTS pp_admin@private_place_db IDENTIFIED BY 'admin_pp';
+CREATE USER IF NOT EXISTS pp_admin@private_place_db IDENTIFIED BY '********';
 GRANT ALL ON private_place_db.* TO pp_admin@private_place_db;
 
 USE private_place_db;
@@ -21,25 +21,23 @@ CREATE TABLE IF NOT EXISTS app_user (
 
 
 CREATE TABLE IF NOT EXISTS category (
-    category_id INT AUTO_INCREMENT,
-    name VARCHAR(50) NOT NULL UNIQUE,
+    category_name VARCHAR(50) NOT NULL UNIQUE,
     description VARCHAR(500),
     is_active BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT NULL,
 
-    PRIMARY KEY (category_id)
+    PRIMARY KEY (category_name)
 );
 
 CREATE TABLE IF NOT EXISTS exploitation_type (
-    exploitation_type_id INT AUTO_INCREMENT,
-    name VARCHAR(50) NOT NULL UNIQUE,
+    exploitation_type_name VARCHAR(50) NOT NULL UNIQUE,
     description VARCHAR(500),
     is_active BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT NULL,
 
-    PRIMARY KEY (exploitation_type_id)
+    PRIMARY KEY (exploitation_type_name)
 );
 
 CREATE TABLE IF NOT EXISTS place (
@@ -49,14 +47,14 @@ CREATE TABLE IF NOT EXISTS place (
     description TEXT,
     additional_information TEXT,
     status ENUM('draft', 'published', 'archived') NOT NULL DEFAULT 'draft',
-    category_id INT,
+    category_name VARCHAR(50),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT NULL,
 
     PRIMARY KEY (place_id),
 
-    FOREIGN KEY (category_id)
-        REFERENCES category (category_id)
+    FOREIGN KEY (category_name)
+        REFERENCES category (category_name)
         ON DELETE SET NULL
 );
 
@@ -76,15 +74,15 @@ CREATE TABLE IF NOT EXISTS image (
 
 CREATE TABLE IF NOT EXISTS place_exploitation_type (
     place_id INT NOT NULL,
-    exploitation_type_id INT NOT NULL,
+    exploitation_type_name VARCHAR(50) NOT NULL,
 
-    PRIMARY KEY (place_id, exploitation_type_id),
+    PRIMARY KEY (place_id, exploitation_type_name),
 
     FOREIGN KEY (place_id)
         REFERENCES place (place_id)
         ON DELETE CASCADE,
 
-    FOREIGN KEY (exploitation_type_id)
-        REFERENCES exploitation_type (exploitation_type_id)
+    FOREIGN KEY (exploitation_type_name)
+        REFERENCES exploitation_type (exploitation_type_name)
         ON DELETE CASCADE
 );
