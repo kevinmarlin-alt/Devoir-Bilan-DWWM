@@ -1,15 +1,19 @@
 {
-  "name": "api",
+  "name": "Private Place API",
   "version": "1.0.0",
   "description": "API for the project Private Place",
   "license": "ISC",
   "author": "Kevin Marlin",
   "type": "module",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "node --watch index.js"
   },
   "dependencies": {
     "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "dotenv": "^18.0.5"
   }
 }
