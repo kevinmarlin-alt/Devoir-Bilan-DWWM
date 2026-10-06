@@ -1,5 +1,6 @@
 import express from 'express';
 import morgan from 'morgan';
+import cors from 'cors';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { AppError } from './errors/AppError.js';
 
@@ -10,6 +11,9 @@ export const createApp = () => {
 
     app.use(morgan("dev"))
     app.use(express.json());
+    app.use(cors({
+        origin: process.env.CORS_ORIGIN
+    }))
 
     app.get('/', (req, res) => {
         throw new AppError('Ressource introuvable', { 
