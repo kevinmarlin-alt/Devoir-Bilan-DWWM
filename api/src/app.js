@@ -9,6 +9,7 @@ export const createApp = () => {
     const app = express();
 
     app.use(morgan("dev"))
+    app.use(express.json());
 
     app.get('/', (req, res) => {
         throw new AppError('Ressource introuvable', { 
