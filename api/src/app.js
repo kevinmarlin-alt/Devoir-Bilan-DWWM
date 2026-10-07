@@ -2,7 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import { errorHandler } from './middlewares/errorHandler.js';
-import { AppError } from './errors/AppError.js';
+import sequelize from './db/database.js'
 
 
 export const createApp = () => {
@@ -15,11 +15,14 @@ export const createApp = () => {
         origin: process.env.CORS_ORIGIN
     }))
 
-    app.get('/', (req, res) => {
-        throw new AppError('Ressource introuvable', { 
-            status: 404, 
-            code: 'RESSOURCE_NOT_FOUND'
-        });
+    
+    app.get('/', async (req, res) => {
+        try {
+            await sequelize.authenticate()
+            console.log('Connection has been established successfully.');
+        } catch (error) {
+            console.error('Unable to connect to the database:', error);
+        }
     });
 
     app.use(errorHandler);
