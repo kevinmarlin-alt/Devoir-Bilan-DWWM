@@ -3,8 +3,8 @@ import morgan from 'morgan';
 import cors from 'cors';
 import { errorHandler } from './middlewares/errorHandler.js';
 import sequelize from './db/database.js'
-import { AppUser } from './controllers/models/AppUser.js';
-
+import { AppUser } from './models/AppUser.js';
+import { loginHandler } from './controllers/auth.controller.js'
 
 export const createApp = () => {
 
@@ -13,7 +13,7 @@ export const createApp = () => {
     app.use(morgan("dev"))
     app.use(express.json());
     app.use(cors({
-        origin: process.env.CORS_ORIGIN
+        origin: '*' //process.env.CORS_ORIGIN
     }))
 
     
@@ -25,6 +25,8 @@ export const createApp = () => {
             console.error('Unable to connect to the database:', error);
         }
     });
+
+    app.get('/api/login', loginHandler);
 
     app.use(errorHandler);
 

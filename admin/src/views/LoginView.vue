@@ -1,19 +1,39 @@
 <script setup>
+import { ref } from 'vue';
 
-const formElement = document.querySelector('form');
+const info = ref('');
 
-function submitHandle(event) {
+async function submitHandle(event) {
     event.preventDefault();
+    
+    const formElement = document.querySelector('form');
+    const [email, password]  = new FormData(formElement).values();
+    
+    console.log(email, password)
 
-    const formData = new FormData(formElement);
-    console.log(formData)
+    try {
+        const response = await fetch('http://localhost:3000/api/login');
+        
+        if(!response.ok) {
+            throw new Error('Erreur type 2')
+        }
+
+        const data = await response.json();
+        console.log(data)
+        info.value = data.message
+
+    } catch (error) {
+        info.value = error.message
+        
+    }
+
     
 }
 
 </script>
 
 <template>
-    <form >
+    <form action="#" @submit.prevent="submitHandle">
         <div>
             <label for="email">Adresse e-mail</label>
             <input 
@@ -32,7 +52,8 @@ function submitHandle(event) {
                 value="test"
             >
         </div>
-        <button type="submit" @submit="submitHandle">Se connecter</button>
+        <button type="submit">Se connecter</button>
+        <span class="info-form">{{ info }}</span>
     </form>
 
 </template>
