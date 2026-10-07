@@ -6,9 +6,9 @@ const sequelize = new Sequelize(
     process.env.DB_PWD, 
     {
         host: process.env.DB_HOST,
-        port: process.env.DB_PORT,
+        port: Number(process.env.DB_PORT),
         dialect: 'mariadb',
-        logging: (...msg) => console.log(msg)
+        logging: console.log
     }
 );
 

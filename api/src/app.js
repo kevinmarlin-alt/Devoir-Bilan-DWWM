@@ -3,6 +3,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 import { errorHandler } from './middlewares/errorHandler.js';
 import sequelize from './db/database.js'
+import { AppUser } from './controllers/models/AppUser.js';
 
 
 export const createApp = () => {
@@ -18,8 +19,8 @@ export const createApp = () => {
     
     app.get('/', async (req, res) => {
         try {
-            await sequelize.authenticate()
-            console.log('Connection has been established successfully.');
+            const users = await AppUser.findAll();
+            console.log('All users:', JSON.stringify(users, null, 2));
         } catch (error) {
             console.error('Unable to connect to the database:', error);
         }
