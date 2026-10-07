@@ -3,8 +3,12 @@ DROP DATABASE IF EXISTS private_place_db;
 
 CREATE DATABASE private_place_db;
 
-CREATE USER IF NOT EXISTS pp_admin@private_place_db IDENTIFIED BY '********';
-GRANT ALL ON private_place_db.* TO pp_admin@private_place_db;
+DROP USER IF EXISTS 'pp_admin'@'localhost';
+
+CREATE USER IF NOT EXISTS 'pp_admin'@'localhost' IDENTIFIED BY '********';
+GRANT SELECT, INSERT, UPDATE, DELETE ON private_place_db.* TO 'pp_admin'@'localhost';
+
+FLUSH PRIVILEGES;
 
 USE private_place_db;
 
