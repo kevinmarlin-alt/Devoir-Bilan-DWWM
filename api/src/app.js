@@ -20,12 +20,7 @@ export const createApp = () => {
 
     
     app.get('/', async (req, res) => {
-        try {
-            const users = await AppUser.findAll();
-            console.log('All users:', JSON.stringify(users, null, 2));
-        } catch (error) {
-            console.error('Unable to connect to the database:', error);
-        }
+        
     });
 
     app.post('/api/auth/login', loginHandler);
