@@ -1,5 +1,4 @@
-import { authenticateUser } from "../services/auth.service.js";
-import { createAuthToken } from "../services/token.service.js";
+import { authenticateUser, createAuthToken } from "../services/auth.service.js";
 
 export const loginHandler = async (req, res) => {
     const { email, password } = req.body;
@@ -22,5 +21,16 @@ export const loginHandler = async (req, res) => {
  export const currentUserHandler = (req, res) => {
     const user = req.user;
 
-    res.status(200).json( user )
+    res.status(200).json({ user })
+ }
+
+ export const logoutHandler = (req, res) => {
+    res.clearCookie('pp_token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/'
+    })
+
+    res.sendStatus(204);
  }

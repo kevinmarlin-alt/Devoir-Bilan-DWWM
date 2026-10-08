@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { AppError } from "../errors/AppError.js";
 import { getUserByEmail } from "../repositories/user.repository.js";
 
@@ -32,4 +33,14 @@ export const authenticateUser = async (email, password) => {
         lastName: user.lastName,
         email: user.email
     };
+}
+
+export const createAuthToken = (user) => {
+    return jwt.sign(user, process.env.JWT_SECRET, {
+            expiresIn: '8h'
+        });
+};
+
+export const verifyAuthToken = (token) => {
+    return jwt.verify(token, process.env.JWT_SECRET)
 }

@@ -33,9 +33,13 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to) => {
+  if(!to.meta.requiresAuth) {
+    return
+  }
+  
   const user = await getAuthenticatedUser();
 
-  if (to.meta.requiresAuth && !user) {
+  if (!user) {
     return {
       path: '/login',
       query: { redirect: to.fullPath }

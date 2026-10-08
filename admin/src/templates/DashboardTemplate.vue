@@ -1,5 +1,14 @@
 <script setup>
-import { RouterLink, RouterView } from "vue-router";
+import { logout } from "@/services/auth.service.js";
+import { RouterLink, RouterView, useRouter } from "vue-router";
+
+const router = useRouter();
+
+const logoutHandler = async () => {
+    await logout();
+
+    router.push({ name: 'login' });
+}
 
 </script>
 
@@ -23,6 +32,12 @@ import { RouterLink, RouterView } from "vue-router";
                         Accueil
                     </RouterLink>
                 </nav>
+                <button 
+                    type="button"
+                    @click="logoutHandler"
+                >
+                    Déconnexion
+                </button>
             </aside>
             <main class="app-content">
                 <RouterView />
