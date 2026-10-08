@@ -18,3 +18,9 @@ export const loginHandler = async (req, res) => {
 
     res.status(200).json({ user });
  }
+
+ export const currentUserHandler = (req, res) => {
+    const user = req.user;
+
+    res.status(200).json( user )
+ }

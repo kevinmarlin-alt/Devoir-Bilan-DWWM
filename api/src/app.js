@@ -3,8 +3,7 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import cors from 'cors';
 import { errorHandler } from './middlewares/errorHandler.js';
-import { AppUser } from './models/AppUser.js';
-import { loginHandler } from './controllers/auth.controller.js'
+import authRouter from './routes/auth.route.js';
 
 export const createApp = () => {
 
@@ -22,8 +21,8 @@ export const createApp = () => {
     app.get('/', async (req, res) => {
         
     });
-
-    app.post('/api/auth/login', loginHandler);
+    
+    app.use('/api/auth', authRouter);
 
     app.use(errorHandler);
 
