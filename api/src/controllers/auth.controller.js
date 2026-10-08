@@ -1,5 +1,4 @@
 import { authenticateUser, createAuthToken } from "../services/auth.service.js";
-import { createAuthToken } from "../services/token.service.js";
 
 export const loginHandler = async (req, res) => {
     const { email, password } = req.body;

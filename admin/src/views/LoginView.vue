@@ -1,4 +1,5 @@
 <script setup>
+import { login } from '@/services/auth.service';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router'
 
@@ -14,45 +15,14 @@ async function submitHandle(event) {
     const formElement = document.querySelector('form');
     const [email, password]  = new FormData(formElement).values();
     
-    const playload = {
-            email,
-            password
-        };
+    const result = await login(email, password);
 
-    try {
-        const response = await fetch('http://localhost:3000/api/auth/login',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include',
-                body: JSON.stringify(playload)
-            }
-        );
-        
-        const data = await response.json();
-
-        if(!response.ok) {
-            if (data.error?.code === 'INVALID_CREDENTIALS') {
-                info.value = 'Adresse e-mail ou mot de passe incorrect';
-                return
-            }
-
-            info.value = 'Une erreur est survenue'
-            return
-        }
-
-        info.value = 'Connexion réussie';
-
-        router.push({ name: 'dashboard_home' });
-
-    } catch (error) {
-        info.value = error.message
-        
+    if(!result.success) {
+        info.value = 'Adresse e-mail ou mot de passe incorrect'
+        return
     }
 
-    
+    router.push({ name: 'dashboard_home' });
 }
 
 </script>

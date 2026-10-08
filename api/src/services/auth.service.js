@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { AppError } from "../errors/AppError.js";
 import { getUserByEmail } from "../repositories/user.repository.js";
 
