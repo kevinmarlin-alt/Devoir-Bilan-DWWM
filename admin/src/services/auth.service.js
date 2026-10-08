@@ -42,3 +42,9 @@ export const login = async (email, password) => {
     user: data.user
   }
 }
+
+export const logout = async () => {
+  await apiFetch('api/auth/logout', {
+    method: 'POST'
+  })
+}
