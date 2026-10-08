@@ -1,5 +1,5 @@
 INSERT app_user (first_name, last_name, email, password_hash) VALUES 
-('John', 'Doe', 'admin@private-place.fr', '*******');
+('John', 'Doe', 'admin@private-place.fr', '$2y$10$MaowmX6dd9Pw4Jt7R/fkFe/5mIh61AlzJULaNFDulwG8us3R.Fk/m');
 
 INSERT category (category_name, description) VALUES 
 ('Rustique', 'TBD'),
