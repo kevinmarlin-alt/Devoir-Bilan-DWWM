@@ -23,3 +23,14 @@ export const loginHandler = async (req, res) => {
 
     res.status(200).json({ user })
  }
+
+ export const logoutHandler = (req, res) => {
+    res.clearCookie('pp_token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/'
+    })
+
+    res.sendStatus(204);
+ }
