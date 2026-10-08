@@ -1,8 +1,8 @@
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import cors from 'cors';
 import { errorHandler } from './middlewares/errorHandler.js';
-import sequelize from './db/database.js'
 import { AppUser } from './models/AppUser.js';
 import { loginHandler } from './controllers/auth.controller.js'
 
@@ -10,10 +10,11 @@ export const createApp = () => {
 
     const app = express();
 
-    app.use(morgan("dev"))
+    app.use(cookieParser());
+    app.use(morgan("dev"));
     app.use(express.json());
     app.use(cors({
-        origin: '*' //process.env.CORS_ORIGIN
+        origin: process.env.CORS_ORIGIN
     }))
 
     
@@ -26,7 +27,7 @@ export const createApp = () => {
         }
     });
 
-    app.get('/api/login', loginHandler);
+    app.post('/api/auth/login', loginHandler);
 
     app.use(errorHandler);
 

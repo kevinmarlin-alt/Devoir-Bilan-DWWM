@@ -9,10 +9,21 @@ async function submitHandle(event) {
     const formElement = document.querySelector('form');
     const [email, password]  = new FormData(formElement).values();
     
-    console.log(email, password)
+    const playload = {
+            email,
+            password
+        };
 
     try {
-        const response = await fetch('http://localhost:3000/api/login');
+        const response = await fetch('http://localhost:3000/api/auth/login',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(playload)
+            }
+        );
         
         if(!response.ok) {
             throw new Error('Erreur type 2')
@@ -40,7 +51,7 @@ async function submitHandle(event) {
                 type="email" 
                 name="email" 
                 id="email"
-                value="exemple@mail.com"
+                value="admin@private-place.fr"
             >
         </div>
         <div>
