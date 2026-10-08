@@ -21,6 +21,7 @@ async function submitHandle(event) {
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify(playload)
             }
         );
