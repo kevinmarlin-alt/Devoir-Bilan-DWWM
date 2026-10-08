@@ -5,6 +5,8 @@ const info = ref('');
 
 async function submitHandle(event) {
     event.preventDefault();
+
+    info.value = 'Connexion en cours...';
     
     const formElement = document.querySelector('form');
     const [email, password]  = new FormData(formElement).values();
@@ -26,13 +28,19 @@ async function submitHandle(event) {
             }
         );
         
+        const data = await response.json();
+
         if(!response.ok) {
-            throw new Error('Erreur type 2')
+            if (data.error?.code === 'INVALID_CREDENTIALS') {
+                info.value = 'Adresse e-mail ou mot de passe incorrect';
+                return
+            }
+
+            info.value = 'Une erreur est survenue'
+            return
         }
 
-        const data = await response.json();
-        console.log(data)
-        info.value = data.message
+        info.value = 'Connexion réussie';
 
     } catch (error) {
         info.value = error.message
