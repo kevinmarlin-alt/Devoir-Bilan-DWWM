@@ -1,10 +1,11 @@
 import jwt from 'jsonwebtoken';
 import { AppError } from '../errors/AppError.js';
+import { verifyAuthToken } from '../services/auth.service.js';
 
 export const authenticate = (req, res, next) => {
-    const pp_token = req.cookies.pp_token;
+    const token = req.cookies.pp_token;
 
-    if(!pp_token) {
+    if(!token) {
         throw new AppError(
             'Authentification requise',
             {
@@ -15,13 +16,7 @@ export const authenticate = (req, res, next) => {
     }
 
     try {
-        const decodedToken = jwt.verify(
-            pp_token,
-            process.env.JWT_SECRET
-        );
-
-        req.user = decodedToken;
-
+        req.user = verifyAuthToken(token);
         next();
 
     } catch (error) {

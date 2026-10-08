@@ -1,4 +1,4 @@
-import { authenticateUser } from "../services/auth.service.js";
+import { authenticateUser, createAuthToken } from "../services/auth.service.js";
 import { createAuthToken } from "../services/token.service.js";
 
 export const loginHandler = async (req, res) => {
@@ -22,5 +22,5 @@ export const loginHandler = async (req, res) => {
  export const currentUserHandler = (req, res) => {
     const user = req.user;
 
-    res.status(200).json( user )
+    res.status(200).json({ user })
  }

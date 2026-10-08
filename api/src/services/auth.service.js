@@ -33,3 +33,13 @@ export const authenticateUser = async (email, password) => {
         email: user.email
     };
 }
+
+export const createAuthToken = (user) => {
+    return jwt.sign(user, process.env.JWT_SECRET, {
+            expiresIn: '8h'
+        });
+};
+
+export const verifyAuthToken = (token) => {
+    return jwt.verify(token, process.env.JWT_SECRET)
+}
