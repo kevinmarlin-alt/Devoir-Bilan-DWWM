@@ -1,5 +1,8 @@
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const info = ref('');
 
@@ -41,6 +44,8 @@ async function submitHandle(event) {
         }
 
         info.value = 'Connexion réussie';
+
+        router.push({ name: 'dashboard_home' });
 
     } catch (error) {
         info.value = error.message
