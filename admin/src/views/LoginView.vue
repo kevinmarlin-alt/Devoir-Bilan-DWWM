@@ -1,47 +1,29 @@
 <script setup>
 import { login } from '@/services/auth.service';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router'
 
 import Footer from '@/components/Footer.vue';
 
-const router = useRouter()
+const router = useRouter();
+
+const email = ref('');
+const password = ref('');
 
 const info = ref({
     success: true,
     message: ''
 });
 
-const inputs = document.querySelectorAll('input');
-inputs.forEach(input => {
-    input.addEventListener('change', () => {
-        
-    })
+const isLoginDisabled = computed(() => {
+    return !email.value.trim() || !password.value
 })
 
-function inputChange() {
-    const inputs = document.querySelectorAll('input');
-    console.log(inputs)
-    inputs.forEach(input => console.log(input.value))
-    let isValues = inputs.some((input) => input.value.length === 0)
-    //console.log(isValues)
-}
-
-function handleDisable() {
-    const inputs = document.querySelectorAll('input');
-
-}
-
-async function submitHandle(event) {
-    event.preventDefault();
-
+async function submitHandle() {
     info.value.success = true;
     info.value.message = 'Connexion en cours...';
-    
-    const formElement = document.querySelector('form');
-    const [email, password]  = new FormData(formElement).values();
-    
-    const result = await login(email, password);
+
+    const result = await login(email.value, password.value);
 
     console.log(result)
 
@@ -70,28 +52,41 @@ async function submitHandle(event) {
                     height="600"
                 >
                 <p>Espace administrateur</p>
-                <form action="#" @submit.prevent="submitHandle" @change="inputChange">
+                <form action="#" @submit.prevent="submitHandle">
                     <div class="input-group">
                         <label for="email">Adresse e-mail</label>
                         <input
+                            v-model="email"
                             type="email"
                             name="email"
                             id="email"
                             placeholder="exemple@email.fr"
-                            value=""
+                            required
                         >
                     </div>
                     <div class="input-group">
                         <label for="password">Mot de passe</label>
                         <input
+                            v-model="password"
                             type="password"
                             name="password"
                             id="password"
-                            
+                            required
                         >
                     </div>
-                    <button type="submit" class="button-primary" :disabled="handleDisable">Connexion</button>
-                    <span :class="`info-connexion ${info.success ? 'green' : 'red'}`">{{ info.message }}</span>
+                    <button 
+                        type="submit" 
+                        class="button-primary" 
+                        :disabled="isLoginDisabled"
+                    >
+                        Connexion
+                    </button>
+
+                    <span 
+                        :class="`info-connexion ${info.success ? 'green' : 'red'}`"
+                    >
+                        {{ info.message }}
+                    </span>
                 </form>
             </div>
             <Footer/>
