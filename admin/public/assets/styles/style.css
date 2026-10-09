@@ -33,11 +33,16 @@
   --white: #ffffff;
   --disable: #E1E1E1;
 
+  --label-color: var(--champagne);
+  --button-color-disable: var(--taupe-warm);
+
   /* Spacer */
   --space-small: 0.5rem;
   --space-medium: 1rem;
   --space-large: 1.5rem;
   --letter-space: 0.7em;
+  --app-spacer: 2rem;
+  --form-spacer: 1.5rem;
 
   /* Radius */
   --radius-small: 0.25em;
@@ -54,6 +59,7 @@
   --baseline-color: var(--champagne);
   --button-background-primary: var(--champagne);
   --button-background-secondary: var(--black);
+  --button-background-disable: var(--disable);
   --card-success-background: var(--green-dark);
   --card-failed-background: var(--red-dark);
 }
@@ -70,11 +76,30 @@ h1 {
   font-size: 3rem;
 }
 
+form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--form-spacer);
+  width: 100%;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-family: "Baskervville Regular", serif;
+  font-size: 0.8rem;
+  color: var(--label-color);
+  margin-bottom: var(--space-small);
+}
+
 input {
   background-color: var(--input-background);
   border-radius: var(--radius-medium);
   padding: var(--space-small) var(--space-large);
-  border: 1px solid var(--input-border-color)
+  border: 1px solid var(--input-border-color);
 }
 
 button {
@@ -92,6 +117,12 @@ button:hover {
   background-color: var(--button-background-primary);
   text-transform: uppercase;
   color: var(--black-900);
+}
+
+.button-primary:disabled {
+  background-color: var(--button-background-disable);
+  color: var(--button-color-disable);
+  cursor: default;
 }
 
 .button-secondary {
