@@ -3,24 +3,56 @@ import { login } from '@/services/auth.service';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router'
 
+import Footer from '@/components/Footer.vue';
+
 const router = useRouter()
 
-const info = ref('');
+const info = ref({
+    success: true,
+    message: ''
+});
+
+const inputs = document.querySelectorAll('input');
+inputs.forEach(input => {
+    input.addEventListener('change', () => {
+        
+    })
+})
+
+function inputChange() {
+    const inputs = document.querySelectorAll('input');
+    console.log(inputs)
+    inputs.forEach(input => console.log(input.value))
+    let isValues = inputs.some((input) => input.value.length === 0)
+    //console.log(isValues)
+}
+
+function handleDisable() {
+    const inputs = document.querySelectorAll('input');
+
+}
 
 async function submitHandle(event) {
     event.preventDefault();
 
-    info.value = 'Connexion en cours...';
+    info.value.success = true;
+    info.value.message = 'Connexion en cours...';
     
     const formElement = document.querySelector('form');
     const [email, password]  = new FormData(formElement).values();
     
     const result = await login(email, password);
 
+    console.log(result)
+
     if(!result.success) {
-        info.value = 'Adresse e-mail ou mot de passe incorrect'
+        info.value.success = false;
+        info.value.message = 'Adresse e-mail ou mot de passe incorrect'
         return
     }
+
+    info.value.success = true;
+    info.value.message = 'Connexion réussie...';
 
     router.push({ name: 'dashboard_home' });
 }
@@ -28,33 +60,86 @@ async function submitHandle(event) {
 </script>
 
 <template>
-    <form action="#" @submit.prevent="submitHandle">
-        <div>
-            <label for="email">Adresse e-mail</label>
-            <input 
-                type="email" 
-                name="email" 
-                id="email"
-                value="admin@private-place.fr"
-            >
+    <div class="login-page">
+        <div class="login">
+            <div class="login__content">
+                <img
+                    src="/assets/images/logo-brand.png"
+                    alt="Logo de Private Place"
+                    width="1920"
+                    height="600"
+                >
+                <p>Espace administrateur</p>
+                <form action="#" @submit.prevent="submitHandle" @change="inputChange">
+                    <div class="input-group">
+                        <label for="email">Adresse e-mail</label>
+                        <input
+                            type="email"
+                            name="email"
+                            id="email"
+                            placeholder="exemple@email.fr"
+                            value=""
+                        >
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Mot de passe</label>
+                        <input
+                            type="password"
+                            name="password"
+                            id="password"
+                            
+                        >
+                    </div>
+                    <button type="submit" class="button-primary" :disabled="handleDisable">Connexion</button>
+                    <span :class="`info-connexion ${info.success ? 'green' : 'red'}`">{{ info.message }}</span>
+                </form>
+            </div>
+            <Footer/>
         </div>
-        <div>
-            <label for="password">Mot de passe</label>
-            <input 
-                type="password" 
-                name="password" 
-                id="password"
-                value="test"
-            >
-        </div>
-        <button type="submit">Se connecter</button>
-        <span class="info-form">{{ info }}</span>
-    </form>
+    </div>
 
 </template>
 
-<style scoped>
-    div {
-        display: flex;
-    }
+<style>
+
+.login-page {
+    display: flex;
+    flex-direction: row-reverse;
+    min-height: 100vh;
+    background-image: url("/assets/images/connexion-background.jpg");
+    background-size: cover;
+}
+
+.login {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 600px;
+    padding: 0 100px;
+    background-color: var(--app-background);
+    border-left: 2px solid var(--champagne);
+}
+
+.login__content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: var(--app-spacer);
+}
+
+.info-connexion {
+    font-size: 0.7rem;
+    color: var(--red-soft);
+}
+
+.green {
+    color: var(--green-soft);
+}
+.red {
+    color: var(--red-soft);
+}
+    
 </style>
