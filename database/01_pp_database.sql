@@ -5,7 +5,7 @@ CREATE DATABASE private_place_db;
 
 DROP USER IF EXISTS 'pp_admin'@'localhost';
 
-CREATE USER IF NOT EXISTS 'pp_admin'@'localhost' IDENTIFIED BY '********';
+CREATE USER IF NOT EXISTS 'pp_admin'@'localhost' IDENTIFIED BY '******';
 GRANT SELECT, INSERT, UPDATE, DELETE ON private_place_db.* TO 'pp_admin'@'localhost';
 
 FLUSH PRIVILEGES;
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS image (
 
 CREATE TABLE IF NOT EXISTS place_exploitation_type (
     place_id INT NOT NULL,
-    exploitation_type_id VARCHAR(50) NOT NULL,
+    exploitation_type_id INT NOT NULL,
 
     PRIMARY KEY (place_id, exploitation_type_id),
 
