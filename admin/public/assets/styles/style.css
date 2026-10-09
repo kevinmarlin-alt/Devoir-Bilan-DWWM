@@ -1,9 +1,136 @@
+@font-face {
+  font-family: "Baskervville Regular";
+  src: 
+    local("Baskervville"),
+    url("/assets/fonts/Baskervville-Regular.woff") format("woff"); 
+}
+
+@font-face {
+  font-family: "Montserrat Regular";
+  src: 
+    local("Baskervville"),
+    url("/assets/fonts/Montserrat-Regular.woff") format("woff"); 
+}
+
 :root {
-    --background-color: #1A1A1A;
-    --font-color: #F7F4EE;
+  /* Color */
+  --black: #111111;
+  --black-900: #1A1A1A;
+  --black-700: #202020;
+  --black-500: #343434;
+  --ivory: #F7F4EE;
+  --champagne: #E5CBA5;
+  --champagne-light: #FFEBCC;
+  --taupe-warm: #8F877D;
+  --grey-light: #B9B7B2;
+  --green-soft: #88BB88;
+  --green-dark: #1E351E;
+  --amber-warm: #D6A34C;
+  --amber-dark: #322104;
+  --red-soft: #E07A74;
+  --red-dark: #391412;
+  --red-dark: #391412;
+  --white: #ffffff;
+  --disable: #E1E1E1;
+
+  --label-color: var(--champagne);
+  --button-color-disable: var(--taupe-warm);
+
+  /* Spacer */
+  --space-small: 0.5rem;
+  --space-medium: 1rem;
+  --space-large: 1.5rem;
+  --letter-space: 0.7em;
+  --app-spacer: 2rem;
+  --form-spacer: 1.5rem;
+
+  /* Radius */
+  --radius-small: 0.25em;
+  --radius-medium: 0.5em;
+  --radius-large: 1em;
+
+  /* Background */
+  --app-background: var(--black-900);
+  --app-color: var(--ivory);
+  --card-background: var(--black-700);
+  --input-background: var(--black-500);
+  --input-border-color: var(--taupe-warm);
+  --select-background: var(--black);
+  --baseline-color: var(--champagne);
+  --button-background-primary: var(--champagne);
+  --button-background-secondary: var(--black);
+  --button-background-disable: var(--disable);
+  --card-success-background: var(--green-dark);
+  --card-failed-background: var(--red-dark);
 }
 
 body {
-  background-color: var(--background-color);
-  color: var(--font-color);
+  background-color: var(--app-background);
+  color: var(--app-color);
+  font-family: "Montserrat Regular", sans-serif;
+  font-size: 1rem;
+}
+
+h1 {
+  font-family: "Baskervville Regular", serif;
+  font-size: 3rem;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--form-spacer);
+  width: 100%;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-family: "Baskervville Regular", serif;
+  font-size: 0.8rem;
+  color: var(--label-color);
+  margin-bottom: var(--space-small);
+}
+
+input {
+  background-color: var(--input-background);
+  border-radius: var(--radius-medium);
+  padding: var(--space-small) var(--space-large);
+  border: 1px solid var(--input-border-color);
+}
+
+button {
+  padding: var(--space-small) var(--space-large);
+  border-radius: var(--radius-medium);
+}
+
+button:hover {
+  cursor: pointer;
+}
+
+.button-primary {
+  padding: var(--space-medium) var(--space-large);
+  letter-spacing: var(--letter-space);
+  background-color: var(--button-background-primary);
+  text-transform: uppercase;
+  color: var(--black-900);
+}
+
+.button-primary:disabled {
+  background-color: var(--button-background-disable);
+  color: var(--button-color-disable);
+  cursor: default;
+}
+
+.button-secondary {
+  background-color: var(--button-background-secondary);
+  border: 1px solid var(--input-border-color)
+}
+
+.baseline {
+  letter-spacing: var(--letter-space);
+  color: var(--baseline-color);
 }
