@@ -119,6 +119,8 @@ const navHandler = (event) => {
 .app-body {
     grid-area: main;
     display: flex;
+    padding-left: 2.5rem;
+
 }
 
 
