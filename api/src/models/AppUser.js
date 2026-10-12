@@ -25,7 +25,10 @@ AppUser.init(
             type: DataTypes.STRING(255),
             allowNull: false,
             unique: true,
-            field: 'email'
+            field: 'email',
+            validate: {
+                isEmail: true
+            }
         },
         passwordHash: {
             type: DataTypes.STRING(255),

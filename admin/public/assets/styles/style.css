@@ -43,6 +43,7 @@
   --letter-space: 0.7em;
   --app-spacer: 2rem;
   --form-spacer: 1.5rem;
+  --nav-spacer: 2rem;
 
   /* Radius */
   --radius-small: 0.25em;
@@ -59,6 +60,7 @@
   --baseline-color: var(--champagne);
   --button-background-primary: var(--champagne);
   --button-background-secondary: var(--black);
+  --button-background-secondary-hover: var(--black-500);
   --button-background-disable: var(--disable);
   --card-success-background: var(--green-dark);
   --card-failed-background: var(--red-dark);
@@ -69,6 +71,10 @@ body {
   color: var(--app-color);
   font-family: "Montserrat Regular", sans-serif;
   font-size: 1rem;
+}
+
+#app {
+    min-height: 100vh;
 }
 
 h1 {
@@ -128,6 +134,10 @@ button:hover {
 .button-secondary {
   background-color: var(--button-background-secondary);
   border: 1px solid var(--input-border-color)
+}
+
+.button-secondary:hover {
+  background-color: var(--button-background-secondary-hover);
 }
 
 .baseline {
