@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import LoginView from '@/views/LoginView.vue';
-import DashboardTemplate from '@/templates/DashboardTemplate.vue';
+import DashboardLayout from '@/layouts/DashboardLayout.vue';
 import HomeView from '@/views/HomeView.vue';
 import { getAuthenticatedUser } from '@/services/auth.service';
 
@@ -19,7 +19,7 @@ const router = createRouter({
     },
     {
       path: '/admin',
-      component: DashboardTemplate,
+      component: DashboardLayout,
       meta: { requiresAuth: true },
       children: [
         {
