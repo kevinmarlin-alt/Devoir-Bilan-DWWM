@@ -1,14 +1,13 @@
 import { apiFetch } from "./api.service.js"
-import { toFormateDateTime } from "@/utilities/date.js";
 
 export const getAll = async () => {
-    const response = await apiFetch('api/categories')
+    const response = await apiFetch('api/admin/categories')
+
+    if (!response.ok) {
+        throw new Error('Impossible de récupérer les catégories')
+    }
     
     const { categories } = await response.json();
-
-    categories.forEach(category => {
-        category.createdAt = toFormateDateTime(new Date(category.createdAt)) 
-    });
 
     return categories;
 }
