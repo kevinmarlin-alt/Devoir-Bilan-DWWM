@@ -35,6 +35,7 @@
 
   --label-color: var(--champagne);
   --button-color-disable: var(--taupe-warm);
+  --metrics-value-color: var(--champagne);
 
   /* Spacer */
   --space-small: 0.5rem;
@@ -50,12 +51,17 @@
   --radius-medium: 0.5em;
   --radius-large: 1em;
 
+  /* Border */
+  --input-border-color: var(--taupe-warm);
+  --metrics-border-color: var(--black-500);
+  --table-border-color: var(--black-500);
+
   /* Background */
   --app-background: var(--black-900);
   --app-color: var(--ivory);
   --card-background: var(--black-700);
+  --table-background: var(--black-700);
   --input-background: var(--black-500);
-  --input-border-color: var(--taupe-warm);
   --select-background: var(--black);
   --baseline-color: var(--champagne);
   --button-background-primary: var(--champagne);
@@ -64,6 +70,7 @@
   --button-background-disable: var(--disable);
   --card-success-background: var(--green-dark);
   --card-failed-background: var(--red-dark);
+  --metric-background: var(--black-700)
 }
 
 body {
@@ -101,16 +108,12 @@ label {
   margin-bottom: var(--space-small);
 }
 
-input {
+input, select {
   background-color: var(--input-background);
   border-radius: var(--radius-medium);
   padding: var(--space-small) var(--space-large);
   border: 1px solid var(--input-border-color);
-}
-
-button {
-  padding: var(--space-small) var(--space-large);
-  border-radius: var(--radius-medium);
+  height: 100%;
 }
 
 button:hover {
@@ -119,10 +122,16 @@ button:hover {
 
 .button-primary {
   padding: var(--space-medium) var(--space-large);
+  border-radius: var(--radius-medium);
   letter-spacing: var(--letter-space);
   background-color: var(--button-background-primary);
   text-transform: uppercase;
   color: var(--black-900);
+  font-size: .6rem;
+}
+
+.button-primary:hover {
+  background-color: var(--champagne-light);
 }
 
 .button-primary:disabled {
@@ -132,12 +141,68 @@ button:hover {
 }
 
 .button-secondary {
+  padding: var(--space-small) var(--space-large);
+  border-radius: var(--radius-medium);
   background-color: var(--button-background-secondary);
   border: 1px solid var(--input-border-color)
 }
 
 .button-secondary:hover {
   background-color: var(--button-background-secondary-hover);
+}
+
+.button-light {
+  display: inline-block;
+  font-size: 0.75rem;
+  text-decoration: underline;
+  text-wrap: nowrap;
+}
+.button-light:hover {
+  color: var(--champagne);
+}
+
+.button-table:hover {
+  color: var(--champagne);
+}
+
+.button-table-delete:hover {
+  color: var(--red-soft);
+}
+
+/* Table */
+table {
+  background-color: var(--table-background);
+  border: 1px solid var(--table-border-color);
+  border-radius: var(--radius-medium);
+  padding: var(--space-large);
+  width: 100%;
+  /* font-size: 0.8rem; */
+}
+
+table tr td:last-of-type,
+table tr th:last-of-type {
+  text-align: end;
+}
+
+th {
+  font-family: "Montserrat Regular", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-space);
+  font-size: 0.6rem;
+  text-align: start;
+  padding-bottom: 1rem;
+  padding-right: 1rem;
+}
+
+td {
+  border-top: 2px solid var(--table-border-color);
+  min-width: 100px;
+  padding: 1rem 0;
+  padding-right: 1rem;
+}
+
+table button {
+  padding: 0 .5rem;
 }
 
 .baseline {

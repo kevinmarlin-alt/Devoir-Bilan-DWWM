@@ -1,0 +1,182 @@
+<script setup>
+import { getAll } from '@/services/categories.service.js';
+import MetricsCard from '../sharedViews/MetricsCard.vue';
+import Table from '../sharedViews/Table.vue';
+import { computed, ref } from 'vue';
+import { toFormateDateTime } from '@/utilities/date.js';
+
+const data = ref([]);
+const loading = ref(true);
+const error = ref(null);
+
+const search = ref('');
+const statusFilter = ref('all');
+
+const filteredCategories = computed(() => {
+    return data.value.filter(category => {
+        const matchName = category.categoryName
+            .toLowerCase()
+            .includes(search.value.trim().toLowerCase());
+        
+        const matchStatus = 
+            statusFilter.value === 'all'
+            || statusFilter.value === 'active' && category.isActive
+            || statusFilter.value === 'inactive' && !category.isActive;
+
+        return matchName && matchStatus
+    })
+})
+
+const total = computed(() => data.value.length);
+const active = computed(() => {
+    return data.value.filter(category => category.isActive).length
+});
+const inactive = computed(() => {
+    return total.value - active.value
+});
+
+function resetFilters() {
+    search.value = '';
+    statusFilter.value = 'all';
+}
+
+async function getAllCategories() {
+    try {
+        data.value = await getAll();
+    } catch (error) {
+        error.value = 'Impossible de charger les catégories'
+    } finally {
+        loading.value = false
+    }
+}
+
+getAllCategories();
+
+const headers = [
+    'Nom',
+    'Nombre de lieux',
+    'Dernière mise à jour'
+]
+
+
+
+</script>
+
+<template>
+    
+    <div class="main-header">
+        <h1>Gestion des catégories</h1>
+        <button v-if="data.length > 0" class="button-primary">+ nouvelle catégorie</button>
+    </div>
+    <p>Les catégories permettent d’organiser le catalogue de lieux et facilitent leur classification.</p>
+    <div class="main-metrics" >
+        <MetricsCard
+            description="Total"
+            :value="total"
+        />
+        <MetricsCard
+            description="Actives"
+            :value="active"
+        />
+        <MetricsCard
+            description="Inactives"
+            :value="inactive"
+        />
+    </div>
+    <p v-if="loading">
+        Chargement...
+    </p>
+    <p v-else-if="error">
+        {{ error }}
+    </p>
+    <form action="#" method="GET" class="main-form-search" v-if="data.length > 0">
+        <div class="input-group form-search">
+            <label for="search">Recherche</label>
+            <input
+                v-model="search"
+                type="search"
+                name="search"
+                id="search"
+                placeholder="Rechercher par nom..."
+            >
+        </div>
+        <div class="input-group form-filter">
+            <label for="status">Status</label>
+            <select id="status" v-model="statusFilter">
+                <option value="all">Tous</option>
+                <option value="active">Actives</option>
+                <option value="inactive">Inactives</option>
+            </select>
+        </div>
+        <button 
+            type="button" 
+            class="button-light"
+            @click="resetFilters"
+        >
+            Réinitialiser les filtres
+        </button>
+    </form>
+    <Table v-if="filteredCategories.length > 0"
+        :headers="headers"
+        :data="filteredCategories"
+        row-key="categoryId"
+    >
+        <template #column0="{ entity }">
+            {{ entity.categoryName }}
+        </template>
+        <template #column1="{ entity }">
+            TBD
+        </template>
+        <template #column2="{ entity }">
+            {{ toFormateDateTime(new Date(entity.updatedAt  ?? entity.createdAt))  }}
+        </template>
+        <template #actions="{ entity }">
+            <button class="button-table" @click="editCategory(entity)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-line preview-icon">
+                    <path d="M13 21h8"/><path d="m15 5 4 4"/>
+                    <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
+                </svg>
+            </button>
+            <button class="button-table-delete" @click="deleteCategory(entity)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash preview-icon">
+                    <path d="M10 11v6"/>
+                    <path d="M14 11v6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+                    <path d="M3 6h18"/>
+                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+            </button>
+        </template>
+    </Table>
+    <p v-if="data.length > 0  && filteredCategories.length === 0">
+        Auncune catégorie ne correspond aux filtres.
+    </p>
+
+    <div  v-if="data.length === 0">
+        <p>Aucune catégorie actuellement</p>
+        <button class="button-primary">créer une nouvelle catégorie</button>
+    </div>
+</template>
+
+<style>
+
+.form-search {
+    width: 100%;
+}
+
+.form-filter {
+    min-width: 150px;
+    height: 100%;
+}
+
+.no-data-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    height: 100%;
+    
+}
+
+</style>

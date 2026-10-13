@@ -71,11 +71,9 @@ const navHandler = (event) => {
                 Déconnexion
             </button>
         </aside>
-        <div class="app-body">
-            <main class="app-content">
-                <RouterView />
-            </main>
-        </div>
+        <main class="app-main">
+            <RouterView />
+        </main>
         <footer class="app-footer">
             <p>PRIVATE PLACE</p>
             <small>Copyright Kevin Marlin - <time datetime="2026">2026</time></small>
@@ -116,13 +114,13 @@ const navHandler = (event) => {
     border-right: 1px solid var(--champagne);
 }
 
-.app-body {
+.app-main {
     grid-area: main;
     display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
     padding-left: 2.5rem;
-
 }
-
 
 .sidebar-nav {
     display: flex;
@@ -141,6 +139,24 @@ const navHandler = (event) => {
 }
 .nav-item svg {
     margin-right: 1rem;
+}
+
+.main-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.main-metrics {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.main-form-search {
+    display: flex;
+    flex-direction: row;
+    align-items: end;
+    justify-content: stretch;
 }
 
 .app-footer {
