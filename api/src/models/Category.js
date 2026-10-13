@@ -23,18 +23,18 @@ Category.init(
             field: 'description'
         },
         isActive: {
-            type: DataTypes.STRING(255),
+            type: DataTypes.BOOLEAN,
             allowNull: false,
-            unique: true,
+            defaultValue: true,
             field: 'is_active'
         },
         createdAt: {
-            type: DataTypes.DATE(),
+            type: DataTypes.DATE,
             allowNull: false,
             field: 'created_at'
         },
         updatedAt: {
-            type: DataTypes.DATE(),
+            type: DataTypes.DATE,
             allowNull: false,
             field: 'updated_at'
         }
