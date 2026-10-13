@@ -5,6 +5,7 @@ import DashboardLayout from '@/layouts/DashboardLayout.vue';
 import HomeView from '@/views/HomeView.vue';
 import { getAuthenticatedUser } from '@/services/auth.service';
 import CategoriesHomeView from '@/views/categories/CategoriesHomeView.vue';
+import CategoriesCreateView from '@/views/categories/CategoriesCreateView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +33,11 @@ const router = createRouter({
           path: 'categories',
           name: 'categories-home',
           component: CategoriesHomeView
+        },
+        {
+          path: 'categories/add',
+          name: 'categories-create',
+          component: CategoriesCreateView
         }
 
       ]

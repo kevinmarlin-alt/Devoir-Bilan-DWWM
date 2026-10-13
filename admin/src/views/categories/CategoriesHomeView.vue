@@ -66,7 +66,9 @@ const headers = [
     
     <div class="main-header">
         <h1>Gestion des catégories</h1>
-        <button v-if="data.length > 0" class="button-primary">+ nouvelle catégorie</button>
+        <RouterLink to="/admin/categories/add">
+            <button v-if="data.length > 0" class="button-primary">+ nouvelle catégorie</button>
+        </RouterLink>
     </div>
     <p>Les catégories permettent d’organiser le catalogue de lieux et facilitent leur classification.</p>
     <div class="main-metrics" >

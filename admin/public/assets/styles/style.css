@@ -96,6 +96,8 @@ form {
   width: 100%;
 }
 
+/* Input */
+
 .input-group {
   display: flex;
   flex-direction: column;
@@ -108,7 +110,7 @@ label {
   margin-bottom: var(--space-small);
 }
 
-input, select {
+input, select, textarea {
   background-color: var(--input-background);
   border-radius: var(--radius-medium);
   padding: var(--space-small) var(--space-large);
@@ -116,6 +118,7 @@ input, select {
   height: 100%;
 }
 
+/* Button */
 button:hover {
   cursor: pointer;
 }
