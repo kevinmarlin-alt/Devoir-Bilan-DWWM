@@ -2,24 +2,20 @@
 import { getAll } from '@/services/categories.service.js';
 import MetricsCard from '../sharedViews/MetricsCard.vue';
 import Table from '../sharedViews/Table.vue';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const data = ref([]);
 
-const total = ref('_');
-const active = ref('_');
-const disable = ref('_');
+const total = computed(() => data.value.length);
+const active = computed(() => {
+    return data.value.filter(category => category.isActive).length
+});
+const inactive = computed(() => {
+    return total.value - active.value
+});
 
 async function getAllCategories() {
     const categories = await getAll();
-    data.value = categories;
-    total.value = categories.length;
-    active.value = 0
-    categories.forEach(entity => {
-        if(entity.isActive === 1) active.value++
-    });
-    disable.value = total.value - active.value
-
 }
 
 getAllCategories();
@@ -52,7 +48,7 @@ const headers = [
         />
         <MetricsCard
             description="Inactives"
-            :value="disable"
+            :value="inactive"
         />
     </div>
     <form action="#" method="GET" class="main-form-search" v-if="data.length > 0">
