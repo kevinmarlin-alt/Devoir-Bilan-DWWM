@@ -9,6 +9,24 @@ const data = ref([]);
 const loading = ref(true);
 const error = ref(null);
 
+const search = ref('');
+const statusFilter = ref('all');
+
+const filteredCategories = computed(() => {
+    return data.value.filter(category => {
+        const matchName = category.categoryName
+            .toLowerCase()
+            .includes(search.value.trim().toLowerCase());
+        
+        const matchStatus = 
+            statusFilter.value === 'all'
+            || statusFilter.value === 'active' && category.isActive
+            || statusFilter.value === 'inactive' && !category.isActive;
+
+        return matchName && matchStatus
+    })
+})
+
 const total = computed(() => data.value.length);
 const active = computed(() => {
     return data.value.filter(category => category.isActive).length
@@ -16,6 +34,11 @@ const active = computed(() => {
 const inactive = computed(() => {
     return total.value - active.value
 });
+
+function resetFilters() {
+    search.value = '';
+    statusFilter.value = 'all';
+}
 
 async function getAllCategories() {
     try {
@@ -68,26 +91,34 @@ const headers = [
     </p>
     <form action="#" method="GET" class="main-form-search" v-if="data.length > 0">
         <div class="input-group form-search">
-            <label for="category_id">Recherche</label>
+            <label for="search">Recherche</label>
             <input
+                v-model="search"
                 type="search"
-                name="category_id"
-                id="category_id"
+                name="search"
+                id="search"
                 placeholder="Rechercher par nom..."
             >
         </div>
         <div class="input-group form-filter">
-            <label for="is_active">Status</label>
-            <select name="is_active" id="is_active">
-                <option value="">Active</option>
-                <option value="">Inactive</option>
+            <label for="status">Status</label>
+            <select id="status" v-model="statusFilter">
+                <option value="all">Tous</option>
+                <option value="active">Actives</option>
+                <option value="inactive">Inactives</option>
             </select>
         </div>
-        <button type="reset" class="button-light">Réinitialiser les filtres</button>
+        <button 
+            type="button" 
+            class="button-light"
+            @click="resetFilters"
+        >
+            Réinitialiser les filtres
+        </button>
     </form>
-    <Table v-if="data.length > 0"
+    <Table v-if="filteredCategories.length > 0"
         :headers="headers"
-        :data="data"
+        :data="filteredCategories"
         row-key="categoryId"
     >
         <template #column0="{ entity }">
@@ -117,6 +148,9 @@ const headers = [
             </button>
         </template>
     </Table>
+    <p v-if="data.length > 0  && filteredCategories.length === 0">
+        Auncune catégorie ne correspond aux filtres.
+    </p>
 
     <div  v-if="data.length === 0">
         <p>Aucune catégorie actuellement</p>
