@@ -17,7 +17,7 @@ defineProps({
     </NotificationCardLayout>
 </template>
 
-<style>
+<style scoped>
 .notification-card svg {
     color: var(--champagne)
 }

@@ -18,13 +18,15 @@ defineProps({
         <p class="notification-title">{{ title }}</p>
         <p>Une erreur est survenu pendant lors de l’enregistrement.</p>
         
-            <button class="button-primary">réessayer</button>
+        <button class="button-primary">réessayer</button>
+        <RouterLink to="/admin/categories">
             <button class="button-secondary">Annuler</button>
+        </RouterLink>
        
     </NotificationCardLayout>
 </template>
 
-<style>
+<style scoped>
 .notification-card svg {
     color: var(--red-soft)
 }

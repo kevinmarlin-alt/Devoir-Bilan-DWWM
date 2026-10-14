@@ -1,25 +1,16 @@
 <script setup>
 import { computed, ref } from 'vue';
+import inProgressCard from '../sharedViews/inProgressCard.vue';
+import errorCard from '../sharedViews/errorCard.vue';
+import successCard from '../sharedViews/successCard.vue';
 
 const name = ref('');
 const description = ref('');
-
-const registrationStatus = ref('inProgress')
+const registrationStatus = ref('success');
 
 const  isCreateButtonDisable = computed(() => {
     return !name.value.trim() || !description.value.trim()
 });
-
-function createHandler() {
-    try {
-        registrationStatus.value = 'Enregistrement en cours...'
-        
-    } catch (error) {
-        registrationStatus.value = 'Non enregistré'
-    } finally {
-
-    }
-}
 
 </script>
 
@@ -56,13 +47,23 @@ function createHandler() {
                 />
             </div>
         </form>
-        <div class="form-info" v-if="registrationStatus === 'inProgress'">
-            <p>Enregistrement en cours...</p>
-        </div>
+        <inProgressCard
+            v-if="registrationStatus === 'inProgress'"
+            title="Enregistrement en cours..."
+        />
+        <errorCard
+            v-else-if="registrationStatus === 'error'"
+            title="Echec de l'enregistrement"
+        />
+        <successCard
+            v-else-if="registrationStatus === 'success'"
+            title="La nouvelle catégorie à bien été enregistrée"
+        />
+        
     </div>
     <div class="button-group">
         <div class="registration-status">
-            <spam></spam>{{ registrationStatus }}
+            <span></span>Non enregistrée
         </div>
         <RouterLink to="/admin/categories">
             <button class="button-secondary">
@@ -87,27 +88,6 @@ function createHandler() {
 }
 form {
     min-width: 800px;
-}
-
-.form-info {
-    width: 100%;
-    background-color: var(--card-background);
-    border-radius: var(--radius-medium);
-    border: 1px solid var(--black-500);
-    font-family: "Baskervville Regular", serif;
-    font-size: 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-
-.button-group {
-    align-self: end;
-    display: flex;
-    align-items: center;
-    gap: 2rem;
 }
 
 .button-secondary {
