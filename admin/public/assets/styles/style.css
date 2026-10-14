@@ -55,6 +55,10 @@
   --input-border-color: var(--taupe-warm);
   --metrics-border-color: var(--black-500);
   --table-border-color: var(--black-500);
+  --card-border: var(--black-500);
+  --success-border: var(--green-soft);
+  --error-border: var(--red-soft);
+  --warning-border: var(--amber-warm);
 
   /* Background */
   --app-background: var(--black-900);
@@ -70,7 +74,10 @@
   --button-background-disable: var(--disable);
   --card-success-background: var(--green-dark);
   --card-failed-background: var(--red-dark);
-  --metric-background: var(--black-700)
+  --metric-background: var(--black-700);
+  --success-background: var(--green-dark);
+  --error-background: var(--red-dark);
+  --warning-background: var(--amber-dark);
 }
 
 body {
@@ -96,6 +103,8 @@ form {
   width: 100%;
 }
 
+/* Input */
+
 .input-group {
   display: flex;
   flex-direction: column;
@@ -108,7 +117,7 @@ label {
   margin-bottom: var(--space-small);
 }
 
-input, select {
+input, select, textarea {
   background-color: var(--input-background);
   border-radius: var(--radius-medium);
   padding: var(--space-small) var(--space-large);
@@ -116,6 +125,11 @@ input, select {
   height: 100%;
 }
 
+textarea {
+  max-width: 100%;
+}
+
+/* Button */
 button:hover {
   cursor: pointer;
 }
@@ -167,6 +181,13 @@ button:hover {
 
 .button-table-delete:hover {
   color: var(--red-soft);
+}
+
+.button-group {
+    align-self: end;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
 }
 
 /* Table */

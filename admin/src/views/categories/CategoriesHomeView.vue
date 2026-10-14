@@ -2,6 +2,7 @@
 import { getAll } from '@/services/categories.service.js';
 import MetricsCard from '../sharedViews/MetricsCard.vue';
 import Table from '../sharedViews/Table.vue';
+import TagActive from '../sharedViews/TagActive.vue';
 import { computed, ref } from 'vue';
 import { toFormateDateTime } from '@/utilities/date.js';
 
@@ -55,6 +56,7 @@ getAllCategories();
 const headers = [
     'Nom',
     'Nombre de lieux',
+    'Status',
     'Dernière mise à jour'
 ]
 
@@ -66,7 +68,9 @@ const headers = [
     
     <div class="main-header">
         <h1>Gestion des catégories</h1>
-        <button v-if="data.length > 0" class="button-primary">+ nouvelle catégorie</button>
+        <RouterLink to="/admin/categories/add">
+            <button v-if="data.length > 0" class="button-primary">+ nouvelle catégorie</button>
+        </RouterLink>
     </div>
     <p>Les catégories permettent d’organiser le catalogue de lieux et facilitent leur classification.</p>
     <div class="main-metrics" >
@@ -128,6 +132,11 @@ const headers = [
             TBD
         </template>
         <template #column2="{ entity }">
+            <TagActive
+                :status="entity.isActive"
+            />
+        </template>
+        <template #column3="{ entity }">
             {{ toFormateDateTime(new Date(entity.updatedAt  ?? entity.createdAt))  }}
         </template>
         <template #actions="{ entity }">
