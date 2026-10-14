@@ -19,8 +19,17 @@ defineProps({
 
 <style scoped>
 .notification-card svg {
-    color: var(--champagne)
+    color: var(--champagne);
+    animation: spin 1s linear infinite; 
 }
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+
 
 
 </style>

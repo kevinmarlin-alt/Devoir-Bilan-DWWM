@@ -11,3 +11,24 @@ export const getAll = async () => {
 
     return categories;
 }
+
+export const addCategory = async (name, description) => {
+    const response = await apiFetch('api/admin/categories/add', {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            categoryName: name,
+            description: description
+        })
+    })
+
+    if(!response.ok) {
+        throw new Error('Une erreur est survenue lors de l\'enregistrement de la nouvelle catégorie.')
+    }
+
+    const { category } = await response.json();
+
+    return category;
+}

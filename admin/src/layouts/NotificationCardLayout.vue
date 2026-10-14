@@ -33,6 +33,7 @@ defineProps({
     gap: var(--space-medium);
     padding: var(--space-large);
     border-radius: var(--radius-large);
+    width: 100%;
 }
 
 .notification-title {

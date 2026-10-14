@@ -3,14 +3,31 @@ import { computed, ref } from 'vue';
 import inProgressCard from '../sharedViews/inProgressCard.vue';
 import errorCard from '../sharedViews/errorCard.vue';
 import successCard from '../sharedViews/successCard.vue';
+import { addCategory } from '@/services/categories.service.js';
 
 const name = ref('');
 const description = ref('');
-const registrationStatus = ref('success');
+const registrationStatus = ref(null);
+const errorMessage = ref('');
+const category = ref('');
 
 const  isCreateButtonDisable = computed(() => {
     return !name.value.trim() || !description.value.trim()
 });
+
+async function createHandler() {
+    registrationStatus.value = 'inProgress';
+    try {
+        const { categoryName }  = await addCategory(name.value, description.value);
+        console.log(categoryName)
+        category.value = categoryName;
+        registrationStatus.value = 'success'
+        
+    } catch (error) {
+        errorMessage.value = error.message
+        registrationStatus.value = 'error'
+    }
+}
 
 </script>
 
@@ -54,10 +71,11 @@ const  isCreateButtonDisable = computed(() => {
         <errorCard
             v-else-if="registrationStatus === 'error'"
             title="Echec de l'enregistrement"
+            :error="errorMessage"
         />
         <successCard
             v-else-if="registrationStatus === 'success'"
-            title="La nouvelle catégorie à bien été enregistrée"
+            :title="`La catégorie ${category} à bien été enregistrée`"
         />
         
     </div>
@@ -73,7 +91,7 @@ const  isCreateButtonDisable = computed(() => {
         <button 
             class="button-primary"
             :disabled="isCreateButtonDisable"
-            @click="createHandler"
+            @click.prevent="createHandler"
         >
             Enregistrer
         </button>

@@ -125,6 +125,10 @@ input, select, textarea {
   height: 100%;
 }
 
+textarea {
+  max-width: 100%;
+}
+
 /* Button */
 button:hover {
   cursor: pointer;

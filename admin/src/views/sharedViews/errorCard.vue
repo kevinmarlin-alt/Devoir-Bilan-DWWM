@@ -4,7 +4,8 @@ defineProps({
     title: {
         type: String,
         required: true
-    }
+    },
+    error: String
 })
 </script>
 
@@ -16,7 +17,7 @@ defineProps({
             <line x1="12" x2="12.01" y1="16" y2="16"/>
         </svg>
         <p class="notification-title">{{ title }}</p>
-        <p>Une erreur est survenu pendant lors de l’enregistrement.</p>
+        <p>{{ error }}</p>
         
         <button class="button-primary">réessayer</button>
         <RouterLink to="/admin/categories">
