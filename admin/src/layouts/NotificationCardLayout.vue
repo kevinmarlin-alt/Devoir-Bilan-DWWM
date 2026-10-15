@@ -5,6 +5,11 @@ const STATUS = [
     'error',
     'warning'
 ]
+
+const FLEX_OPTIONS = [
+    'column',
+    'row'
+]
 </script>
 
 <script setup>
@@ -13,12 +18,18 @@ defineProps({
         type: String,
         required: true,
         validator: value => STATUS.includes(value)
+    },
+    flexDirection: {
+        type: String,
+        required: false,
+        default: 'column',
+        validator: value => FLEX_OPTIONS.includes(value)
     }
 })
 </script>
 
 <template>
-    <div :class="`notification-card notification-${status}`">
+    <div :class="`notification-card notification-${status} flex-${flexDirection}`">
         <slot></slot>
     </div>
 </template>
@@ -26,7 +37,6 @@ defineProps({
 <style>
 .notification-card {
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
@@ -34,6 +44,15 @@ defineProps({
     padding: var(--space-large);
     border-radius: var(--radius-large);
     width: 100%;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.flex-row {
+    flex-direction: row;
+    justify-content:space-between;
 }
 
 .notification-title {
