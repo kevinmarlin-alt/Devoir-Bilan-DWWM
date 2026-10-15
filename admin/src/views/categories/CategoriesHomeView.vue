@@ -1,10 +1,17 @@
 <script setup>
-import { getAll } from '@/services/categories.service.js';
-import MetricsCard from '../sharedViews/MetricsCard.vue';
-import Table from '../sharedViews/Table.vue';
-import TagActive from '../sharedViews/TagActive.vue';
+import { getAll, deteleCategory } from '@/services/categories.service.js';
+import MetricsCard from '@/views/sharedViews/MetricsCard.vue';
+import Table from '@/views/sharedViews/Table.vue';
+import TagActive from '@/views/sharedViews/TagActive.vue';
 import { computed, ref } from 'vue';
 import { toFormateDateTime } from '@/utilities/date.js';
+import inProgressCard from '@/views/sharedViews/inProgressCard.vue'
+import errorCard from '@/views/sharedViews/errorCard.vue';
+import successCard from '@/views/sharedViews/successCard.vue';
+import WarningCard from '@/views/sharedViews/WarningCard.vue';
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const data = ref([]);
 const loading = ref(true);
@@ -12,6 +19,12 @@ const error = ref(null);
 
 const search = ref('');
 const statusFilter = ref('all');
+
+const status = ref(null);
+const errorMessage = ref('');
+const category = ref('');
+
+const categoryToBeDeteled = ref(null);
 
 const filteredCategories = computed(() => {
     return data.value.filter(category => {
@@ -51,16 +64,33 @@ async function getAllCategories() {
     }
 }
 
+async function showWarningCard(entity) {
+    category.value = entity
+    status.value = 'warning';
+}
+
+function cancelHandler() {
+    category.value = null
+    status.value = null;
+}
+
+async function deleteCategory() {
+    status.value = 'inProgress';
+    try {
+        await deteleCategory(category.value)
+        status.value = 'success' 
+        getAllCategories();  
+        setTimeout(() => {
+            status.value = null
+        }, 3000)     
+    } catch (error) {
+        errorMessage.value = error.message
+        status.value = 'error'
+    }
+
+}
+
 getAllCategories();
-
-const headers = [
-    'Nom',
-    'Nombre de lieux',
-    'Status',
-    'Dernière mise à jour'
-]
-
-
 
 </script>
 
@@ -120,8 +150,34 @@ const headers = [
             Réinitialiser les filtres
         </button>
     </form>
+    <WarningCard 
+        v-if="status === 'warning'" 
+        title="Vous êtes sur le point de supprimer cette catégorie."
+        entity=""
+        flex-direction="row"
+        @confirm="deleteCategory"
+        @cancel="cancelHandler" 
+    />
+    <inProgressCard v-else-if="status === 'inProgress'"
+        title="Suppression en cours..."
+    />
+    <errorCard v-else-if="status === 'error'"
+        title="Echec de la suppression"
+        :error="errorMessage"
+        flex-direction="row"
+        @retry="deleteCategory"
+        @cancel="cancelHandler"
+    />
+    <successCard v-else-if="status === 'success'"
+        :title="`La catégories ${category.categoryName} à bien été supprimée !`"
+    />
     <Table v-if="filteredCategories.length > 0"
-        :headers="headers"
+        :headers="[
+            'Nom',
+            'Nombre de lieux',
+            'Status',
+            'Dernière mise à jour'
+        ]"
         :data="filteredCategories"
         row-key="categoryId"
     >
@@ -146,7 +202,7 @@ const headers = [
                     <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
                 </svg>
             </button>
-            <button class="button-table-delete" @click="deleteCategory(entity)">
+            <button class="button-table-delete" @click="showWarningCard(entity)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash preview-icon">
                     <path d="M10 11v6"/>
                     <path d="M14 11v6"/>

@@ -10,3 +10,11 @@ export const createCategory = async (categoryName, description) => {
         description
     })
 }
+
+export const deleteOne = async (categoryId) => {
+    return await Category.destroy({
+        where: {
+            categoryId
+        }
+    })
+}

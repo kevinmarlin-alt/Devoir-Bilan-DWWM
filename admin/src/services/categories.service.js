@@ -32,3 +32,15 @@ export const addCategory = async (name, description) => {
 
     return category;
 }
+
+export const deteleCategory = async (entity) => {
+    const { categoryId } = entity
+
+    const response = await apiFetch(`api/admin/categories/${categoryId}`, {
+        method: 'DELETE'
+    })
+
+    if(!response.ok) {
+        throw new Error('Une erreur est survenue lors de la suppression de la catégorie.')
+    }    
+}
