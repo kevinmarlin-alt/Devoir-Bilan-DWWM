@@ -42,10 +42,5 @@ export const deteleCategory = async (entity) => {
 
     if(!response.ok) {
         throw new Error('Une erreur est survenue lors de la suppression de la catégorie.')
-    }
-
-    const { category } = await response.json();
-
-    return category;
-    
+    }    
 }

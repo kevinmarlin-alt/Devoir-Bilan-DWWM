@@ -1,4 +1,4 @@
-import { findAllCategories, createCategory } from '../services/categories.service.js'
+import { findAllCategories, createCategory, deleteOne } from '../services/categories.service.js'
 
 export const getAllCategories = async (req, res) => {
     const categories = await findAllCategories();
@@ -12,3 +12,10 @@ export const addOneCategory = async (req, res) => {
 
     res.status(201).json({ category })
 } 
+
+export const deleteCategory = async (req, res) => {
+    const categoryId = req.params.categoryId;
+    await deleteOne(categoryId);
+
+    res.sendStatus(201);
+}
