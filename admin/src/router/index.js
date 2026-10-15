@@ -6,6 +6,7 @@ import HomeView from '@/views/HomeView.vue';
 import { getAuthenticatedUser } from '@/services/auth.service';
 import CategoriesHomeView from '@/views/categories/CategoriesHomeView.vue';
 import CategoriesCreateView from '@/views/categories/CategoriesCreateView.vue';
+import CategoriesUpdateView from '@/views/categories/CategoriesUpdateView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,6 +39,11 @@ const router = createRouter({
           path: 'categories/add',
           name: 'categories-create',
           component: CategoriesCreateView
+        },
+        {
+          path: 'categories/:categoryId',
+          name: 'categories-update',
+          component: CategoriesUpdateView
         }
 
       ]
