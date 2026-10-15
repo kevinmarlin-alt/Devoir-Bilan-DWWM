@@ -7,6 +7,19 @@ export const getAllCategories = async (req, res) => {
     res.status(200).json({ categories })
 } 
 
+export const getCategory = async (req, res) => {
+    const categoryId = req.params.categoryId
+    const category = await findCategoryById(categoryId)
+    if(!category) {
+        throw new AppError('La catégorie n\'existe pas', {
+            statusCode: 404,
+            code: 'NOT_FOUND'
+        })
+    }
+
+    res.status(200).json( category )
+}
+
 export const addOneCategory = async (req, res) => {
     const { categoryName, description } = req.body;
     const category = await createCategory(categoryName, description);

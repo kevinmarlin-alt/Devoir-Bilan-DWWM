@@ -7,7 +7,6 @@ export const findCategoryById = async (categoryId) => {
         }
     })
 }
-
 export const findAllCategories = async () => {
     return await Category.findAll()
 }
