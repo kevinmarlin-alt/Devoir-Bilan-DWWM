@@ -82,6 +82,10 @@ async function showWarningCard(entity) {
     status.value = 'warning';
 }
 
+function cancelHandler() {
+    status.value = null;
+}
+
 async function deleteCategory() {
     status.value = 'inProgress';
     try {
@@ -164,7 +168,8 @@ getAllCategories();
         title="Vous êtes sur le point de supprimer cette catégorie."
         entity=""
         flex-direction="row"
-        @confirmDeletion="warningHandler" 
+        @confirmDeletion="warningHandler"
+        @cancel="cancelHandler" 
     />
     <inProgressCard v-else-if="status === 'inProgress'"
         title="Suppression en cours..."
@@ -172,6 +177,9 @@ getAllCategories();
     <errorCard v-else-if="status === 'error'"
         title="Echec de la suppression"
         :error="errorMessage"
+        flex-direction="row"
+        @retry="deleteCategory"
+        @cancel="cancelHandler"
     />
     <successCard v-else-if="status === 'success'"
         :title="`La catégories ${category} à bien été supprimée !`"
