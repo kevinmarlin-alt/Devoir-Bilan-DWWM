@@ -1,7 +1,7 @@
 <script setup>
 import NotificationCardLayout from '@/layouts/NotificationCardLayout.vue';
 
-const emit = defineEmits(['confirmDeletion']);
+const emit = defineEmits(['confirm', 'cancel']);
 
 defineProps({
     title: {
@@ -31,8 +31,8 @@ defineProps({
             <p>Cette action sera définitive.</p>
         </div>
         <p>Souhaitez-vous confirmer cette action ?</p>
-        <button class="button-secondary" @click="emit('confirmDeletion', false )">Non</button>
-        <button class="button-primary" @click="emit('confirmDeletion', true )">Oui</button>
+        <button class="button-secondary" @click="emit('cancel')">Non</button>
+        <button class="button-primary" @click="emit('confirm')">Oui</button>
     </NotificationCardLayout>
 </template>
 

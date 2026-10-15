@@ -64,33 +64,20 @@ async function getAllCategories() {
     }
 }
 
-function warningHandler(value) {
-    switch (value) {
-        case false: 
-            categoryToBeDeteled.value = null
-            status.value = null
-            break
-
-        case true: 
-            deleteCategory()
-            break
-    }  
-}
-
 async function showWarningCard(entity) {
-    categoryToBeDeteled.value = entity
+    category.value = entity
     status.value = 'warning';
 }
 
 function cancelHandler() {
+    category.value = null
     status.value = null;
 }
 
 async function deleteCategory() {
     status.value = 'inProgress';
     try {
-        await deteleCategory(categoryToBeDeteled.value)
-        category.value = categoryToBeDeteled.value.categoryName;
+        await deteleCategory(category.value)
         status.value = 'success' 
         getAllCategories();  
         setTimeout(() => {
@@ -168,7 +155,7 @@ getAllCategories();
         title="Vous êtes sur le point de supprimer cette catégorie."
         entity=""
         flex-direction="row"
-        @confirmDeletion="warningHandler"
+        @confirm="deleteCategory"
         @cancel="cancelHandler" 
     />
     <inProgressCard v-else-if="status === 'inProgress'"
@@ -182,7 +169,7 @@ getAllCategories();
         @cancel="cancelHandler"
     />
     <successCard v-else-if="status === 'success'"
-        :title="`La catégories ${category} à bien été supprimée !`"
+        :title="`La catégories ${category.categoryName} à bien été supprimée !`"
     />
     <Table v-if="filteredCategories.length > 0"
         :headers="[
