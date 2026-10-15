@@ -94,15 +94,6 @@ async function deleteCategory() {
 
 getAllCategories();
 
-const headers = [
-    'Nom',
-    'Nombre de lieux',
-    'Status',
-    'Dernière mise à jour'
-]
-
-
-
 </script>
 
 <template>
@@ -179,7 +170,12 @@ const headers = [
         :title="`La catégories ${category} à bien été supprimée !`"
     />
     <Table v-if="filteredCategories.length > 0"
-        :headers="headers"
+        :headers="[
+            'Nom',
+            'Nombre de lieux',
+            'Status',
+            'Dernière mise à jour'
+        ]"
         :data="filteredCategories"
         row-key="categoryId"
     >
