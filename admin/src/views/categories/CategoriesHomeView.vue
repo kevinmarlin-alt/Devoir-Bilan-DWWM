@@ -9,6 +9,9 @@ import inProgressCard from '@/views/sharedViews/inProgressCard.vue'
 import errorCard from '@/views/sharedViews/errorCard.vue';
 import successCard from '@/views/sharedViews/successCard.vue';
 import WarningCard from '@/views/sharedViews/WarningCard.vue';
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const data = ref([]);
 const loading = ref(true);
@@ -82,14 +85,18 @@ async function showWarningCard(entity) {
 async function deleteCategory() {
     status.value = 'inProgress';
     try {
-        const { categoryName } = await deteleCategory(categoryToBeDeteled.value)
-        category.value = categoryName;
-        status.value = 'success'
-        
+        await deteleCategory(categoryToBeDeteled.value)
+        category.value = categoryToBeDeteled.value.categoryName;
+        status.value = 'success' 
+        getAllCategories();  
+        setTimeout(() => {
+            status.value = null
+        }, 3000)     
     } catch (error) {
         errorMessage.value = error.message
         status.value = 'error'
     }
+
 }
 
 getAllCategories();
