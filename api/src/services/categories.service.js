@@ -1,43 +1,44 @@
-import { Category } from '../models/Category.js'
+import { findCategoryById, findAllCategories, createCategory, udpadeOne, deleteOneById } from '../repositories/categories.repository.js'
+import { AppError } from '../errors/AppError.js'
 
-export const findCategoryById = async (categoryId) => {
-    return await Category.findOne({
-        where: {
-            categoryId
-        }
-    })
-}
-export const findAllCategories = async () => {
-    return await Category.findAll()
+export const getCategoryById = async (categoryId) => {
+    return await findCategoryById(categoryId)
 }
 
-export const createCategory = async (categoryName, description) => {
-    return await Category.create({
-        categoryName,
-        description
-    })
+export const getAllCategories = async () => {
+    return await findAllCategories()
 }
 
-export const udpadeCategory = async (category) => {
-    return await Category.update(
-        {
-            categoryName: category.categoryName,
-            description: category.description,
-            isActive: category.isActive,
-            updatedAt: Date.now()
-        },
-        {
-            where: {
-                categoryId: category.categoryId
-            }
-        }
-    )
+export const addCategory = async (data) => {
+    return await createCategory(data)
+}
+
+export const udpadeCategory = async (categoryId, data) => {
+    const category = await getCategoryById(categoryId);
+
+    if(!category) {
+        throw new AppError('La catégorie n\'existe pas', {
+            statusCode: 404,
+            code: 'NOT_FOUND'
+        })
+    }
+
+    for (const [key, value] of Object.entries(data)) {
+        category[key] = data[key]
+    }
+
+    return await udpadeOne(data)
 }
 
 export const deleteOne = async (categoryId) => {
-    return await Category.destroy({
-        where: {
-            categoryId
-        }
-    })
+    const category = await findCategoryById(categoryId);
+
+    if(!category) {
+        throw new AppError('La catégorie n\'existe pas', {
+            statusCode: 404,
+            code: 'NOT_FOUND'
+        })
+    }
+
+    return await deleteOneById(categoryId)
 }
