@@ -27,7 +27,7 @@ export const udpadeCategory = async (categoryId, data) => {
         category[key] = data[key]
     }
 
-    return await udpadeOne(data)
+    return await udpadeOne(category)
 }
 
 export const deleteOne = async (categoryId) => {

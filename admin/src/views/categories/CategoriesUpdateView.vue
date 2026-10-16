@@ -19,8 +19,6 @@ const name = ref('');
 const description = ref('');
 const isActive = ref('');
 
-const value = ref('');
-
 async function getCategory(categoryId) {
     category.value = await getCategoryById(categoryId);
 
