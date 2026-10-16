@@ -3,7 +3,7 @@ import { getAll, deteleCategory } from '@/services/categories.service.js';
 import MetricsCard from '@/views/sharedViews/MetricsCard.vue';
 import Table from '@/views/sharedViews/Table.vue';
 import TagActive from '@/views/sharedViews/TagActive.vue';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { toFormateDateTime } from '@/utilities/date.js';
 import inProgressCard from '@/views/sharedViews/inProgressCard.vue'
 import errorCard from '@/views/sharedViews/errorCard.vue';
@@ -13,7 +13,11 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const data = ref([]);
+onMounted(() => {
+    getAllCategories()
+})
+
+const categoriesListe = ref([]);
 const loading = ref(true);
 const error = ref(null);
 
@@ -27,7 +31,7 @@ const category = ref('');
 const categoryToBeDeteled = ref(null);
 
 const filteredCategories = computed(() => {
-    return data.value.filter(category => {
+    return categoriesListe.value.filter(category => {
         const matchName = category.categoryName
             .toLowerCase()
             .includes(search.value.trim().toLowerCase());
@@ -41,9 +45,9 @@ const filteredCategories = computed(() => {
     })
 })
 
-const total = computed(() => data.value.length);
+const total = computed(() => categoriesListe.value.length);
 const active = computed(() => {
-    return data.value.filter(category => category.isActive).length
+    return categoriesListe.value.filter(category => category.isActive).length
 });
 const inactive = computed(() => {
     return total.value - active.value
@@ -56,7 +60,7 @@ function resetFilters() {
 
 async function getAllCategories() {
     try {
-        data.value = await getAll();
+        categoriesListe.value = await getAll();
     } catch (error) {
         error.value = 'Impossible de charger les catégories'
     } finally {
@@ -91,12 +95,8 @@ async function deleteCategory() {
 }
 
 function editCategory(entity) {
-    console.log(entity.categoryId)
     router.push({ name: 'categories-update', params: { categoryId: entity.categoryId }})
 }
-
-getAllCategories();
-
 </script>
 
 <template>
@@ -104,7 +104,7 @@ getAllCategories();
     <div class="main-header">
         <h1>Gestion des catégories</h1>
         <RouterLink to="/admin/categories/add">
-            <button v-if="data.length > 0" class="button-primary">+ nouvelle catégorie</button>
+            <button v-if="categoriesListe.length > 0" class="button-primary">+ nouvelle catégorie</button>
         </RouterLink>
     </div>
     <p>Les catégories permettent d’organiser le catalogue de lieux et facilitent leur classification.</p>
@@ -128,7 +128,7 @@ getAllCategories();
     <p v-else-if="error">
         {{ error }}
     </p>
-    <form action="#" method="GET" class="main-form-search" v-if="data.length > 0">
+    <form action="#" method="GET" class="main-form-search" v-if="categoriesListe.length > 0">
         <div class="input-group form-search">
             <label for="search">Recherche</label>
             <input
@@ -218,11 +218,11 @@ getAllCategories();
             </button>
         </template>
     </Table>
-    <p v-if="data.length > 0  && filteredCategories.length === 0">
+    <p v-if="categoriesListe.length > 0  && filteredCategories.length === 0">
         Auncune catégorie ne correspond aux filtres.
     </p>
 
-    <div  v-if="data.length === 0">
+    <div  v-if="categoriesListe.length === 0">
         <p>Aucune catégorie actuellement</p>
         <button class="button-primary">créer une nouvelle catégorie</button>
     </div>

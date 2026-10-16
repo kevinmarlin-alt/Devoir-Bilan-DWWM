@@ -11,10 +11,10 @@ export const findAllCategories = async () => {
     return await Category.findAll()
 }
 
-export const createCategory = async (categoryName, description) => {
+export const createCategory = async (data) => {
     return await Category.create({
-        categoryName,
-        description
+        categoryName: data.categoryName,
+        description: data.description
     })
 }
 

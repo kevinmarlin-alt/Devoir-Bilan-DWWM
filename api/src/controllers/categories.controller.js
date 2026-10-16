@@ -35,9 +35,9 @@ export const addOneCategory = async (req, res) => {
             code: 'NO_CONTENT'
         })
     }
-    await addCategory(req.body);
+    const category = await addCategory(req.body);
 
-    res.sendStatus(201)
+    res.status(201).json( category );
 } 
 
 export const updateCategory = async (req, res) => {

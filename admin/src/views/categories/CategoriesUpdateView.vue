@@ -6,7 +6,7 @@ import successCard from '../sharedViews/successCard.vue';
 import { updateCategory, getCategoryById } from '@/services/categories.service.js';
 import { useRoute } from 'vue-router';
 
-const route = useRoute(); //cela ne marche pas
+const route = useRoute();
 const categoryId = Number(route.params.categoryId);
 
 onMounted(() => {
