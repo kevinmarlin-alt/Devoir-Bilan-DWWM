@@ -1,28 +1,51 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import inProgressCard from '../sharedViews/inProgressCard.vue';
 import errorCard from '../sharedViews/errorCard.vue';
 import successCard from '../sharedViews/successCard.vue';
-import { addCategory } from '@/services/categories.service.js';
+import { updateCategory, getCategoryById } from '@/services/categories.service.js';
+import { useRoute } from 'vue-router';
+
+const route = useRoute(); //cela ne marche pas
+const categoryId = Number(route.params.categoryId);
+
+onMounted(() => {
+    getCategory(categoryId)
+})
+
+const category = ref('');
 
 const name = ref('');
 const description = ref('');
+const isActive = ref('');
+
+const value = ref('');
+
+async function getCategory(categoryId) {
+    category.value = await getCategoryById(categoryId);
+
+    name.value = category.value.categoryName;
+    description.value = category.value.description;
+    isActive.value = category.value.isActive;
+}
+
 const registrationStatus = ref(null);
+
 const errorMessage = ref('');
-const category = ref('');
 
 const  isCreateButtonDisable = computed(() => {
     return !name.value.trim() || !description.value.trim()
 });
 
-async function createHandler() {
+async function updateHandler() {
     registrationStatus.value = 'inProgress';
     try {
-        const { categoryName }  = await addCategory(name.value, description.value);
-        console.log(categoryName)
-        category.value = categoryName;
-        registrationStatus.value = 'success'
-        
+        await updateCategory(categoryId, {
+            categoryName: name.value, 
+            description: description.value,
+            isActive: isActive.value
+        });
+        registrationStatus.value = 'success'     
     } catch (error) {
         errorMessage.value = error.message
         registrationStatus.value = 'error'
@@ -40,7 +63,7 @@ async function createHandler() {
             Retour à la liste
         </RouterLink>
     </nav>
-    <h1>Nom de la catégorie</h1>
+    <h1>{{ category.categoryName }}</h1>
     <div class="form-container">
         <form action="#" method="POST">
             <div class="input-group">
@@ -63,6 +86,11 @@ async function createHandler() {
                     placeholder="Description de la catégorie..."
                 />
             </div>
+            <p>Status</p>
+            <div class="checkbox-group">
+                <input type="checkbox" name="is-active" id="is-active" v-model="isActive" :checked="isActive">
+                <label for="is-active">{{ isActive ? 'Active' : 'Inactive' }}</label>
+            </div>
         </form>
         <inProgressCard
             v-if="registrationStatus === 'inProgress'"
@@ -75,7 +103,7 @@ async function createHandler() {
         />
         <successCard
             v-else-if="registrationStatus === 'success'"
-            :title="`La catégorie ${category} à bien été enregistrée`"
+            :title="`La catégorie ${category.categoryName} à bien été mise à jour`"
         />
         
     </div>
@@ -91,7 +119,7 @@ async function createHandler() {
         <button 
             class="button-primary"
             :disabled="isCreateButtonDisable"
-            @click.prevent="createHandler"
+            @click.prevent="updateHandler"
         >
             Enregistrer
         </button>

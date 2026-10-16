@@ -90,6 +90,11 @@ async function deleteCategory() {
 
 }
 
+function editCategory(entity) {
+    console.log(entity.categoryId)
+    router.push({ name: 'categories-update', params: { categoryId: entity.categoryId }})
+}
+
 getAllCategories();
 
 </script>
@@ -231,7 +236,6 @@ getAllCategories();
 
 .form-filter {
     min-width: 150px;
-    height: 100%;
 }
 
 .no-data-container {

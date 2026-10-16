@@ -12,6 +12,18 @@ export const getAll = async () => {
     return categories;
 }
 
+export const getCategoryById = async (categoryId) => {
+    const response = await apiFetch(`api/admin/categories/${categoryId}`);
+
+    if(!response.ok) {
+        throw new Error('Une erreur est survenue lors de la récupération de la catégorie.')
+    }
+
+    const category = await response.json();
+
+    return category
+}
+
 export const addCategory = async (name, description) => {
     const response = await apiFetch('api/admin/categories/add', {
         method: 'POST',
@@ -31,6 +43,20 @@ export const addCategory = async (name, description) => {
     const { category } = await response.json();
 
     return category;
+}
+
+export const updateCategory = async (categoryId, data) => {
+    const response = await apiFetch(`api/admin/categories/${categoryId}`, {
+        method: 'PATCH',
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify( data )
+    })
+
+    if(!response.ok) {
+        throw new Error('Une erreur est survenue lors de l\'enregistrement de la nouvelle catégorie.')
+    }
 }
 
 export const deteleCategory = async (entity) => {
