@@ -9,7 +9,7 @@ const name = ref('');
 const description = ref('');
 const registrationStatus = ref(null);
 const errorMessage = ref('');
-const category = ref('');
+const category = ref(null);
 
 const  isCreateButtonDisable = computed(() => {
     return !name.value.trim() || !description.value.trim()
@@ -18,9 +18,11 @@ const  isCreateButtonDisable = computed(() => {
 async function createHandler() {
     registrationStatus.value = 'inProgress';
     try {
-        const { categoryName }  = await addCategory(name.value, description.value);
-        console.log(categoryName)
-        category.value = categoryName;
+        const data = {
+            categoryName: name.value,
+            description: description.value
+        }
+        category.value = await addCategory(data);
         registrationStatus.value = 'success'
         
     } catch (error) {
@@ -75,7 +77,7 @@ async function createHandler() {
         />
         <successCard
             v-else-if="registrationStatus === 'success'"
-            :title="`La catégorie ${category} à bien été enregistrée`"
+            :title="`La catégorie ${category.categoryName} à bien été enregistrée`"
         />
         
     </div>

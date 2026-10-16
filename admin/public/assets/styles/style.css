@@ -108,25 +108,39 @@ form {
 .input-group {
   display: flex;
   flex-direction: column;
+  gap:var(--space-small);
 }
 
-label {
+.input-group label {
   font-family: "Baskervville Regular", serif;
   font-size: 0.8rem;
   color: var(--label-color);
-  margin-bottom: var(--space-small);
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap:var(--space-small);
+}
+
+input:checked ~ label {
+  color: var(--champagne);
 }
 
 input, select, textarea {
   background-color: var(--input-background);
   border-radius: var(--radius-medium);
-  padding: var(--space-small) var(--space-large);
   border: 1px solid var(--input-border-color);
-  height: 100%;
+  padding: var(--space-small) var(--space-large);
+}
+
+select {
+  height: 2.3rem;
 }
 
 textarea {
   max-width: 100%;
+  
 }
 
 /* Button */
