@@ -7,6 +7,8 @@ import { getAuthenticatedUser } from '@/services/auth.service';
 import CategoriesHomeView from '@/views/categories/CategoriesHomeView.vue';
 import CategoriesCreateView from '@/views/categories/CategoriesCreateView.vue';
 import CategoriesUpdateView from '@/views/categories/CategoriesUpdateView.vue';
+import ExploitationTypesLayout from '@/layouts/ExploitationTypesLayout.vue';
+import ExploitationTypesHomeView from '@/views/exploitationTypes/ExploitationTypesHomeView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +46,17 @@ const router = createRouter({
           path: 'categories/:categoryId',
           name: 'categories-update',
           component: CategoriesUpdateView
+        },
+        {
+          path: 'exploitation-types',
+          component: ExploitationTypesLayout,
+          children: [
+            {
+              path: '',
+              name: 'exploitation-type_home',
+              component: ExploitationTypesHomeView
+            }
+          ]
         }
 
       ]
