@@ -1,8 +1,8 @@
 <script setup>
 import { getAll, deteleCategory } from '@/services/categories.service.js';
 import MetricsCard from '@/views/sharedViews/MetricsCard.vue';
-import Table from '@/views/sharedViews/Table.vue';
-import TagActive from '@/views/sharedViews/TagActive.vue';
+import Table from '@/components/Table.vue';
+import TagActive from '@/components/TagActive.vue';
 import { computed, onMounted, ref } from 'vue';
 import { toFormateDateTime } from '@/utilities/date.js';
 import inProgressCard from '@/views/sharedViews/inProgressCard.vue'
