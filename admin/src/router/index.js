@@ -10,6 +10,7 @@ import CategoriesUpdateView from '@/views/categories/CategoriesUpdateView.vue';
 import ExploitationTypesLayout from '@/layouts/ExploitationTypesLayout.vue';
 import ExploitationTypesHomeView from '@/views/exploitationTypes/ExploitationTypesHomeView.vue';
 import ExploitationTypeCreateView from '@/views/exploitationTypes/ExploitationTypeCreateView.vue';
+import ExploitationTypeUpdateView from '@/views/exploitationTypes/ExploitationTypeUpdateView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -61,6 +62,11 @@ const router = createRouter({
               path: 'add',
               name: 'exploitation-types_create',
               component: ExploitationTypeCreateView
+            },
+            {
+              path: ':id',
+              name: 'exploitation-types_update',
+              component: ExploitationTypeUpdateView
             }
           ]
         }
