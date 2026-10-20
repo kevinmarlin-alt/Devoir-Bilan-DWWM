@@ -198,10 +198,20 @@ button:hover {
 }
 
 .button-group {
-    align-self: end;
     display: flex;
+    justify-content: space-between;
     align-items: center;
     gap: 2rem;
+}
+
+.registration-status {
+    width: 100%;
+}
+.registration-status-warning  {
+    color: var(--amber-warm);
+}
+.registration-status-success  {
+    color: var(--green-soft);
 }
 
 /* Table */

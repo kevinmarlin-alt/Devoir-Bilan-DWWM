@@ -9,6 +9,7 @@ import CategoriesCreateView from '@/views/categories/CategoriesCreateView.vue';
 import CategoriesUpdateView from '@/views/categories/CategoriesUpdateView.vue';
 import ExploitationTypesLayout from '@/layouts/ExploitationTypesLayout.vue';
 import ExploitationTypesHomeView from '@/views/exploitationTypes/ExploitationTypesHomeView.vue';
+import ExploitationTypeCreateView from '@/views/exploitationTypes/ExploitationTypeCreateView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -53,8 +54,13 @@ const router = createRouter({
           children: [
             {
               path: '',
-              name: 'exploitation-type_home',
+              name: 'exploitation-types_home',
               component: ExploitationTypesHomeView
+            },
+            {
+              path: 'add',
+              name: 'exploitation-types_create',
+              component: ExploitationTypeCreateView
             }
           ]
         }
