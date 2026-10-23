@@ -10,7 +10,9 @@ import errorCard from '@/views/sharedViews/errorCard.vue';
 import successCard from '@/views/sharedViews/successCard.vue';
 import WarningCard from '@/views/sharedViews/WarningCard.vue';
 import { useRouter } from 'vue-router';
-import MainHeader from '@/components/MainHeader.vue'
+import MainHeader from '@/components/MainHeader.vue';
+import SearchForm from '@/components/SearchForm.vue';
+
 
 const router = useRouter()
 
@@ -134,33 +136,14 @@ function editCategory(entity) {
     <p v-else-if="error">
         {{ error }}
     </p>
-    <form action="#" method="GET" class="main-form-search" v-if="categoriesListe.length > 0">
-        <div class="input-group form-search">
-            <label for="search">Recherche</label>
-            <input
-                v-model="search"
-                type="search"
-                name="search"
-                id="search"
-                placeholder="Rechercher par nom..."
-            >
-        </div>
-        <div class="input-group form-filter">
-            <label for="status">Status</label>
-            <select id="status" v-model="statusFilter">
-                <option value="all">Tous</option>
-                <option value="active">Actives</option>
-                <option value="inactive">Inactives</option>
-            </select>
-        </div>
-        <button 
-            type="button" 
-            class="button-light"
-            @click="resetFilters"
-        >
-            Réinitialiser les filtres
-        </button>
-    </form>
+    <SearchForm
+        :options-list="[
+            {value: 'active', label: 'Actif'},
+            {value: 'inactive', label: 'Inactif'}
+        ]"
+        @status="(statusSelected) => statusFilter = statusSelected"
+        @search="(searchValue) => search = searchValue"
+    />
     <WarningCard 
         v-if="status === 'warning'" 
         title="Vous êtes sur le point de supprimer cette catégorie."
@@ -236,21 +219,15 @@ function editCategory(entity) {
 
 <style>
 
-.form-search {
-    width: 100%;
-}
 
-.form-filter {
-    min-width: 150px;
-}
 
 .no-data-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 3rem;
-    height: 100%;
+    gap: 2rem;
+    height: 300px;
     
 }
 
