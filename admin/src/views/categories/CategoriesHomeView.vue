@@ -9,7 +9,8 @@ import inProgressCard from '@/views/sharedViews/inProgressCard.vue'
 import errorCard from '@/views/sharedViews/errorCard.vue';
 import successCard from '@/views/sharedViews/successCard.vue';
 import WarningCard from '@/views/sharedViews/WarningCard.vue';
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
+import MainHeader from '@/components/MainHeader.vue'
 
 const router = useRouter()
 
@@ -68,6 +69,12 @@ async function getAllCategories() {
     }
 }
 
+function createCategory() {
+    router.push({
+        name: 'categories-create'
+    })
+}
+
 async function showWarningCard(entity) {
     category.value = entity
     status.value = 'warning';
@@ -100,13 +107,12 @@ function editCategory(entity) {
 </script>
 
 <template>
-    
-    <div class="main-header">
-        <h1>Gestion des catégories</h1>
-        <RouterLink to="/admin/categories/add">
-            <button v-if="categoriesListe.length > 0" class="button-primary">+ nouvelle catégorie</button>
-        </RouterLink>
-    </div>
+    <MainHeader
+        title="Gestion des catégories"
+        :data="categoriesListe.length > 0"
+        button="nouvelle catégorie"
+        @add-one="createCategory"
+    />
     <p>Les catégories permettent d’organiser le catalogue de lieux et facilitent leur classification.</p>
     <div class="main-metrics" >
         <MetricsCard

@@ -1,6 +1,14 @@
 import { authenticateUser, createAuthToken } from "../services/auth.service.js";
+import {AppError} from '../errors/AppError.js'
 
 export const loginHandler = async (req, res) => {
+    if(!req.body) {
+        throw new AppError('Le corps de la requêtte HTTP est vide', {
+            statusCode: 402,
+            code: 'NO_CONTENT'
+        })
+    }
+
     const { email, password } = req.body;
 
     const user = await authenticateUser(email, password);
