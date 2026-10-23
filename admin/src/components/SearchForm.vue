@@ -57,3 +57,13 @@ const resetFilters = () => {
         </button>
     </form>
 </template>
+
+<style>
+.form-search {
+    width: 100%;
+}
+
+.form-filter {
+    min-width: 150px;
+}
+</style>
