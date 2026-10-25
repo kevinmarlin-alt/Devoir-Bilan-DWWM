@@ -31,8 +31,6 @@ const status = ref(null);
 const errorMessage = ref('');
 const category = ref('');
 
-const categoryToBeDeteled = ref(null);
-
 const filteredCategories = computed(() => {
     return categoriesListe.value.filter(category => {
         const matchName = category.categoryName
@@ -55,11 +53,6 @@ const active = computed(() => {
 const inactive = computed(() => {
     return total.value - active.value
 });
-
-function resetFilters() {
-    search.value = '';
-    statusFilter.value = 'all';
-}
 
 async function getAllCategories() {
     try {
