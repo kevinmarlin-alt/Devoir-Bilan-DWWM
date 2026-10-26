@@ -7,6 +7,7 @@ import authRouter from './routes/auth.route.js';
 import categoriesRouter from './routes/categories.route.js';
 import exploitationTypesRouter from './routes/exploitationTypes.route.js';
 import { authenticate } from './middlewares/auth.middleware.js';
+import placesRouter from './routes/places.route.js';
 
 export const createApp = () => {
 
@@ -28,6 +29,7 @@ export const createApp = () => {
     app.use('/api/auth', authRouter);
     app.use('/api/admin/categories', authenticate, categoriesRouter);
     app.use('/api/admin/exploitation-types', authenticate, exploitationTypesRouter);
+    app.use('/api/admin/places', authenticate, placesRouter);
 
     app.use(errorHandler);
 
