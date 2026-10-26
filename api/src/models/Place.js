@@ -8,32 +8,39 @@ Place.init(
         placeId: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
-            allowNull: false
+            primaryKey: true,
+            field: 'place_id'
         },
         slug: {
             type: DataTypes.STRING(50),
-            unique: true
+            unique: true,
+            field: 'slug'
         },
         name: {
             type: DataTypes.STRING(50),
-            allowNull: false
+            allowNull: false,
+            field: 'name'
         },
         description: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
+            field: 'description'
         },
         additionalInformation: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
+            field: 'additional_information'
         },
         status: {
             type: DataTypes.STRING,
             allowNull: false,
             defaultValue: 'draft',
+            field: 'status',
             validate: {
                 isIn: [['draft', 'published', 'archived']]
             }
         },
         categoryId: {
-            type: DataTypes.INTEGER
+            type: DataTypes.INTEGER,
+            field: 'category_id'
         },
         createdAt: {
             type: DataTypes.DATE,
