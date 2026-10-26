@@ -9,7 +9,10 @@ import inProgressCard from '@/views/sharedViews/inProgressCard.vue'
 import errorCard from '@/views/sharedViews/errorCard.vue';
 import successCard from '@/views/sharedViews/successCard.vue';
 import WarningCard from '@/views/sharedViews/WarningCard.vue';
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
+import MainHeader from '@/components/MainHeader.vue';
+import SearchForm from '@/components/SearchForm.vue';
+
 
 const router = useRouter()
 
@@ -27,8 +30,6 @@ const statusFilter = ref('all');
 const status = ref(null);
 const errorMessage = ref('');
 const category = ref('');
-
-const categoryToBeDeteled = ref(null);
 
 const filteredCategories = computed(() => {
     return categoriesListe.value.filter(category => {
@@ -53,11 +54,6 @@ const inactive = computed(() => {
     return total.value - active.value
 });
 
-function resetFilters() {
-    search.value = '';
-    statusFilter.value = 'all';
-}
-
 async function getAllCategories() {
     try {
         categoriesListe.value = await getAll();
@@ -66,6 +62,12 @@ async function getAllCategories() {
     } finally {
         loading.value = false
     }
+}
+
+function createCategory() {
+    router.push({
+        name: 'categories-create'
+    })
 }
 
 async function showWarningCard(entity) {
@@ -100,13 +102,12 @@ function editCategory(entity) {
 </script>
 
 <template>
-    
-    <div class="main-header">
-        <h1>Gestion des catégories</h1>
-        <RouterLink to="/admin/categories/add">
-            <button v-if="categoriesListe.length > 0" class="button-primary">+ nouvelle catégorie</button>
-        </RouterLink>
-    </div>
+    <MainHeader
+        title="Gestion des catégories"
+        :data="categoriesListe.length > 0"
+        button="nouvelle catégorie"
+        @add-one="createCategory"
+    />
     <p>Les catégories permettent d’organiser le catalogue de lieux et facilitent leur classification.</p>
     <div class="main-metrics" >
         <MetricsCard
@@ -128,33 +129,14 @@ function editCategory(entity) {
     <p v-else-if="error">
         {{ error }}
     </p>
-    <form action="#" method="GET" class="main-form-search" v-if="categoriesListe.length > 0">
-        <div class="input-group form-search">
-            <label for="search">Recherche</label>
-            <input
-                v-model="search"
-                type="search"
-                name="search"
-                id="search"
-                placeholder="Rechercher par nom..."
-            >
-        </div>
-        <div class="input-group form-filter">
-            <label for="status">Status</label>
-            <select id="status" v-model="statusFilter">
-                <option value="all">Tous</option>
-                <option value="active">Actives</option>
-                <option value="inactive">Inactives</option>
-            </select>
-        </div>
-        <button 
-            type="button" 
-            class="button-light"
-            @click="resetFilters"
-        >
-            Réinitialiser les filtres
-        </button>
-    </form>
+    <SearchForm
+        :options-list="[
+            {value: 'active', label: 'Actif'},
+            {value: 'inactive', label: 'Inactif'}
+        ]"
+        @status="(statusSelected) => statusFilter = statusSelected"
+        @search="(searchValue) => search = searchValue"
+    />
     <WarningCard 
         v-if="status === 'warning'" 
         title="Vous êtes sur le point de supprimer cette catégorie."
@@ -230,21 +212,15 @@ function editCategory(entity) {
 
 <style>
 
-.form-search {
-    width: 100%;
-}
 
-.form-filter {
-    min-width: 150px;
-}
 
 .no-data-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 3rem;
-    height: 100%;
+    gap: 2rem;
+    height: 300px;
     
 }
 

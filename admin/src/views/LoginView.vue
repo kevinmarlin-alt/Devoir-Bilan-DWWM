@@ -1,5 +1,5 @@
 <script setup>
-import { login } from '@/services/auth.service';
+import { login } from '@/services/auth.service.js';
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router'
 
@@ -22,7 +22,7 @@ const isLoginDisabled = computed(() => {
 async function submitHandle() {
     info.value.success = true;
     info.value.message = 'Connexion en cours...';
-
+    
     const result = await login(email.value, password.value);
 
     console.log(result)
