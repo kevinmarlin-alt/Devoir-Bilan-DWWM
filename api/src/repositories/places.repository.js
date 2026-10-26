@@ -1,4 +1,4 @@
-import { Place } from "../models/Place";
+import { Place } from "../models/Place.js";
 
 export const findById = async (id) => {
     return await Place.findOne({
