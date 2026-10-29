@@ -12,8 +12,10 @@ INSERT exploitation_type (exploitation_type_name, description) VALUES
 ('Tournage', 'TBD'),
 ('Réception', 'TBD');
 
-INSERT place (slug, name, description, additional_information, category_id) VALUES
-('vila-romantique', 'Vila Romantique', 'Laboris anim non reprehenderit consectetur irure eiusmod minim ea. Duis non consectetur et mollit. Ea laboris veniam labore laborum minim aliqua ipsum voluptate. Incididunt officia do id nostrud Lorem aliquip ex nostrud est consequat officia cillum proident. Nulla anim proident id ex eiusmod.', 'TBD', 1);
+INSERT place (slug, name, description, additional_information, category_id, status) VALUES
+('vila-romantique', 'Vila Romantique', 'Laboris anim non reprehenderit consectetur irure eiusmod minim ea. Duis non consectetur et mollit. Ea laboris veniam labore laborum minim aliqua ipsum voluptate. Incididunt officia do id nostrud Lorem aliquip ex nostrud est consequat officia cillum proident. Nulla anim proident id ex eiusmod.', 'TBD', 1, 'draft'),
+('vila-romantique-published', 'Vila Romantique (publié)', 'Laboris anim non reprehenderit consectetur irure eiusmod minim ea. Duis non consectetur et mollit. Ea laboris veniam labore laborum minim aliqua ipsum voluptate. Incididunt officia do id nostrud Lorem aliquip ex nostrud est consequat officia cillum proident. Nulla anim proident id ex eiusmod.', 'TBD', 1, 'published'),
+('vila-romantique-archived', 'Vila Romantique (archivé)', 'Laboris anim non reprehenderit consectetur irure eiusmod minim ea. Duis non consectetur et mollit. Ea laboris veniam labore laborum minim aliqua ipsum voluptate. Incididunt officia do id nostrud Lorem aliquip ex nostrud est consequat officia cillum proident. Nulla anim proident id ex eiusmod.', 'TBD', 1, 'archived');
 
 INSERT image (url, alt) VALUES
 ('contemporain_home.jpg', 'Do enim occaecat elit ut deserunt pariatur nisi laborum cillum.');
