@@ -1,3 +1,4 @@
+import { Category } from "../models/Category.js";
 import { Place } from "../models/Place.js";
 
 export const findById = async (id) => {
@@ -7,7 +8,18 @@ export const findById = async (id) => {
 }
 
 export const findAll = async () => {
-    return await Place.findAll()
+    return await Place.findAll({
+        include: [
+            {
+                model: Category,
+                as: 'category',
+                attributes: [
+                    'categoryId',
+                    'categoryName'
+                ]
+            }
+        ]
+    })
 }
 
 export const createOne = async (data) => {

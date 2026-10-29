@@ -121,7 +121,7 @@ onMounted(async () => {
             {{ entity.name }}
         </template>
         <template #column1="{ entity }">
-            {{ entity.categoryId }}
+            {{ entity.category?.categoryName ?? 'Aucune catégorie' }}
         </template>
         <template #column2="{ entity }">
             <TagStatus
