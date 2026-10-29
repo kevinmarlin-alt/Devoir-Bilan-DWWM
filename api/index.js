@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import './src/models/associations.js'
 import { createApp } from './src/app.js';
 
 const PORT = Number(process.env.PORT ?? 3000);

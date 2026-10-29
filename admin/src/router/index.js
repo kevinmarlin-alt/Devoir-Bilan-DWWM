@@ -11,6 +11,8 @@ import ExploitationTypesLayout from '@/layouts/ExploitationTypesLayout.vue';
 import ExploitationTypesHomeView from '@/views/exploitationTypes/ExploitationTypesHomeView.vue';
 import ExploitationTypeCreateView from '@/views/exploitationTypes/ExploitationTypeCreateView.vue';
 import ExploitationTypeUpdateView from '@/views/exploitationTypes/ExploitationTypeUpdateView.vue';
+import PlacesLayout from '@/layouts/PlacesLayout.vue';
+import PlacesHomeView from '@/views/places/PlacesHomeView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -67,6 +69,17 @@ const router = createRouter({
               path: ':id',
               name: 'exploitation-types_update',
               component: ExploitationTypeUpdateView
+            }
+          ]
+        },
+        {
+          path: 'places',
+          component: PlacesLayout,
+          children: [
+            {
+              path: '',
+              component: PlacesHomeView,
+              name: 'places_home'
             }
           ]
         }
