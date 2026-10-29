@@ -1,5 +1,5 @@
 <script setup>
-import { getAll, deteleCategory } from '@/services/categories.service.js';
+import { getAllCategories, deteleCategory } from '@/services/categories.service.js';
 import MetricsCard from '@/views/sharedViews/MetricsCard.vue';
 import Table from '@/components/Table.vue';
 import TagActive from '@/components/TagActive.vue';
@@ -16,47 +16,49 @@ import SearchForm from '@/components/SearchForm.vue';
 
 const router = useRouter()
 
-onMounted(() => {
-    getAllCategories()
-})
 
-const categoriesListe = ref([]);
+
+const categories = ref([]);
 const loading = ref(true);
 const error = ref(null);
 
-const search = ref('');
-const statusFilter = ref('all');
+const fields = computed(() => {
+    return [
+        {
+            id: 'isActive',
+            label: 'Status',
+            options: [
+                {value: '', label: 'Tous'},
+                {value: true, label: 'Actives'},
+                {value: false, label: 'Inactives'}
+            ]
+
+        }
+    ]
+}) 
 
 const status = ref(null);
 const errorMessage = ref('');
 const category = ref('');
 
-const filteredCategories = computed(() => {
-    return categoriesListe.value.filter(category => {
-        const matchName = category.categoryName
-            .toLowerCase()
-            .includes(search.value.trim().toLowerCase());
-        
-        const matchStatus = 
-            statusFilter.value === 'all'
-            || statusFilter.value === 'active' && category.isActive
-            || statusFilter.value === 'inactive' && !category.isActive;
+const filteredCategories = ref([]);
 
-        return matchName && matchStatus
-    })
-})
+const handleResults = (data) => {
+    console.log(data)
+    filteredCategories.value = data
+}
 
-const total = computed(() => categoriesListe.value.length);
+const total = computed(() => categories.value.length);
 const active = computed(() => {
-    return categoriesListe.value.filter(category => category.isActive).length
+    return categories.value.filter(category => category.isActive).length
 });
 const inactive = computed(() => {
     return total.value - active.value
 });
 
-async function getAllCategories() {
+async function getCategories() {
     try {
-        categoriesListe.value = await getAll();
+        categories.value = await getAllCategories();
     } catch (error) {
         error.value = 'Impossible de charger les catégories'
     } finally {
@@ -85,7 +87,7 @@ async function deleteCategory() {
     try {
         await deteleCategory(category.value)
         status.value = 'success' 
-        getAllCategories();  
+        getCategories();  
         setTimeout(() => {
             status.value = null
         }, 3000)     
@@ -99,12 +101,17 @@ async function deleteCategory() {
 function editCategory(entity) {
     router.push({ name: 'categories-update', params: { categoryId: entity.categoryId }})
 }
+
+onMounted(() => {
+    getCategories()
+})
+
 </script>
 
 <template>
     <MainHeader
         title="Gestion des catégories"
-        :data="categoriesListe.length > 0"
+        :data="categories.length > 0"
         button="nouvelle catégorie"
         @add-one="createCategory"
     />
@@ -130,12 +137,10 @@ function editCategory(entity) {
         {{ error }}
     </p>
     <SearchForm
-        :options-list="[
-            {value: 'active', label: 'Actif'},
-            {value: 'inactive', label: 'Inactif'}
-        ]"
-        @status="(statusSelected) => statusFilter = statusSelected"
-        @search="(searchValue) => search = searchValue"
+        :fields="fields"
+        :data="categories"
+        id-name="categoryName"
+        @results-change="handleResults"
     />
     <WarningCard 
         v-if="status === 'warning'" 
@@ -200,11 +205,11 @@ function editCategory(entity) {
             </button>
         </template>
     </Table>
-    <p v-if="categoriesListe.length > 0  && filteredCategories.length === 0">
+    <p v-if="categories.length > 0  && filteredCategories.length === 0">
         Auncune catégorie ne correspond aux filtres.
     </p>
 
-    <div  v-if="categoriesListe.length === 0">
+    <div  v-if="categories.length === 0">
         <p>Aucune catégorie actuellement</p>
         <button class="button-primary">créer une nouvelle catégorie</button>
     </div>

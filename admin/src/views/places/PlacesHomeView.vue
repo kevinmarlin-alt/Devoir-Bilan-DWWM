@@ -3,7 +3,7 @@ import MainHeader from '@/components/MainHeader.vue';
 import MetricsCard from '@/views/sharedViews/MetricsCard.vue';
 import SearchForm from '@/components/SearchForm.vue';
 import { getAllPlaces } from '@/services/places.service.js';
-import { getAll } from '@/services/categories.service.js';
+import { getAllCategories } from '@/services/categories.service.js';
 import { toFormateDateTime } from '@/utilities/date.js';
 import TagStatus from '@/components/TagStatus.vue';
 import { computed, onMounted, ref } from 'vue';
@@ -13,8 +13,8 @@ const places = ref([]);
 
 const categories = ref([]);
 
-const getAllCategories = async () => {
-    categories.value = await getAll();
+const getCategories = async () => {
+    categories.value = await getAllCategories();
 }
 
 const optionsCategories = computed(() => {
@@ -70,7 +70,7 @@ const handleResults = (data) => {
 
 onMounted(async () => {
     places.value = await getAllPlaces();
-    getAllCategories()
+    getCategories()
 })
 </script>
 
@@ -104,8 +104,6 @@ onMounted(async () => {
         :data="places"
         @results-change="handleResults"
     />
-        <!-- @status="(statusSelected) => statusFilter = statusSelected" -->
-        <!-- @search="(searchValue) => search = searchValue" -->
     <Table 
         v-if="filteredPlaces.length > 0"
         :headers="[
