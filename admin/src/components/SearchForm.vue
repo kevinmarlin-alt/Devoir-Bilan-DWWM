@@ -81,9 +81,6 @@ const resetFilters = () => {
             Réinitialiser les filtres
         </button>
     </form>
-    {{ props }}
-    <br>
-    {{ filters }}
 </template>
 
 <style>

@@ -44,7 +44,6 @@ const category = ref('');
 const filteredCategories = ref([]);
 
 const handleResults = (data) => {
-    console.log(data)
     filteredCategories.value = data
 }
 
