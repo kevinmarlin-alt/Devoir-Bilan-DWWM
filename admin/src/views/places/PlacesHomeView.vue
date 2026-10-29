@@ -2,41 +2,75 @@
 import MainHeader from '@/components/MainHeader.vue';
 import MetricsCard from '@/views/sharedViews/MetricsCard.vue';
 import SearchForm from '@/components/SearchForm.vue';
-import { getAll } from '@/services/places.service.js';
+import { getAllPlaces } from '@/services/places.service.js';
+import { getAll } from '@/services/categories.service.js';
 import { toFormateDateTime } from '@/utilities/date.js';
-import TagActive from '@/components/TagActive.vue';
+import TagStatus from '@/components/TagStatus.vue';
 import { computed, onMounted, ref } from 'vue';
+import Table from '@/components/Table.vue';
 
 const places = ref([]);
 
-const statusFilter = ref('all');
-const search = ref('');
+const categories = ref([]);
 
+const getAllCategories = async () => {
+    categories.value = await getAll();
+}
 
-const active = computed(() => {
-    return places.value.filter(place => place.isActive).length || null
-})
-const inactive = computed(() => {
-    return places.value.length - active.value
-})
-
-const filteredPlaces = computed(() => {
-    return places.value.filter(type => {
-        const matchName = type.name
-            .toLowerCase()
-            .includes(search.value.trim().toLowerCase())
-
-        const matchStatus = 
-            statusFilter.value === 'all'
-            || statusFilter.value === 'active' && type.isActive
-            || statusFilter.value === 'inactive' && !type.isActive
-
-        return matchName && matchStatus
+const optionsCategories = computed(() => {
+    const optionsList = categories.value.map(category => {
+        return { value: category.categoryId, label: category.categoryName }
     })
+
+    return [
+        {value: '', label: 'Tous'},
+        ...optionsList
+    ]
+    
 })
+
+const fields = computed(() => {
+    return [
+        {
+            id: 'categoryId',
+            label: 'Catégorie',
+            options: optionsCategories.value
+        },
+        {
+            id: 'status',
+            label: 'Statut',
+            options: [
+                {value: '', label: 'Tous'},
+                {value: 'draft', label: 'Brouillons'},
+                {value: 'published', label: 'Publiés'},
+                {value: 'archived', label: 'Archivés'}
+            ]
+
+        }
+    ]
+}) 
+
+const draft = computed(() => {
+    return places.value.filter(place => place.status === 'draft').length || null
+})
+
+const published = computed(() => {
+    return places.value.filter(place => place.status === 'published').length || null
+})
+
+const archived = computed(() => {
+    return places.value.filter(place => place.status === 'archived').length || null
+})
+
+const filteredPlaces = ref([]);
+
+const handleResults = (data) => {
+    filteredPlaces.value = data
+}
 
 onMounted(async () => {
-    places.value = await getAll();
+    places.value = await getAllPlaces();
+    getAllCategories()
 })
 </script>
 
@@ -49,35 +83,34 @@ onMounted(async () => {
     <p>Description de la gestion des lieux</p>
     <div class="main-metrics">
         <MetricsCard
-            description="Total"
-            :value="places.length"
+            description="Brouillons"
+            :value="draft"
         />
         <MetricsCard
-            description="Actifs"
-            :value="active"
+            description="Publiés"
+            :value="published"
         />
         <MetricsCard
-            description="Inactifs"
-            :value="inactive"
+            description="Archivés"
+            :value="archived"
         />
     </div>
-    <div v-if="places.length === 0" class="no-data-wrapper">
+    <div v-if="places.length == 0" class="no-data-wrapper">
         <p>Aucun lieu pour le moment</p>
         <button type="button" class="button-primary">Créer un nouveau lieu</button>
     </div>
     <SearchForm
-        :options-list="[
-            {value: 'active', label: 'Actif'},
-            {value: 'inactive', label: 'Inactif'}
-        ]"
-        @status="(statusSelected) => statusFilter = statusSelected"
-        @search="(searchValue) => search = searchValue"
+        :fields="fields"
+        :data="places"
+        @results-change="handleResults"
     />
+        <!-- @status="(statusSelected) => statusFilter = statusSelected" -->
+        <!-- @search="(searchValue) => search = searchValue" -->
     <Table 
         v-if="filteredPlaces.length > 0"
         :headers="[
             'Nom',
-            'Nombre de lieux',
+            'Catégorie',
             'Status',
             'Dernière mise à jour'
         ]"
@@ -88,11 +121,11 @@ onMounted(async () => {
             {{ entity.name }}
         </template>
         <template #column1="{ entity }">
-            TBD
+            {{ entity.categoryId }}
         </template>
         <template #column2="{ entity }">
-            <TagActive
-                :status="entity.isActive"
+            <TagStatus
+                :status="entity.status"
             />
         </template>
         <template #column3="{ entity }">
@@ -102,7 +135,8 @@ onMounted(async () => {
             <!-- <button class="button-table" @click="editExploitation(entity)"> -->
             <button class="button-table" >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-line preview-icon">
-                    <path d="M13 21h8"/><path d="m15 5 4 4"/>
+                    <path d="M13 21h8"/>
+                    <path d="m15 5 4 4"/>
                     <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
                 </svg>
             </button>
@@ -118,10 +152,6 @@ onMounted(async () => {
             </button>
         </template>
     </Table>
-    <div>
-        {{ filteredPlaces }}
-    </div>
-
 </template>
 
 <style>

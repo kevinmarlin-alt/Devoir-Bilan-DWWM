@@ -1,6 +1,6 @@
 import { apiFetch } from "./api.service.js"
 
-export const getAll= async () => {
+export const getAllPlaces= async () => {
     const response = await apiFetch('api/admin/places')
 
     if (!response.ok) {
