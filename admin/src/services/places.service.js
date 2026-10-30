@@ -11,3 +11,12 @@ export const getAllPlaces= async () => {
 
     return places;
 }
+
+export const detelePlace = async (placeId) => {
+    const response = await apiFetch(`api/admin/places/${placeId}`, {
+        method: 'DELETE',
+    })
+
+    if(!response.ok) {
+        throw new Error('Une erreur est survenue lors de la suppression du lieu.')
+    }}

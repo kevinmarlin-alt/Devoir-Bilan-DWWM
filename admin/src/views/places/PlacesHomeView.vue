@@ -2,16 +2,25 @@
 import MainHeader from '@/components/MainHeader.vue';
 import MetricsCard from '@/views/sharedViews/MetricsCard.vue';
 import SearchForm from '@/components/SearchForm.vue';
-import { getAllPlaces } from '@/services/places.service.js';
+import { getAllPlaces, detelePlace } from '@/services/places.service.js';
 import { getAllCategories } from '@/services/categories.service.js';
 import { toFormateDateTime } from '@/utilities/date.js';
 import TagStatus from '@/components/TagStatus.vue';
 import { computed, onMounted, ref } from 'vue';
 import Table from '@/components/Table.vue';
+import inProgressCard from '@/views/sharedViews/inProgressCard.vue'
+import errorCard from '@/views/sharedViews/errorCard.vue';
+import successCard from '@/views/sharedViews/successCard.vue';
+import WarningCard from '@/views/sharedViews/WarningCard.vue';
+
 
 const places = ref([]);
 const filteredPlaces = ref([]);
-
+const error = ref(null);
+const loading = ref(true);
+const status = ref(null);
+const errorMessage = ref('');
+const place = ref('');
 const categories = ref([]);
 
 const optionsCategories = computed(() => {
@@ -59,9 +68,34 @@ const archived = computed(() => {
     return places.value.filter(place => place.status === 'archived').length || null
 })
 
+const showWarningCard = (entity) => {
+    place.value = entity
+    status.value = 'warning';
+}
+
+const deletePlace = async () => {
+    status.value = 'inProgress';
+    try {
+        await detelePlace(place.value.placeId)
+        status.value = 'success' 
+        getAllExploitationTypes();  
+        setTimeout(() => {
+            status.value = null
+        }, 3000)     
+    } catch (err) {
+        errorMessage.value = err.message
+        status.value = 'error'
+    }
+
+}
 
 const handleResults = (data) => {
     filteredPlaces.value = data
+}
+
+const cancelHandler = () => {
+    place.value = null
+    status.value = null;
 }
 
 const getCategories = async () => {
@@ -127,6 +161,25 @@ onMounted(async () => {
             :data="places"
             @results-change="handleResults"
         />
+        <WarningCard v-if="status === 'warning'"
+            title="Vous êtes sur le point de supprimer ce lieu."
+            flex-direction="row"
+            @confirm="deletePlace"
+            @cancel="cancelHandler" 
+        />
+        <inProgressCard v-else-if="status === 'inProgress'"
+            title="Suppression en cours..."
+        />
+        <errorCard v-else-if="status === 'error'"
+            title="Echec de la suppression"
+            :error="errorMessage"
+            flex-direction="row"
+            @retry="deletePlace"
+            @cancel="cancelHandler"
+        />
+        <successCard v-else-if="status === 'success'"
+            :title="`Le lieu ${place.exploitationTypeName} à bien été supprimé !`"
+        />
         <Table 
             :headers="[
                 'Nom',
@@ -160,8 +213,7 @@ onMounted(async () => {
                         <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
                     </svg>
                 </button>
-                <!-- <button class="button-table-delete" @click="showWarningCard(entity)"> -->
-                <button class="button-table-delete" >
+                <button class="button-table-delete"  @click="showWarningCard(entity)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash preview-icon">
                         <path d="M10 11v6"/>
                         <path d="M14 11v6"/>
@@ -174,14 +226,3 @@ onMounted(async () => {
         </Table>
     </template>
 </template>
-
-<style>
-.no-data-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2rem;
-    height: 300px;
-}
-</style>
