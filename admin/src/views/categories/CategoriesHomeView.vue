@@ -130,102 +130,96 @@ onMounted(() => {
         />
     </div>
     <p v-if="loading">
-        Chargement...
+        Chargement en cours...
     </p>
     <p v-else-if="error">
         {{ error }}
     </p>
-    <SearchForm
-        :fields="fields"
-        :data="categories"
-        id-name="categoryName"
-        @results-change="handleResults"
-    />
-    <WarningCard 
-        v-if="status === 'warning'" 
-        title="Vous êtes sur le point de supprimer cette catégorie."
-        entity=""
-        flex-direction="row"
-        @confirm="deleteCategory"
-        @cancel="cancelHandler" 
-    />
-    <inProgressCard v-else-if="status === 'inProgress'"
-        title="Suppression en cours..."
-    />
-    <errorCard v-else-if="status === 'error'"
-        title="Echec de la suppression"
-        :error="errorMessage"
-        flex-direction="row"
-        @retry="deleteCategory"
-        @cancel="cancelHandler"
-    />
-    <successCard v-else-if="status === 'success'"
-        :title="`La catégories ${category.categoryName} à bien été supprimée !`"
-    />
-    <Table v-if="filteredCategories.length > 0"
-        :headers="[
-            'Nom',
-            'Nombre de lieux',
-            'Status',
-            'Dernière mise à jour'
-        ]"
-        :data="filteredCategories"
-        row-key="categoryId"
-    >
-        <template #column0="{ entity }">
-            {{ entity.categoryName }}
-        </template>
-        <template #column1="{ entity }">
-            TBD
-        </template>
-        <template #column2="{ entity }">
-            <TagActive
-                :status="entity.isActive"
-            />
-        </template>
-        <template #column3="{ entity }">
-            {{ toFormateDateTime(new Date(entity.updatedAt  ?? entity.createdAt))  }}
-        </template>
-        <template #actions="{ entity }">
-            <button class="button-table" @click="editCategory(entity)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-line preview-icon">
-                    <path d="M13 21h8"/><path d="m15 5 4 4"/>
-                    <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
-                </svg>
-            </button>
-            <button class="button-table-delete" @click="showWarningCard(entity)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash preview-icon">
-                    <path d="M10 11v6"/>
-                    <path d="M14 11v6"/>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
-                    <path d="M3 6h18"/>
-                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                </svg>
-            </button>
-        </template>
-    </Table>
-    <p v-if="categories.length > 0  && filteredCategories.length === 0">
-        Auncune catégorie ne correspond aux filtres.
-    </p>
-
-    <div  v-if="categories.length === 0">
+    <div v-if="categories.length === 0" class="no-data-wrapper">
         <p>Aucune catégorie actuellement</p>
-        <button class="button-primary">créer une nouvelle catégorie</button>
+        <button class="button-primary">Créer une nouvelle catégorie</button>
     </div>
-</template>
+    <template v-else>
+        <SearchForm
+            :fields="fields"
+            :data="categories"
+            id-name="categoryName"
+            @results-change="handleResults"
+        />
+        <p v-if="filteredCategories.length === 0">
+            Auncune catégorie ne correspond aux filtres.
+        </p>
+        <template v-else>
+            <WarningCard 
+                v-if="status === 'warning'" 
+                title="Vous êtes sur le point de supprimer cette catégorie."
+                entity=""
+                flex-direction="row"
+                @confirm="deleteCategory"
+                @cancel="cancelHandler" 
+            />
+            <inProgressCard 
+                v-else-if="status === 'inProgress'"
+                title="Suppression en cours..."
+            />
+            <errorCard 
+                v-else-if="status === 'error'"
+                title="Echec de la suppression"
+                :error="errorMessage"
+                flex-direction="row"
+                @retry="deleteCategory"
+                @cancel="cancelHandler"
+            />
+            <successCard 
+                v-else-if="status === 'success'"
+                :title="`La catégories ${category.categoryName} à bien été supprimée !`"
+            />
+            <Table
+                :headers="[
+                    'Nom',
+                    'Nombre de lieux',
+                    'Status',
+                    'Dernière mise à jour'
+                ]"
+                :data="filteredCategories"
+                row-key="categoryId"
+            >
+                <template #column0="{ entity }">
+                    {{ entity.categoryName }}
+                </template>
+                <template #column1="{ entity }">
+                    TBD
+                </template>
+                <template #column2="{ entity }">
+                    <TagActive
+                        :status="entity.isActive"
+                    />
+                </template>
+                <template #column3="{ entity }">
+                    {{ toFormateDateTime(new Date(entity.updatedAt  ?? entity.createdAt))  }}
+                </template>
+                <template #actions="{ entity }">
+                    <button class="button-table" @click="editCategory(entity)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-line preview-icon">
+                            <path d="M13 21h8"/><path d="m15 5 4 4"/>
+                            <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
+                        </svg>
+                    </button>
+                    <button class="button-table-delete" @click="showWarningCard(entity)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash preview-icon">
+                            <path d="M10 11v6"/>
+                            <path d="M14 11v6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+                            <path d="M3 6h18"/>
+                            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                    </button>
+                </template>
+            </Table>
+        </template>
+    </template>
 
-<style>
-
-
-
-.no-data-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2rem;
-    height: 300px;
     
-}
 
-</style>
+    
+</template>
