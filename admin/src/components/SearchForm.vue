@@ -4,21 +4,22 @@ import FormFilter from './FormFilter.vue';
 
 const props = defineProps({
     fields: { type: Array, default: () => [] },
-    data: { type: Array, required: true }
+    data: { type: Array, required: true },
+    idName: { type: String, default: 'name'}
 })
 
 const emit = defineEmits(['results-change'])
 
 const filters = reactive({
-    name:''
+    [props.idName]:''
 })
 
 const filteredDate = computed(() => {
     return props.data.filter(item => {
         // Recherche par nom
-        const matchesName = String(item.name ?? '')
+        const matchesName = String(item[props.idName] ?? '')
             .toLowerCase()
-            .includes(filters.name.trim().toLowerCase())
+            .includes(filters[props.idName].trim().toLowerCase())
 
         // Recherche sur tous les FormFilter
         const matchesFormFilter = props.fields.every(field => {
@@ -37,7 +38,7 @@ watch(
 )
 
 const resetFilters = () => {
-    filters.name = ''
+    filters[props.idName] = ''
 
     props.fields.forEach(field => {
         filters[field.id] = ''
@@ -55,7 +56,7 @@ const resetFilters = () => {
                 name="search"
                 id="search"
                 placeholder="Rechercher par nom..."
-                v-model="filters.name"
+                v-model="filters[props.idName]"
             >
         </div>
         <div 
