@@ -14,13 +14,23 @@ import MainHeader from '@/components/MainHeader.vue';
 import SearchForm from '@/components/SearchForm.vue';
 
 
-const router = useRouter()
-
-
+const router = useRouter();
 
 const categories = ref([]);
 const loading = ref(true);
 const error = ref(null);
+const status = ref(null);
+const errorMessage = ref('');
+const category = ref('');
+const filteredCategories = ref([]);
+
+const total = computed(() => categories.value.length);
+const active = computed(() => {
+    return categories.value.filter(category => category.isActive).length
+});
+const inactive = computed(() => {
+    return total.value - active.value
+});
 
 const fields = computed(() => {
     return [
@@ -37,51 +47,40 @@ const fields = computed(() => {
     ]
 }) 
 
-const status = ref(null);
-const errorMessage = ref('');
-const category = ref('');
 
-const filteredCategories = ref([]);
+
 
 const handleResults = (data) => {
     filteredCategories.value = data
 }
 
-const total = computed(() => categories.value.length);
-const active = computed(() => {
-    return categories.value.filter(category => category.isActive).length
-});
-const inactive = computed(() => {
-    return total.value - active.value
-});
-
-async function getCategories() {
+const getCategories = async () => {
     try {
         categories.value = await getAllCategories();
-    } catch (error) {
+    } catch (err) {
         error.value = 'Impossible de charger les catégories'
     } finally {
         loading.value = false
     }
 }
 
-function createCategory() {
+const createCategory = () => {
     router.push({
         name: 'categories-create'
     })
 }
 
-async function showWarningCard(entity) {
-    category.value = entity
+const showWarningCard = (entity) => {
+category.value = entity
     status.value = 'warning';
 }
 
-function cancelHandler() {
+const cancelHandler = () => {
     category.value = null
     status.value = null;
 }
 
-async function deleteCategory() {
+const deleteCategory = async () => {
     status.value = 'inProgress';
     try {
         await deteleCategory(category.value)
@@ -97,12 +96,12 @@ async function deleteCategory() {
 
 }
 
-function editCategory(entity) {
+const editCategory = (entity) => {
     router.push({ name: 'categories-update', params: { categoryId: entity.categoryId }})
 }
 
-onMounted(() => {
-    getCategories()
+onMounted(async () => {
+    await getCategories()
 })
 
 </script>
@@ -213,8 +212,4 @@ onMounted(() => {
             </template>
         </Table>
     </template>
-
-    
-
-    
 </template>
