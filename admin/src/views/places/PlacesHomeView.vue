@@ -78,7 +78,7 @@ const deletePlace = async () => {
     try {
         await detelePlace(place.value.placeId)
         status.value = 'success' 
-        getAllExploitationTypes();  
+        getAllPlaces();  
         setTimeout(() => {
             status.value = null
         }, 3000)     
@@ -178,7 +178,8 @@ onMounted(async () => {
             @cancel="cancelHandler"
         />
         <successCard v-else-if="status === 'success'"
-            :title="`Le lieu ${place.exploitationTypeName} à bien été supprimé !`"
+            :title="`Le lieu ${place.name} à bien été supprimé !`"
+            path="/admin/places"
         />
         <Table 
             :headers="[
