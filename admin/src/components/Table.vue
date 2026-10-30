@@ -8,7 +8,7 @@ defineProps({
 
 <template>
     <p v-if="data.length === 0">
-        Auncune catégorie ne correspond aux filtres.
+        Auncun résultat ne correspond aux filtres.
     </p>
     <table v-else>
         <tr>
