@@ -12,6 +12,7 @@ import inProgressCard from '@/views/sharedViews/inProgressCard.vue'
 import errorCard from '@/views/sharedViews/errorCard.vue';
 import successCard from '@/views/sharedViews/successCard.vue';
 import WarningCard from '@/views/sharedViews/WarningCard.vue';
+import router from '@/router';
 
 
 const places = ref([]);
@@ -118,6 +119,12 @@ const getPlaces = async () => {
     }
 }
 
+const createPlace = () => {
+    router.push({
+        name: 'places_create'
+    })
+}
+
 onMounted(async () => {
     await getPlaces();
     await getCategories()
@@ -129,6 +136,7 @@ onMounted(async () => {
         title="Gestion des lieux"
         :data="places.length > 0"
         button="Nouveau lieu"
+        @add-one="createPlace"
     />
     <p>Description de la gestion des lieux</p>
     <div class="main-metrics">
@@ -153,7 +161,9 @@ onMounted(async () => {
     </p>
     <div v-if="places.length == 0" class="no-data-wrapper">
         <p>Aucun lieu pour le moment</p>
-        <button type="button" class="button-primary">Créer un nouveau lieu</button>
+        <button type="button" class="button-primary" @click="createPlace">
+            Créer un nouveau lieu
+        </button>
     </div>
     <template v-else>
         <SearchForm

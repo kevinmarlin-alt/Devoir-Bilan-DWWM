@@ -13,6 +13,7 @@ import ExploitationTypeCreateView from '@/views/exploitationTypes/ExploitationTy
 import ExploitationTypeUpdateView from '@/views/exploitationTypes/ExploitationTypeUpdateView.vue';
 import PlacesLayout from '@/layouts/PlacesLayout.vue';
 import PlacesHomeView from '@/views/places/PlacesHomeView.vue';
+import PlacesCreateView from '@/views/places/PlacesCreateView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -80,6 +81,11 @@ const router = createRouter({
               path: '',
               component: PlacesHomeView,
               name: 'places_home'
+            },
+            {
+              path: 'add',
+              name: 'places_create',
+              component: PlacesCreateView
             }
           ]
         }
