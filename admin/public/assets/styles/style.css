@@ -121,6 +121,7 @@ form {
   display: flex;
   align-items: center;
   gap:var(--space-small);
+  margin-bottom: var(--space-small);
 }
 
 input:checked ~ label {
@@ -141,6 +142,13 @@ select {
 textarea {
   max-width: 100%;
   
+}
+
+legend {
+  font-family: "Baskervville Regular", serif;
+  font-size: 0.8rem;
+  color: var(--champagne);
+  margin-bottom: var(--space-small);
 }
 
 /* Button */
@@ -177,6 +185,12 @@ button:hover {
 
 .button-secondary:hover {
   background-color: var(--button-background-secondary-hover);
+}
+
+.button-secondary:disabled {
+  background-color: var(--black-500);
+  color: var(--button-color-disable);
+  cursor: default; 
 }
 
 .button-light {

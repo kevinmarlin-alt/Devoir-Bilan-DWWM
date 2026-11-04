@@ -43,3 +43,8 @@ img, picture, video {
 table {
     border-spacing: 0;
 }
+
+fieldset {
+    border: none;
+    padding: 0;
+}
