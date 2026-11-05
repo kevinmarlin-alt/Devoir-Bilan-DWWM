@@ -4,7 +4,7 @@ import ProgressBarCreatePlace from '@/components/ProgressBarCreatePlace.vue';
 import FormPlaces from '@/components/FormPlaces.vue';
 import router from '@/router';
 import { getAllCategories } from '@/services/categories.service.js'
-import { getAllImages } from '@/services/places.service.js';
+import { createPlace, getAllImages } from '@/services/places.service.js';
 import { getAll } from '@/services/exploitationTypes.service';
 import RegistrationStatus from '@/components/RegistrationStatus.vue';
 
@@ -17,6 +17,19 @@ const registrationStatus = ref(false);
 
 const cancelHandler = () => {
     router.push({ name: 'places_home'})
+}
+
+const createHandler = async (status) => {
+    const place = await createPlace({
+        name: data.value.name,
+        description: data.value.description,
+        categoryId: data.value.category,
+        exploitationTypeIds: data.value.types,
+        imageIds: data.value.images,
+        status
+    });
+
+    return place;
 }
 
 const nextStepHandler = () => {
@@ -56,8 +69,8 @@ onMounted(async () => {
         >
             Retour à la liste
         </RouterLink>
-        <button v-if="currentStep < 3" type="button" class="button-secondary" :disabled="!data.name">Enregistrer</button>
-        <button v-else type="button" class="button-primary" :disabled="!isPublishable">Publier</button>
+        <button v-if="currentStep < 3" type="button" class="button-secondary" :disabled="!data.name" @click="createHandler('draft')">Enregistrer</button>
+        <button v-else type="button" class="button-primary" :disabled="!isPublishable" @click="createHandler('published')">Publier</button>
     </nav>
     <h1>Nouveau lieu</h1>
     <ProgressBarCreatePlace :current-step="currentStep" @selected-step="v => changeStep(v)"/>
@@ -86,7 +99,7 @@ onMounted(async () => {
             v-else
             class="button-primary"
             :disabled="!isPublishable"
-            @click="createHandler"
+            @click="createHandler('published')"
         >
             Publier
         </button>

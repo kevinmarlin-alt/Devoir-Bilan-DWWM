@@ -22,6 +22,22 @@ export const getAllImages = async () => {
     return response.json();
 }
 
+export const createPlace = async (data) => {
+    const response = await apiFetch('api/admin/places', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        throw new Error('Une erreur est survenue lors de la création du lieu.');
+    }
+
+    return await response.json();
+}
+
 export const detelePlace = async (placeId) => {
     const response = await apiFetch(`api/admin/places/${placeId}`, {
         method: 'DELETE',
