@@ -29,6 +29,7 @@ const createHandler = async (status) => {
         categoryId: data.value.category,
         exploitationTypeIds: data.value.types,
         imageIds: data.value.images,
+        mainImageId: data.value.mainImageId,
         status
     };
 
@@ -59,8 +60,9 @@ const isPublishable = computed(() => {
     const hasCategory = data.value.category !== '';
     const hasTypes = data.value.types?.length > 0;
     const hasImages = data.value.images?.length >= 1;
+    const hasMainImage = data.value.mainImageId !== null;
 
-    return hasName && hasDescription && hasCategory && hasTypes && hasImages
+    return hasName && hasDescription && hasCategory && hasTypes && hasImages && hasMainImage
 })
 
 const isRegistrable = computed(() => {

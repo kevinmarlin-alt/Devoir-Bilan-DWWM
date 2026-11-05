@@ -21,6 +21,7 @@ const description = ref('');
 const category = ref('');
 const selectedTypes = ref([]);
 const selectedImages = ref([]);
+const mainImageId = ref(null);
 
 const toggleImage = (imageId) => {
     const imageIndex = selectedImages.value.indexOf(imageId);
@@ -31,15 +32,24 @@ const toggleImage = (imageId) => {
     }
 
     selectedImages.value.splice(imageIndex, 1);
+
+    if (mainImageId.value === imageId) {
+        mainImageId.value = null;
+    }
 };
 
-watch([name, description, category, selectedTypes, selectedImages], () => {
+const setMainImage = (imageId) => {
+    mainImageId.value = imageId;
+};
+
+watch([name, description, category, selectedTypes, selectedImages, mainImageId], () => {
     emits('data-form', {
         name: name.value.trim(),
         description: description.value.trim(),
         category: category.value,
         types: [...selectedTypes.value],
-        images: [...selectedImages.value]
+        images: [...selectedImages.value],
+        mainImageId: mainImageId.value
     });
 }, { deep: true });
 </script>
@@ -116,7 +126,9 @@ watch([name, description, category, selectedTypes, selectedImages], () => {
                     :key="image.imageId"
                     :source="image"
                     :selected="selectedImages.includes(image.imageId)"
+                    :is-main="mainImageId === image.imageId"
                     @image="toggleImage"
+                    @main-image="setMainImage"
                 />
             </div>
         </template>
@@ -165,6 +177,14 @@ watch([name, description, category, selectedTypes, selectedImages], () => {
                                 <path d="m9 11 3 3L22 4"/>
                             </svg>
                             Au moins une photographie ({{ selectedImages.length }})
+                        </li>
+                        <li>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            :class="mainImageId ? 'color-success' : 'color-warning'">
+                                <path d="M21.801 10A10 10 0 1 1 17 3.335"/>
+                                <path d="m9 11 3 3L22 4"/>
+                            </svg>
+                            Photo principale sélectionnée
                         </li>
                     </ul>
                     <inProgressCard v-if="status === 'inProgress'"

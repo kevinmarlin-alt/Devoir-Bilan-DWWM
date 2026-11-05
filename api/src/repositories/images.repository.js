@@ -10,11 +10,11 @@ export const findImageById = async (imageId) => {
     });
 };
 
-export const assignImagesToPlace = async ({ imageIds, placeId }, transaction) => {
+export const assignImagesToPlace = async ({ imageIds, mainImageId, placeId }, transaction) => {
     for (let index = 0; index < imageIds.length; index++) {
         await Image.update({
             placeId,
-            isMain: index === 0
+            isMain: imageIds[index] === mainImageId
         }, {
             where: { imageId: imageIds[index] },
             transaction

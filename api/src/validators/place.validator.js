@@ -14,6 +14,7 @@ export const validatePlacePayload = (payload) => {
     const categoryId = payload.categoryId ?? null;
     const exploitationTypeIds = payload.exploitationTypeIds ?? [];
     const imageIds = payload.imageIds ?? [];
+    const mainImageId = payload.mainImageId ?? null;
 
     if (!name || name.length > 50) {
         throw new AppError('Le nom du lieu est obligatoire et ne peut pas dépasser 50 caractères.', {
@@ -29,8 +30,15 @@ export const validatePlacePayload = (payload) => {
         });
     }
 
-    if (status === 'published' && (!description || !categoryId || exploitationTypeIds.length === 0 || imageIds.length === 0)) {
-        throw new AppError('Un lieu publié requiert une description, une catégorie, un type d’exploitation et une image.', {
+    if (mainImageId && !imageIds.includes(mainImageId)) {
+        throw new AppError('La photo principale doit faire partie des images sélectionnées.', {
+            status: 400,
+            code: 'INVALID_MAIN_IMAGE'
+        });
+    }
+
+    if (status === 'published' && (!description || !categoryId || exploitationTypeIds.length === 0 || imageIds.length === 0 || !mainImageId)) {
+        throw new AppError('Un lieu publié requiert une description, une catégorie, un type d’exploitation, une image et une photo principale.', {
             status: 400,
             code: 'INCOMPLETE_PLACE_PUBLICATION'
         });
@@ -42,6 +50,7 @@ export const validatePlacePayload = (payload) => {
         categoryId,
         exploitationTypeIds,
         imageIds,
+        mainImageId,
         status
     };
 };

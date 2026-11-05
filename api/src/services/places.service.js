@@ -23,6 +23,7 @@ export const createOnePlace = async (data) => {
         await place.setExploitationTypes(data.exploitationTypeIds, { transaction });
         await assignImagesToPlace({
             imageIds: data.imageIds,
+            mainImageId: data.mainImageId,
             placeId: place.placeId
         }, transaction);
 
@@ -51,6 +52,7 @@ export const updateOnePlace = async (placeId, data) => {
         await clearImagesFromPlace(placeId, transaction);
         await assignImagesToPlace({
             imageIds: data.imageIds,
+            mainImageId: data.mainImageId,
             placeId
         }, transaction);
 
