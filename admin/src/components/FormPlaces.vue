@@ -9,7 +9,9 @@ defineProps({
     categories: { type: Array, default: [] },
     types: { type: Array, default: [] },
     images: { type: Array, default: [] },
-    currentStep: Number
+    currentStep: Number,
+    status: String,
+    place: Object
 })
 
 const emits = defineEmits(['data-form', 'is-publishable'])
@@ -19,10 +21,6 @@ const description = ref('');
 const category = ref('');
 const selectedTypes = ref([]);
 const selectedImages = ref([]);
-
-const status = ref('');
-
-const place = ref(null);
 
 const toggleImage = (imageId) => {
     const imageIndex = selectedImages.value.indexOf(imageId);

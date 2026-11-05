@@ -14,6 +14,8 @@ const categories = ref([]);
 const types = ref([]);
 const images = ref([]);
 const registrationStatus = ref(false);
+const publicationStatus = ref(null);
+const publishedPlace = ref(null);
 
 const cancelHandler = () => {
     router.push({ name: 'places_home'})
@@ -28,6 +30,15 @@ const createHandler = async (status) => {
         imageIds: data.value.images,
         status
     });
+
+    if (status === 'draft') {
+        registrationStatus.value = true;
+    }
+
+    if (status === 'published') {
+        publishedPlace.value = place;
+        publicationStatus.value = 'success';
+    }
 
     return place;
 }
@@ -70,7 +81,7 @@ onMounted(async () => {
             Retour à la liste
         </RouterLink>
         <button v-if="currentStep < 3" type="button" class="button-secondary" :disabled="!data.name" @click="createHandler('draft')">Enregistrer</button>
-        <button v-else type="button" class="button-primary" :disabled="!isPublishable" @click="createHandler('published')">Publier</button>
+        <button v-else-if="publicationStatus !== 'success'" type="button" class="button-primary" :disabled="!isPublishable" @click="createHandler('published')">Publier</button>
     </nav>
     <h1>Nouveau lieu</h1>
     <ProgressBarCreatePlace :current-step="currentStep" @selected-step="v => changeStep(v)"/>
@@ -80,9 +91,11 @@ onMounted(async () => {
         :categories="categories"
         :types="types"
         :images="images"
+        :status="publicationStatus"
+        :place="publishedPlace"
         @data-form="value => data = {...value}"
     />
-    <div class="button-group">
+    <div v-if="publicationStatus !== 'success'" class="button-group">
         <RegistrationStatus :is-saved="registrationStatus"/>
         <button class="button-secondary" @click="cancelHandler">
             Annuler
