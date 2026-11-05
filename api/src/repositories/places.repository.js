@@ -1,9 +1,10 @@
 import { Category } from "../models/Category.js";
 import { Place } from "../models/Place.js";
 
-export const findById = async (id) => {
+export const findById = async (id, transaction) => {
     return await Place.findOne({
-        where: { placeId: id }
+        where: { placeId: id },
+        transaction
     })
 }
 
@@ -33,15 +34,20 @@ export const createOne = async (data, transaction) => {
     }, { transaction })
 }
 
-export const updateOne = async (data) => {
-    return await Place.update({
+export const updateOne = async (placeId, data, transaction) => {
+    await Place.update({
         slug: data.slug,
         name: data.name,
         description: data.description,
         additionalInformation: data.additionalInformation,
         status: data.status,
         categoryId: data.categoryId
-    })
+    }, {
+        where: { placeId },
+        transaction
+    });
+
+    return await findById(placeId, transaction);
 }
 
 export const deleteOne = async (id) => {

@@ -4,7 +4,7 @@ import ProgressBarCreatePlace from '@/components/ProgressBarCreatePlace.vue';
 import FormPlaces from '@/components/FormPlaces.vue';
 import router from '@/router';
 import { getAllCategories } from '@/services/categories.service.js'
-import { createPlace, getAllImages } from '@/services/places.service.js';
+import { createPlace, getAllImages, updatePlace } from '@/services/places.service.js';
 import { getAll } from '@/services/exploitationTypes.service';
 import RegistrationStatus from '@/components/RegistrationStatus.vue';
 
@@ -16,22 +16,28 @@ const images = ref([]);
 const registrationStatus = ref(false);
 const publicationStatus = ref(null);
 const publishedPlace = ref(null);
+const draftPlace = ref(null);
 
 const cancelHandler = () => {
     router.push({ name: 'places_home'})
 }
 
 const createHandler = async (status) => {
-    const place = await createPlace({
+    const placeData = {
         name: data.value.name,
         description: data.value.description,
         categoryId: data.value.category,
         exploitationTypeIds: data.value.types,
         imageIds: data.value.images,
         status
-    });
+    };
+
+    const place = draftPlace.value
+        ? await updatePlace(draftPlace.value.placeId, placeData)
+        : await createPlace(placeData);
 
     if (status === 'draft') {
+        draftPlace.value = place;
         registrationStatus.value = true;
     }
 

@@ -1,7 +1,7 @@
-import { createOne, findAll, deleteOne } from "../repositories/places.repository.js"
+import { createOne, findAll, findById, updateOne, deleteOne } from "../repositories/places.repository.js"
 import { findCategoryById } from '../repositories/categories.repository.js';
 import { getExploitationTypeById } from '../repositories/exploitationTypes.repository.js';
-import { assignImagesToPlace, findImageById } from '../repositories/images.repository.js';
+import { assignImagesToPlace, clearImagesFromPlace, findImageById } from '../repositories/images.repository.js';
 import { AppError } from '../errors/AppError.js';
 import sequelize from '../db/database.js';
 
@@ -30,7 +30,35 @@ export const createOnePlace = async (data) => {
     });
 }
 
-const validatePlaceReferences = async (data) => {
+export const updateOnePlace = async (placeId, data) => {
+    const place = await findById(placeId);
+
+    if (!place) {
+        throw new AppError('Le lieu à modifier n’existe pas.', {
+            status: 404,
+            code: 'PLACE_NOT_FOUND'
+        });
+    }
+
+    await validatePlaceReferences(data, placeId);
+
+    const slug = data.name.toLowerCase().replaceAll(' ', '-');
+
+    return await sequelize.transaction(async (transaction) => {
+        const updatedPlace = await updateOne(placeId, { ...data, slug }, transaction);
+
+        await updatedPlace.setExploitationTypes(data.exploitationTypeIds, { transaction });
+        await clearImagesFromPlace(placeId, transaction);
+        await assignImagesToPlace({
+            imageIds: data.imageIds,
+            placeId
+        }, transaction);
+
+        return updatedPlace;
+    });
+}
+
+const validatePlaceReferences = async (data, placeId = null) => {
     if (data.categoryId) {
         const category = await findCategoryById(data.categoryId);
 
@@ -63,7 +91,7 @@ const validatePlaceReferences = async (data) => {
             });
         }
 
-        if (image.placeId) {
+        if (image.placeId && image.placeId !== placeId) {
             throw new AppError('Une image sélectionnée est déjà liée à un autre lieu.', {
                 status: 400,
                 code: 'IMAGE_ALREADY_ASSIGNED'

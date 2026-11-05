@@ -21,3 +21,13 @@ export const assignImagesToPlace = async ({ imageIds, placeId }, transaction) =>
         });
     }
 };
+
+export const clearImagesFromPlace = async (placeId, transaction) => {
+    await Image.update({
+        placeId: null,
+        isMain: false
+    }, {
+        where: { placeId },
+        transaction
+    });
+};

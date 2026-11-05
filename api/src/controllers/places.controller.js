@@ -1,4 +1,4 @@
-import { createOnePlace, getAll, deleteOnePlace } from "../services/places.service.js";
+import { createOnePlace, getAll, updateOnePlace, deleteOnePlace } from "../services/places.service.js";
 import { AppError } from '../errors/AppError.js';
 import { validatePlacePayload } from '../validators/place.validator.js';
 
@@ -13,6 +13,13 @@ export const createPlace = async (req, res) => {
     const place = await createOnePlace(data);
 
     res.status(201).json(place);
+}
+
+export const updatePlace = async (req, res) => {
+    const data = validatePlacePayload(req.body);
+    const place = await updateOnePlace(req.params.id, data);
+
+    res.status(200).json(place);
 }
 
 export const deletePlace = async (req, res) => {
