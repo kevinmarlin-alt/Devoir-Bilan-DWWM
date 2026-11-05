@@ -22,7 +22,7 @@ export const findAll = async () => {
     })
 }
 
-export const createOne = async (data) => {
+export const createOne = async (data, transaction) => {
     return await Place.create({
         slug: data.slug,
         name: data.name,
@@ -30,7 +30,7 @@ export const createOne = async (data) => {
         additionalInformation: data.additionalInformation,
         status: data.status,
         categoryId: data.categoryId
-    })
+    }, { transaction })
 }
 
 export const updateOne = async (data) => {
