@@ -8,6 +8,7 @@ import errorCard from '@/views/sharedViews/errorCard.vue'
 defineProps({
     categories: { type: Array, default: [] },
     types: { type: Array, default: [] },
+    images: { type: Array, default: [] },
     currentStep: Number
 })
 
@@ -43,12 +44,6 @@ watch([name, description, category, selectedTypes, selectedImages], () => {
         images: [...selectedImages.value]
     });
 }, { deep: true });
-const imagesTest = [
-    {id: 1, src: 'hgsqdvckjhd.jpg', alt: 'jhsqdfgkhdhglqf'},
-    {id: 2, src: 'hgsqdvckjhd.jpg', alt: 'jhsqdfgkhdhglqf'},
-    {id: 3, src: 'hgsqdvckjhd.jpg', alt: 'jhsqdfgkhdhglqf'},
-    {id: 4, src: 'hgsqdvckjhd.jpg', alt: 'jhsqdfgkhdhglqf'}
-]
 </script>
 
 <template>
@@ -117,11 +112,12 @@ const imagesTest = [
             <h2>Photographies</h2>
             <p>Images ajoutées ({{ selectedImages.length }})</p>
             <div class="container-images">
-                <ImagePlace 
-                    v-for="image in imagesTest"
-                    :key="image.id"
+                <p v-if="images.length === 0">Aucune image disponible.</p>
+                <ImagePlace
+                    v-for="image in images"
+                    :key="image.imageId"
                     :source="image"
-                    :selected="selectedImages.includes(image.id)"
+                    :selected="selectedImages.includes(image.imageId)"
                     @image="toggleImage"
                 />
             </div>
@@ -207,8 +203,10 @@ const imagesTest = [
 }
 
 .container-images {
-    display: flex;
-    gap: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--space-medium);
+    width: 100%;
 }
 
 .validation-card {

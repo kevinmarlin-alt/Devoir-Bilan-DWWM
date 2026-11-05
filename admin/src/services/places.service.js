@@ -12,6 +12,16 @@ export const getAllPlaces= async () => {
     return places;
 }
 
+export const getAllImages = async () => {
+    const response = await apiFetch('api/admin/images');
+
+    if (!response.ok) {
+        throw new Error('Impossible de récupérer les images');
+    }
+
+    return response.json();
+}
+
 export const detelePlace = async (placeId) => {
     const response = await apiFetch(`api/admin/places/${placeId}`, {
         method: 'DELETE',

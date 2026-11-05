@@ -4,6 +4,7 @@ import ProgressBarCreatePlace from '@/components/ProgressBarCreatePlace.vue';
 import FormPlaces from '@/components/FormPlaces.vue';
 import router from '@/router';
 import { getAllCategories } from '@/services/categories.service.js'
+import { getAllImages } from '@/services/places.service.js';
 import { getAll } from '@/services/exploitationTypes.service';
 import RegistrationStatus from '@/components/RegistrationStatus.vue';
 
@@ -11,6 +12,7 @@ const currentStep = ref(1);
 const data = ref({});
 const categories = ref([]);
 const types = ref([]);
+const images = ref([]);
 const registrationStatus = ref(false);
 
 const cancelHandler = () => {
@@ -42,6 +44,7 @@ const changeStep = (step) => {
 onMounted(async () => {
     categories.value = await getAllCategories();
     types.value = await getAll();
+    images.value = await getAllImages();
 })
 </script>
 
@@ -63,6 +66,7 @@ onMounted(async () => {
         :current-step="currentStep"
         :categories="categories"
         :types="types"
+        :images="images"
         @data-form="value => data = {...value}"
     />
     <div class="button-group">
