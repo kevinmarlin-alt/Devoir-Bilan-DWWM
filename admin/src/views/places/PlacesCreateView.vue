@@ -5,11 +5,13 @@ import FormPlaces from '@/components/FormPlaces.vue';
 import router from '@/router';
 import { getAllCategories } from '@/services/categories.service.js'
 import { getAll } from '@/services/exploitationTypes.service';
+import RegistrationStatus from '@/components/RegistrationStatus.vue';
 
 const currentStep = ref(1);
 const data = ref({});
 const categories = ref([]);
 const types = ref([]);
+const registrationStatus = ref(false);
 
 const cancelHandler = () => {
     router.push({ name: 'places_home'})
@@ -46,9 +48,7 @@ onMounted(async () => {
         @data-form="value => data = {...value}"
     />
     <div class="button-group">
-        <div class="registration-status">
-            <span></span>Non enregistrée
-        </div>
+        <RegistrationStatus :is-saved="registrationStatus"/>
         <button class="button-secondary" @click="cancelHandler">
             Annuler
         </button>

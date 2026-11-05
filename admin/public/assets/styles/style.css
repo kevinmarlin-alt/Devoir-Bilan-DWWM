@@ -218,16 +218,6 @@ button:hover {
     gap: 2rem;
 }
 
-.registration-status {
-    width: 100%;
-}
-.registration-status-warning  {
-    color: var(--amber-warm);
-}
-.registration-status-success  {
-    color: var(--green-soft);
-}
-
 /* Table */
 table {
   background-color: var(--table-background);
