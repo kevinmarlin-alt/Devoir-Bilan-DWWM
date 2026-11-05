@@ -35,6 +35,10 @@ const isRegistrable = computed(() => {
     return data.value.name !== '';
 })
 
+const changeStep = (step) => {
+    currentStep.value = step;
+}
+
 onMounted(async () => {
     categories.value = await getAllCategories();
     types.value = await getAll();
@@ -53,7 +57,7 @@ onMounted(async () => {
         <button v-else type="button" class="button-primary" :disabled="!isPublishable">Publier</button>
     </nav>
     <h1>Nouveau lieu</h1>
-    <ProgressBarCreatePlace :current-step="currentStep"/>
+    <ProgressBarCreatePlace :current-step="currentStep" @selected-step="v => changeStep(v)"/>
     
     <FormPlaces 
         :current-step="currentStep"
@@ -83,8 +87,6 @@ onMounted(async () => {
             Publier
         </button>
     </div>
-    {{ data }}
-    {{ isPublishable }}
 </template>
 
 <style>

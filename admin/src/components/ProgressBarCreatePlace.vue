@@ -13,6 +13,8 @@ const steps = [
     { title: 'Publication' },
 ];
 
+const emits = defineEmits(['selected-step'])
+
 </script>
 
 <template>
@@ -20,7 +22,10 @@ const steps = [
         <template v-for="(step, index) in steps" :key="step.title">
             <div v-if="index > 0" class="step_line" :class="{ active_step: index < currentStep }"></div>
             <div class="step">
-                <div class="step_number" :class="{ active_step: index < currentStep }">
+                <div    
+                    class="step_number" :class="{ active_step: index < currentStep }"
+                    @mousedown="index < currentStep ? emits('selected-step', index + 1) : null"
+                >
                     {{ index + 1 }}
                 </div>
                 <p class="step_title">

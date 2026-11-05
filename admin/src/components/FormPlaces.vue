@@ -192,6 +192,10 @@ const imagesTest = [
 </template>
 
 <style>
+.form-container {
+    min-height: 400px;
+}
+
 .flex-container-row {
     display: flex;
     width: 100%;
