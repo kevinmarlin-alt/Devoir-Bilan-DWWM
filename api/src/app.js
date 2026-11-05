@@ -8,6 +8,7 @@ import categoriesRouter from './routes/categories.route.js';
 import exploitationTypesRouter from './routes/exploitationTypes.route.js';
 import { authenticate } from './middlewares/auth.middleware.js';
 import placesRouter from './routes/places.route.js';
+import imagesRouter from './routes/images.route.js';
 
 export const createApp = () => {
 
@@ -30,6 +31,7 @@ export const createApp = () => {
     app.use('/api/admin/categories', authenticate, categoriesRouter);
     app.use('/api/admin/exploitation-types', authenticate, exploitationTypesRouter);
     app.use('/api/admin/places', authenticate, placesRouter);
+    app.use('/api/admin/images', authenticate, imagesRouter);
 
     app.use(errorHandler);
 
