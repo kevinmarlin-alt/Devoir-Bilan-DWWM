@@ -1,7 +1,9 @@
 import { Image } from '../models/Image.js';
 
 export const findAllImages = async () => {
-    return await Image.findAll()
+    return await Image.findAll({
+        where: { placeId: null }
+    })
 };
 
 export const findImageById = async (imageId) => {
