@@ -41,6 +41,7 @@
   --space-small: 0.5rem;
   --space-medium: 1rem;
   --space-large: 1.5rem;
+  --space-xtralarge: 2.5rem;
   --letter-space: 0.7em;
   --app-spacer: 2rem;
   --form-spacer: 1.5rem;
@@ -157,6 +158,8 @@ button:hover {
 }
 
 .button-primary {
+  display: inline-flex;
+  align-items: center;
   padding: var(--space-medium) var(--space-large);
   border-radius: var(--radius-medium);
   letter-spacing: var(--letter-space);

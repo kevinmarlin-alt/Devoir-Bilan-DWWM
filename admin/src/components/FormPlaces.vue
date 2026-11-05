@@ -1,6 +1,9 @@
 <script setup>
 import { ref, watch } from 'vue';
 import ImagePlace from './ImagePlace.vue';
+import inProgressCard from '@/views/sharedViews/inProgressCard.vue'
+import successPublication from '@/components/publication/successPublication.vue'
+import errorCard from '@/views/sharedViews/errorCard.vue'
 
 defineProps({
     categories: { type: Array, default: [] },
@@ -8,13 +11,17 @@ defineProps({
     currentStep: Number
 })
 
-const emits = defineEmits(['data-form'])
+const emits = defineEmits(['data-form', 'is-publishable'])
 
 const name = ref('');
 const description = ref('');
 const category = ref('');
 const selectedTypes = ref([]);
 const selectedImages = ref([]);
+
+const status = ref('');
+
+const place = ref(null);
 
 const toggleImage = (imageId) => {
     const imageIndex = selectedImages.value.indexOf(imageId);
@@ -121,8 +128,66 @@ const imagesTest = [
         </template>
         <template v-else-if="currentStep === 3">
             <h2>Vérification avant validation</h2>
+            <div class="validation-card">
+                <p>Le lieu peut être publié s’il rempli les conditions suivantes</p>
+                <div>
+                    <ul>
+                        <li>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            :class="!name ? 'color-warning' : 'color-success'">
+                                <path d="M21.801 10A10 10 0 1 1 17 3.335"/>
+                                <path d="m9 11 3 3L22 4"/>
+                            </svg>
+                            Nom renseigné
+                        </li>
+                        <li>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            :class="!description ? 'color-warning' : 'color-success'">
+                                <path d="M21.801 10A10 10 0 1 1 17 3.335"/>
+                                <path d="m9 11 3 3L22 4"/>
+                            </svg>
+                            Description renseignée
+                        </li>
+                        <li>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            :class="!category ? 'color-warning' : 'color-success'">
+                                <path d="M21.801 10A10 10 0 1 1 17 3.335"/>
+                                <path d="m9 11 3 3L22 4"/>
+                            </svg>
+                            Catégorie renseignée
+                        </li>
+                        <li>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            :class="!selectedTypes ? 'color-warning' : 'color-success'">
+                                <path d="M21.801 10A10 10 0 1 1 17 3.335"/>
+                                <path d="m9 11 3 3L22 4"/>
+                            </svg>
+                            Types d'exploitation renseignés
+                        </li>
+                        <li>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            :class="selectedImages.length >= 1 ? 'color-success' : 'color-warning'">
+                                <path d="M21.801 10A10 10 0 1 1 17 3.335"/>
+                                <path d="m9 11 3 3L22 4"/>
+                            </svg>
+                            Au moins une photographie ({{ selectedImages.length }})
+                        </li>
+                    </ul>
+                    <inProgressCard v-if="status === 'inProgress'"
+                        title="Publication en cours..."
+                    />
+                    <errorCard v-else-if="status === 'error'"
+                        title="Echec de la bublication"
+                        :error="errorMessage"
+                        @retry="deleteExploitation"
+                        @cancel="cancelHandler"
+                    />
+                    <successPublication v-else-if="status === 'success'"
+                    :slug="place?.slug"
+                    />
+                </div>
+            </div>
         </template>
-        
     </form>
 </template>
 
@@ -140,5 +205,46 @@ const imagesTest = [
 .container-images {
     display: flex;
     gap: 1rem;
+}
+
+.validation-card {
+    gap: var(--space-medium);
+    background-color: var(--card-background);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-large);
+    padding: var(--space-large);
+}
+
+.validation-card > p {
+    color: var(--champagne);
+    margin-bottom: var(--space-large);
+}
+
+.validation-card > div {
+    display: flex;
+}
+
+.validation-card ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-large);
+    min-width: 600px;
+}
+
+.validation-card li {
+    display: flex;
+    align-items: center;
+}
+
+.validation-card li svg {
+    margin-right: var(--space-small);
+}
+
+.color-success {
+    color: var(--green-soft);
+}
+
+.color-warning {
+    color: var(--amber-warm);
 }
 </style>

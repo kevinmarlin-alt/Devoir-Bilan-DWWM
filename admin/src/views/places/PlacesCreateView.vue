@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import ProgressBarCreatePlace from '@/components/ProgressBarCreatePlace.vue';
 import FormPlaces from '@/components/FormPlaces.vue';
 import router from '@/router';
@@ -21,6 +21,20 @@ const nextStepHandler = () => {
     currentStep.value++
 }
 
+const isPublishable = computed(() => {
+    const hasName = data.value.name !== '';
+    const hasDescription = data.value.description !== '';
+    const hasCategory = data.value.category !== '';
+    const hasTypes = data.value.types?.length > 0;
+    const hasImages = data.value.images?.length >= 1;
+
+    return hasName && hasDescription && hasCategory && hasTypes && hasImages
+})
+
+const isRegistrable = computed(() => {
+    return data.value.name !== '';
+})
+
 onMounted(async () => {
     categories.value = await getAllCategories();
     types.value = await getAll();
@@ -36,7 +50,7 @@ onMounted(async () => {
             Retour à la liste
         </RouterLink>
         <button v-if="currentStep < 3" type="button" class="button-secondary" :disabled="!data.name">Enregistrer</button>
-        <button v-else type="button" class="button-primary">Publier</button>
+        <button v-else type="button" class="button-primary" :disabled="!isPublishable">Publier</button>
     </nav>
     <h1>Nouveau lieu</h1>
     <ProgressBarCreatePlace :current-step="currentStep"/>
@@ -55,7 +69,7 @@ onMounted(async () => {
         <button 
             v-if="currentStep < 3"
             class="button-primary"
-            :disabled="!data.name"
+            :disabled="!isRegistrable"
             @click="nextStepHandler"
         >
             Suivant
@@ -63,13 +77,14 @@ onMounted(async () => {
         <button 
             v-else
             class="button-primary"
-            :disabled="!data.name"
+            :disabled="!isPublishable"
             @click="createHandler"
         >
             Publier
         </button>
     </div>
     {{ data }}
+    {{ isPublishable }}
 </template>
 
 <style>
