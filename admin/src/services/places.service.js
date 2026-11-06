@@ -23,6 +23,7 @@ export const getAllImages = async () => {
 }
 
 export const createPlace = async (data) => {
+    console.log(data);
     const response = await apiFetch('api/admin/places', {
         method: 'POST',
         headers: {

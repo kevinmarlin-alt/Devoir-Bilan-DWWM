@@ -2,6 +2,7 @@ import { Category } from './Category.js';
 import { Image } from './Image.js';
 import { Place } from './Place.js';
 import { ExploitationType } from './ExploitationType.js';
+import { PlaceExploitationType } from './PlaceExploitationType.js';
 
 Category.hasMany(Place, {
     foreignKey: 'categoryId',
@@ -24,14 +25,14 @@ Image.belongsTo(Place, {
 });
 
 Place.belongsToMany(ExploitationType, {
-    through: 'place_exploitation_type',
+    through: PlaceExploitationType,
     foreignKey: 'placeId',
     otherKey: 'exploitationTypeId',
     as: 'exploitationTypes'
 });
 
 ExploitationType.belongsToMany(Place, {
-    through: 'place_exploitation_type',
+    through: PlaceExploitationType,
     foreignKey: 'exploitationTypeId',
     otherKey: 'placeId',
     as: 'places'

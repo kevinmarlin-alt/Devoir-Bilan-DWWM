@@ -154,6 +154,7 @@ onMounted(async () => {
             Publier
         </button>
     </div>
+    {{ data }}
 </template>
 
 <style>
