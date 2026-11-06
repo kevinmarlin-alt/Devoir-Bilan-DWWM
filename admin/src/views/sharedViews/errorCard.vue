@@ -13,6 +13,10 @@ defineProps({
         type: String,
         required: false,
         default: 'column'
+    },
+    cancelPath: {
+        type: String,
+        default: '/admin/categories'
     }
 })
 </script>
@@ -31,7 +35,7 @@ defineProps({
         <p>{{ error }}</p>
         
         <button class="button-primary" @click="emit('retry')">réessayer</button>
-        <RouterLink to="/admin/categories">
+        <RouterLink :to="cancelPath">
             <button class="button-secondary" @click="emit('cancel')">Annuler</button>
         </RouterLink>
        

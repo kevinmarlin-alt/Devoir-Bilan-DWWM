@@ -41,6 +41,7 @@
   --space-small: 0.5rem;
   --space-medium: 1rem;
   --space-large: 1.5rem;
+  --space-xtralarge: 2.5rem;
   --letter-space: 0.7em;
   --app-spacer: 2rem;
   --form-spacer: 1.5rem;
@@ -121,6 +122,7 @@ form {
   display: flex;
   align-items: center;
   gap:var(--space-small);
+  margin-bottom: var(--space-small);
 }
 
 input:checked ~ label {
@@ -143,12 +145,21 @@ textarea {
   
 }
 
+legend {
+  font-family: "Baskervville Regular", serif;
+  font-size: 0.8rem;
+  color: var(--champagne);
+  margin-bottom: var(--space-small);
+}
+
 /* Button */
 button:hover {
   cursor: pointer;
 }
 
 .button-primary {
+  display: inline-flex;
+  align-items: center;
   padding: var(--space-medium) var(--space-large);
   border-radius: var(--radius-medium);
   letter-spacing: var(--letter-space);
@@ -179,6 +190,12 @@ button:hover {
   background-color: var(--button-background-secondary-hover);
 }
 
+.button-secondary:disabled {
+  background-color: var(--black-500);
+  color: var(--button-color-disable);
+  cursor: default; 
+}
+
 .button-light {
   display: inline-block;
   font-size: 0.75rem;
@@ -202,16 +219,6 @@ button:hover {
     justify-content: space-between;
     align-items: center;
     gap: 2rem;
-}
-
-.registration-status {
-    width: 100%;
-}
-.registration-status-warning  {
-    color: var(--amber-warm);
-}
-.registration-status-success  {
-    color: var(--green-soft);
 }
 
 /* Table */
