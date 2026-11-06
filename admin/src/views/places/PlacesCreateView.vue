@@ -7,6 +7,8 @@ import { getAllCategories } from '@/services/categories.service.js'
 import { createPlace, getAllImages, updatePlace } from '@/services/places.service.js';
 import { getAll } from '@/services/exploitationTypes.service';
 import RegistrationStatus from '@/components/RegistrationStatus.vue';
+import inProgressCard from '@/views/sharedViews/inProgressCard.vue';
+import errorCard from '@/views/sharedViews/errorCard.vue';
 
 const currentStep = ref(1);
 const data = ref({});
@@ -14,40 +16,53 @@ const categories = ref([]);
 const types = ref([]);
 const images = ref([]);
 const registrationStatus = ref(false);
-const publicationStatus = ref(null);
 const publishedPlace = ref(null);
 const draftPlace = ref(null);
+const requestStatus = ref(null);
+const errorMessage = ref('');
+const lastActionStatus = ref(null);
 
 const cancelHandler = () => {
     router.push({ name: 'places_home'})
 }
 
 const createHandler = async (status) => {
-    const placeData = {
-        name: data.value.name,
-        description: data.value.description,
-        categoryId: data.value.category,
-        exploitationTypeIds: data.value.types,
-        imageIds: data.value.images,
-        mainImageId: data.value.mainImageId,
-        status
-    };
+    requestStatus.value = 'inProgress';
+    lastActionStatus.value = status;
 
-    const place = draftPlace.value
-        ? await updatePlace(draftPlace.value.placeId, placeData)
-        : await createPlace(placeData);
+    try {
+        const placeData = {
+            name: data.value.name,
+            description: data.value.description,
+            categoryId: data.value.category,
+            exploitationTypeIds: data.value.types,
+            imageIds: data.value.images,
+            mainImageId: data.value.mainImageId,
+            status
+        };
 
-    if (status === 'draft') {
-        draftPlace.value = place;
-        registrationStatus.value = true;
+        const place = draftPlace.value
+            ? await updatePlace(draftPlace.value.placeId, placeData)
+            : await createPlace(placeData);
+
+        if (status === 'draft') {
+            draftPlace.value = place;
+            registrationStatus.value = true;
+            requestStatus.value = null;
+        }
+
+        if (status === 'published') {
+            publishedPlace.value = place;
+            requestStatus.value = 'success';
+        }
+    } catch (error) {
+        errorMessage.value = error.message;
+        requestStatus.value = 'error';
     }
+}
 
-    if (status === 'published') {
-        publishedPlace.value = place;
-        publicationStatus.value = 'success';
-    }
-
-    return place;
+const retryHandler = () => {
+    createHandler(lastActionStatus.value);
 }
 
 const nextStepHandler = () => {
@@ -69,6 +84,8 @@ const isRegistrable = computed(() => {
     return data.value.name !== '';
 })
 
+const isSaving = computed(() => requestStatus.value === 'inProgress');
+
 const changeStep = (step) => {
     currentStep.value = step;
 }
@@ -88,8 +105,8 @@ onMounted(async () => {
         >
             Retour à la liste
         </RouterLink>
-        <button v-if="currentStep < 3" type="button" class="button-secondary" :disabled="!data.name" @click="createHandler('draft')">Enregistrer</button>
-        <button v-else-if="publicationStatus !== 'success'" type="button" class="button-primary" :disabled="!isPublishable" @click="createHandler('published')">Publier</button>
+        <button v-if="currentStep < 3" type="button" class="button-secondary" :disabled="!data.name || isSaving" @click="createHandler('draft')">Enregistrer</button>
+        <button v-else-if="requestStatus !== 'success'" type="button" class="button-primary" :disabled="!isPublishable || isSaving" @click="createHandler('published')">Publier</button>
     </nav>
     <h1>Nouveau lieu</h1>
     <ProgressBarCreatePlace :current-step="currentStep" @selected-step="v => changeStep(v)"/>
@@ -99,11 +116,23 @@ onMounted(async () => {
         :categories="categories"
         :types="types"
         :images="images"
-        :status="publicationStatus"
+        :status="requestStatus"
         :place="publishedPlace"
         @data-form="value => data = {...value}"
     />
-    <div v-if="publicationStatus !== 'success'" class="button-group">
+    <inProgressCard
+        v-if="requestStatus === 'inProgress'"
+        title="Enregistrement en cours..."
+    />
+    <errorCard
+        v-else-if="requestStatus === 'error'"
+        title="Échec de l'enregistrement"
+        :error="errorMessage"
+        cancel-path="/admin/places"
+        @retry="retryHandler"
+        @cancel="cancelHandler"
+    />
+    <div v-if="requestStatus !== 'success'" class="button-group">
         <RegistrationStatus :is-saved="registrationStatus"/>
         <button class="button-secondary" @click="cancelHandler">
             Annuler
@@ -111,7 +140,7 @@ onMounted(async () => {
         <button 
             v-if="currentStep < 3"
             class="button-primary"
-            :disabled="!isRegistrable"
+            :disabled="!isRegistrable || isSaving"
             @click="nextStepHandler"
         >
             Suivant
@@ -119,7 +148,7 @@ onMounted(async () => {
         <button 
             v-else
             class="button-primary"
-            :disabled="!isPublishable"
+            :disabled="!isPublishable || isSaving"
             @click="createHandler('published')"
         >
             Publier

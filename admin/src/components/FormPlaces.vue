@@ -1,9 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import ImagePlace from './ImagePlace.vue';
-import inProgressCard from '@/views/sharedViews/inProgressCard.vue'
 import successPublication from '@/components/publication/successPublication.vue'
-import errorCard from '@/views/sharedViews/errorCard.vue'
 
 defineProps({
     categories: { type: Array, default: [] },
@@ -14,7 +12,7 @@ defineProps({
     place: Object
 })
 
-const emits = defineEmits(['data-form', 'is-publishable'])
+const emits = defineEmits(['data-form'])
 
 const name = ref('');
 const description = ref('');
@@ -187,16 +185,7 @@ watch([name, description, category, selectedTypes, selectedImages, mainImageId],
                             Photo principale sélectionnée
                         </li>
                     </ul>
-                    <inProgressCard v-if="status === 'inProgress'"
-                        title="Publication en cours..."
-                    />
-                    <errorCard v-else-if="status === 'error'"
-                        title="Echec de la bublication"
-                        :error="errorMessage"
-                        @retry="deleteExploitation"
-                        @cancel="cancelHandler"
-                    />
-                    <successPublication v-else-if="status === 'success'"
+                    <successPublication v-if="status === 'success'"
                     :slug="place?.slug"
                     />
                 </div>
