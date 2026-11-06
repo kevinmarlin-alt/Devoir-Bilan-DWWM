@@ -211,6 +211,12 @@ button:hover {
   cursor: default; 
 }
 
+.--delete {
+  background-color: var(--red-dark);
+  border: 1px solid var(--red-soft);
+  color: var(--red-soft);
+}
+
 .button-light {
   display: inline-block;
   font-size: 0.75rem;

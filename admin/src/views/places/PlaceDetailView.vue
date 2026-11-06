@@ -7,15 +7,12 @@ import { useRoute } from 'vue-router';
 
 const route = useRoute();
 
-const place = ref({
-
-});
+const place = ref({});
 
 const metrics = ref({
     consultations: 0,
     requests: 0
 });
-
 
 onMounted(async () => {
     place.value = await getPlaceById(route.params.id);
@@ -30,9 +27,20 @@ onMounted(async () => {
         >
             Retour à la liste
         </RouterLink>
-        <TagStatus :status="place.status"/>
+        <div v-if="place.status === 'published'" class="button-container">
+            <button type="button" class="button-secondary">Archiver</button>
+            <button type="button" class="button-primary">Modifier</button>
+        </div>
+        <div v-else class="button-container">
+            <button type="button" class="button-secondary --delete">Supprimer</button>
+            <button type="button" class="button-primary">Modifier</button>
+        </div>
+        
     </nav>
-    <h1>{{ place.name }}</h1>
+    <div class="title-container">
+        <h1>{{ place.name }}</h1>
+        <TagStatus :status="place.status"/>
+    </div>
     <section class="main-metrics">
         <MetricsCard
             description="Consultations"
@@ -119,6 +127,13 @@ li {
 
 h2 {
     margin-bottom: var(--space-large);
+}
+
+.title-container,
+.button-container {
+    display: flex;
+    align-items: center;
+    gap: var(--space-large);
 }
 
 .info-container {
