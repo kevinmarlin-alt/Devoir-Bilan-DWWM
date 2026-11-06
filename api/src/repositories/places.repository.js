@@ -8,6 +8,12 @@ export const findById = async (id, transaction) => {
     })
 }
 
+export const findBySlug = async (slug) => {
+    return await Place.findOne({
+        where: { slug }
+    });
+}
+
 export const findAll = async () => {
     return await Place.findAll({
         include: [

@@ -17,6 +17,28 @@ test('accepts a draft with only a name', () => {
     });
 });
 
+test('accepts the minimal draft sent by the form', () => {
+    const place = validatePlacePayload({
+        name: 'lieu brouillon',
+        description: '',
+        categoryId: '',
+        exploitationTypeIds: [],
+        imageIds: [],
+        mainImageId: null,
+        status: 'draft'
+    });
+
+    assert.deepEqual(place, {
+        name: 'lieu brouillon',
+        description: null,
+        categoryId: null,
+        exploitationTypeIds: [],
+        imageIds: [],
+        mainImageId: null,
+        status: 'draft'
+    });
+});
+
 test('accepts a complete publication', () => {
     const place = validatePlacePayload({
         name: 'Villa des Pins',

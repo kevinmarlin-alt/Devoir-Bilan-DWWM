@@ -23,7 +23,6 @@ export const getAllImages = async () => {
 }
 
 export const createPlace = async (data) => {
-    console.log(data);
     const response = await apiFetch('api/admin/places', {
         method: 'POST',
         headers: {
@@ -33,7 +32,8 @@ export const createPlace = async (data) => {
     });
 
     if (!response.ok) {
-        throw new Error('Une erreur est survenue lors de la création du lieu.');
+        const { error } = await response.json();
+        throw new Error(error.message ?? 'Une erreur est survenue lors de la création du lieu.');
     }
 
     return await response.json();
@@ -49,7 +49,8 @@ export const updatePlace = async (placeId, data) => {
     });
 
     if (!response.ok) {
-        throw new Error('Une erreur est survenue lors de la mise à jour du lieu.');
+        const {error} = await response.json();
+        throw new Error(error.message ?? 'Une erreur est survenue lors de la mise à jour du lieu.');
     }
 
     return await response.json();

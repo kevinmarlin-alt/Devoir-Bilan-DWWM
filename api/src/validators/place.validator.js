@@ -11,7 +11,7 @@ export const validatePlacePayload = (payload) => {
     const name = typeof payload.name === 'string' ? payload.name.trim() : '';
     const description = typeof payload.description === 'string' ? payload.description.trim() : '';
     const status = payload.status ?? 'draft';
-    const categoryId = payload.categoryId ?? null;
+    const categoryId = payload.categoryId === '' ? null : (payload.categoryId ?? null);
     const exploitationTypeIds = payload.exploitationTypeIds ?? [];
     const imageIds = payload.imageIds ?? [];
     const mainImageId = payload.mainImageId ?? null;

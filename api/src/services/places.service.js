@@ -1,4 +1,4 @@
-import { createOne, findAll, findById, updateOne, deleteOne } from "../repositories/places.repository.js"
+import { createOne, findAll, findById, findBySlug, updateOne, deleteOne } from "../repositories/places.repository.js"
 import { findCategoryById } from '../repositories/categories.repository.js';
 import { getExploitationTypeById } from '../repositories/exploitationTypes.repository.js';
 import { assignImagesToPlace, clearImagesFromPlace, findImageById } from '../repositories/images.repository.js';
@@ -13,6 +13,7 @@ export const createOnePlace = async (data) => {
     await validatePlaceReferences(data);
 
     const slug = data.name.toLowerCase().replaceAll(' ', '-');
+    await validateSlugAvailability(slug);
 
     return await sequelize.transaction(async (transaction) => {
         const place = await createOne({
@@ -44,6 +45,7 @@ export const updateOnePlace = async (placeId, data) => {
     await validatePlaceReferences(data, placeId);
 
     const slug = data.name.toLowerCase().replaceAll(' ', '-');
+    await validateSlugAvailability(slug, placeId);
 
     return await sequelize.transaction(async (transaction) => {
         const updatedPlace = await updateOne(placeId, { ...data, slug }, transaction);
@@ -99,6 +101,17 @@ const validatePlaceReferences = async (data, placeId = null) => {
                 code: 'IMAGE_ALREADY_ASSIGNED'
             });
         }
+    }
+}
+
+const validateSlugAvailability = async (slug, placeId = null) => {
+    const placeWithSameSlug = await findBySlug(slug);
+
+    if (placeWithSameSlug && placeWithSameSlug.placeId !== Number(placeId)) {
+        throw new AppError('Un lieu avec ce nom existe déjà. Veuillez choisir un autre nom.', {
+            status: 409,
+            code: 'SLUG_ALREADY_EXISTS'
+        });
     }
 }
 
