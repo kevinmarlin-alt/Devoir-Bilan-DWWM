@@ -15,6 +15,7 @@ import PlacesLayout from '@/layouts/PlacesLayout.vue';
 import PlacesHomeView from '@/views/places/PlacesHomeView.vue';
 import PlacesCreateView from '@/views/places/PlacesCreateView.vue';
 import PlaceDetailView from '@/views/places/PlaceDetailView.vue';
+import PlacesUpdateView from '@/views/places/PlacesUpdateView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -89,9 +90,14 @@ const router = createRouter({
               component: PlacesCreateView
             },
             {
-              path: '/:id',
+              path: ':id',
               name: 'places_detail',
               component: PlaceDetailView
+            },
+            {
+              path: ':id',
+              name: 'places_update',
+              component: PlacesUpdateView
             }
           ]
         }

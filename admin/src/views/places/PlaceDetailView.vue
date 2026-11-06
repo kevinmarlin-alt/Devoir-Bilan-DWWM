@@ -3,9 +3,10 @@ import { getPlaceById } from '@/services/places.service.js';
 import TagStatus from '@/components/TagStatus.vue';
 import MetricsCard from '../sharedViews/MetricsCard.vue';
 import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
+const router = useRouter();
 
 const place = ref({});
 
@@ -13,6 +14,13 @@ const metrics = ref({
     consultations: 0,
     requests: 0
 });
+
+const updateHandler = () => {
+    router.push({ 
+        name: 'places_update', 
+        params: { id: place.value.placeId }
+    })
+}
 
 onMounted(async () => {
     place.value = await getPlaceById(route.params.id);
@@ -29,11 +37,11 @@ onMounted(async () => {
         </RouterLink>
         <div v-if="place.status === 'published'" class="button-container">
             <button type="button" class="button-secondary">Archiver</button>
-            <button type="button" class="button-primary">Modifier</button>
+            <button type="button" class="button-primary" @click="updateHandler">Modifier</button>
         </div>
         <div v-else class="button-container">
             <button type="button" class="button-secondary --delete">Supprimer</button>
-            <button type="button" class="button-primary">Modifier</button>
+            <button type="button" class="button-primary" @click="updateHandler">Modifier</button>
         </div>
         
     </nav>

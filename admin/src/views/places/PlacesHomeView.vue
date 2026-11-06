@@ -12,8 +12,9 @@ import inProgressCard from '@/views/sharedViews/inProgressCard.vue'
 import errorCard from '@/views/sharedViews/errorCard.vue';
 import successCard from '@/views/sharedViews/successCard.vue';
 import WarningCard from '@/views/sharedViews/WarningCard.vue';
-import router from '@/router';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 
 const places = ref([]);
 const filteredPlaces = ref([]);
