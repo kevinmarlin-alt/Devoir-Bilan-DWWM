@@ -12,6 +12,18 @@ export const getAllPlaces= async () => {
     return places;
 }
 
+export const getPlaceById = async (placeId) => {
+    const response = await apiFetch(`api/admin/places/${placeId}`);
+
+    if (!response.ok) {
+        throw new Error('Impossible de récupérer le lieu séléctionné !');
+    }
+
+    const place = await response.json();
+
+    return place;
+}
+
 export const getAllImages = async () => {
     const response = await apiFetch('api/admin/images');
 

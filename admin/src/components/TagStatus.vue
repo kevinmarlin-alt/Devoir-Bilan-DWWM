@@ -5,7 +5,8 @@ const props = defineProps({
         required: true,
         validator(value) {
             return ['draft', 'published', 'archived'].includes(value)
-        }
+        },
+        default: 'draft'
     }
 })
 

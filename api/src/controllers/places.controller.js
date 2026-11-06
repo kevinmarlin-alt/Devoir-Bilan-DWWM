@@ -1,4 +1,4 @@
-import { createOnePlace, getAll, updateOnePlace, deleteOnePlace } from "../services/places.service.js";
+import { createOnePlace, getAll, updateOnePlace, deleteOnePlace, getPlaceById } from "../services/places.service.js";
 import { AppError } from '../errors/AppError.js';
 import { validatePlacePayload } from '../validators/place.validator.js';
 
@@ -6,6 +6,28 @@ export const getAllplaces = async (req, res) => {
     const places = await getAll();
 
     res.status(200).json( places )
+}
+
+export const getOneplace = async (req, res) => {
+    const placeId = req.params.id;
+
+    if(!placeId) {
+        throw new AppError('Le paramettre "id" de la requêtte HTTP est vide', {
+            status: 402,
+            code: 'NO_CONTENT'
+        })
+    }
+
+    const place = await getPlaceById(placeId);
+
+    if(!place) {
+        throw new AppError(`Le lieu avec l'id ${placeId} n'existe pas.`, {
+            status: 404,
+            code: 'NO_CONTENT'
+        })
+    }
+    res.status(200).json( place );
+    
 }
 
 export const createPlace = async (req, res) => {
