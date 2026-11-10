@@ -2,16 +2,19 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { getPlaceById } from '@/services/places.service.js'
+import { getAllImages } from '@/services/places.service.js'
 import { getAllCategories } from '@/services/categories.service.js'
 import { getAllExploitationTypes } from '@/services/exploitationTypes.service.js'
 import { toFormateDateTime } from '@/utilities/date.js'
 import RegistrationStatus from '@/components/RegistrationStatus.vue';
 import TagStatus from '@/components/TagStatus.vue';
+import ImagePlace from '@/components/ImagePlace.vue'
 
 const route = useRoute()
 const place = ref({})
 const categories = ref([])
 const types = ref([])
+const availableImages = ref([])
 const activeTab = ref('informations')
 const isLoading = ref(true)
 const isSubmitted = ref(false)
@@ -23,7 +26,27 @@ const form = ref({
   status: 'draft',
   categoryId: '',
   exploitationTypeIds: [],
+  imageIds: [],
+  mainImageId: null,
 })
+
+const selectedImages = computed(() => [
+  ...(place.value.images?.filter((image) => form.value.imageIds.includes(image.imageId)) ?? []),
+  ...availableImages.value.filter((image) => form.value.imageIds.includes(image.imageId)),
+])
+
+const unselectedPlaceImages = computed(() => place.value.images?.filter((image) =>
+  !form.value.imageIds.includes(image.imageId)
+) ?? [])
+
+const galleryAvailableImages = computed(() => [
+  ...unselectedPlaceImages.value,
+  ...availableImages.value.filter((image) => !form.value.imageIds.includes(image.imageId)),
+])
+
+const needsMainImage = computed(() =>
+  form.value.imageIds.length > 0 && !form.value.mainImageId
+)
 
 const isFormModified = computed(() => {
     const placeExploitationTypeIds = place.value.exploitationTypes
@@ -35,7 +58,10 @@ const isFormModified = computed(() => {
       form.value.name.trim() !== (place.value.name ?? '') ||
       form.value.description.trim() !== (place.value.description ?? '') ||
       form.value.categoryId !== (place.value.categoryId ?? '') ||
-      JSON.stringify(formExploitationTypeIds) !== JSON.stringify(placeExploitationTypeIds)
+      JSON.stringify(formExploitationTypeIds) !== JSON.stringify(placeExploitationTypeIds) ||
+      JSON.stringify([...form.value.imageIds].sort()) !==
+        JSON.stringify(place.value.images?.map((image) => image.imageId).sort() ?? []) ||
+      form.value.mainImageId !== place.value.images?.find((image) => image.isMain)?.imageId
     )
 })
 
@@ -67,14 +93,16 @@ const loadPlace = async () => {
   isLoading.value = true;
   errorMessage.value = '';
   try {
-    const [placeData, categoriesData, typesData] = await Promise.all([
+    const [placeData, categoriesData, typesData, imagesData] = await Promise.all([
       getPlaceById(route.params.id),
       getAllCategories(),
       getAllExploitationTypes(),
+      getAllImages(),
     ])
     place.value = placeData
     categories.value = categoriesData
     types.value = typesData
+    availableImages.value = imagesData
     form.value = {
       name: placeData.name ?? '',
       description: placeData.description ?? '',
@@ -82,12 +110,48 @@ const loadPlace = async () => {
       categoryId: placeData.categoryId ?? '',
       exploitationTypeIds:
         placeData.exploitationTypes?.map((type) => type.exploitationTypeId) ?? [],
+      imageIds: placeData.images?.map((image) => image.imageId) ?? [],
+      mainImageId: placeData.images?.find((image) => image.isMain)?.imageId ?? null,
     }
+    ensureMainImage()
   } catch (error) {
     errorMessage.value = error.message
   } finally {
     isLoading.value = false
   }
+}
+
+const ensureMainImage = () => {
+  if (form.value.imageIds.length === 0) {
+    form.value.mainImageId = null
+    return
+  }
+
+  if (form.value.mainImageId) return
+
+  form.value.mainImageId = selectedImages.value[0]?.imageId ?? null
+}
+
+const toggleImage = (imageId) => {
+  const imageIndex = form.value.imageIds.indexOf(imageId)
+
+  if (imageIndex === -1) {
+    form.value.imageIds.push(imageId)
+    ensureMainImage()
+    return
+  }
+
+  form.value.imageIds.splice(imageIndex, 1)
+
+  if (form.value.mainImageId === imageId) {
+    form.value.mainImageId = null
+  }
+
+  ensureMainImage()
+}
+
+const setMainImage = (imageId) => {
+  form.value.mainImageId = imageId
 }
 
 const validateForm = () => {
@@ -207,11 +271,39 @@ onMounted(loadPlace)
     <p v-if="successMessage" class="message-success" role="status">{{ successMessage }}</p>
     </form>
     <section v-else class="photographies-placeholder">
-        <h2>Photographies</h2>
-        <p>
-        La gestion des photographies sera affichée dans cet onglet. Les images actuelles sont
-        conservées lorsque vous enregistrez les informations générales.
+        <p class="baseline">Images sélectionnées ({{ selectedImages.length }})</p>
+        <p v-if="needsMainImage" class="message-error" role="alert">
+          Une image doit être définie comme principale pour que le lieu puisse être publié.
         </p>
+
+        <div v-if="selectedImages.length" class="container-images">
+          <ImagePlace
+            v-for="image in selectedImages"
+            :key="image.imageId"
+            :source="image"
+            selected
+            :is-main="form.mainImageId === image.imageId"
+            @image="toggleImage"
+            @main-image="setMainImage"
+          />
+        </div>
+        <p v-else class="field-help">Aucune image n’est actuellement associée à ce lieu.</p>
+
+        <hr class="images-separator">
+
+        <p class="baseline">Images disponibles</p>
+        <p v-if="galleryAvailableImages.length">Ces images ne sont affectées à aucun autre lieu.</p>
+        <div v-if="galleryAvailableImages.length" class="container-images">
+          <ImagePlace
+            v-for="image in galleryAvailableImages"
+            :key="image.imageId"
+            :source="image"
+            :selected="false"
+            :is-main="false"
+            @image="toggleImage"
+          />
+        </div>
+        <p v-else class="field-help">Aucune autre image n’est disponible.</p>
     </section>
 
     <div class="button-group">
@@ -302,6 +394,18 @@ fieldset[aria-invalid='true'] {
 }
 .photographies-placeholder {
   padding-top: var(--space-large);
+}
+.container-images {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-medium);
+  width: 100%;
+  margin-top: var(--space-medium);
+}
+.images-separator {
+  margin: var(--space-xtralarge) 0;
+  border: 0;
+  border-top: 1px solid var(--taupe-warm);
 }
 @media (max-width: 1199px) {
   .form-columns {
