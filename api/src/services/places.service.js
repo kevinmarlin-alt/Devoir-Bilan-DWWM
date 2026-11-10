@@ -46,7 +46,7 @@ export const updateOnePlace = async (placeId, data) => {
         });
     }
 
-    await validatePlaceReferences(data, placeId);
+    await validatePlaceReferences(data, place.placeId);
 
     const slug = data.name.toLowerCase().replaceAll(' ', '-');
     await validateSlugAvailability(slug, placeId);
