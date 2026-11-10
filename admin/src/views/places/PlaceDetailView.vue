@@ -41,6 +41,7 @@ onMounted(async () => {
         </div>
         <div v-else class="button-container">
             <button type="button" class="button-secondary --delete">Supprimer</button>
+            <button type="button" class="button-secondary --success" @click="">Publier</button>
             <button type="button" class="button-primary" @click="updateHandler">Modifier</button>
         </div>
         

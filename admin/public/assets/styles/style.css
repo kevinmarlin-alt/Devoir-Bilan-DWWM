@@ -217,6 +217,12 @@ button:hover {
   color: var(--red-soft);
 }
 
+.--success {
+  background-color: var(--green-dark);
+  border: 1px solid var(--green-soft);
+  color: var(--green-soft);
+}
+
 .button-light {
   display: inline-block;
   font-size: 0.75rem;

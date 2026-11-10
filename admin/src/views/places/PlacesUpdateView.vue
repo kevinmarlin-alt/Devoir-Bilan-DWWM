@@ -318,7 +318,7 @@ onMounted(loadPlace)
         >
             {{ place.status === 'published' ? 'Publier' : 'Enregistrer' }}
         </button>
-
+ 
     </div>
   {{ form }}
   <br>
