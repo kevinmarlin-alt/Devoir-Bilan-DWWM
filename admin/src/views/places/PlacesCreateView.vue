@@ -5,7 +5,7 @@ import FormPlaces from '@/components/FormPlaces.vue';
 import router from '@/router';
 import { getAllCategories } from '@/services/categories.service.js'
 import { createPlace, getAllImages, updatePlace } from '@/services/places.service.js';
-import { getAll } from '@/services/exploitationTypes.service';
+import { getAllExploitationTypes } from '@/services/exploitationTypes.service.js';
 import RegistrationStatus from '@/components/RegistrationStatus.vue';
 import inProgressCard from '@/views/sharedViews/inProgressCard.vue';
 import errorCard from '@/views/sharedViews/errorCard.vue';
@@ -92,7 +92,7 @@ const changeStep = (step) => {
 
 onMounted(async () => {
     categories.value = await getAllCategories();
-    types.value = await getAll();
+    types.value = await getAllExploitationTypes();
     images.value = await getAllImages();
 })
 </script>
