@@ -95,7 +95,7 @@ const router = createRouter({
               component: PlaceDetailView
             },
             {
-              path: ':id',
+              path: 'update/:id',
               name: 'places_update',
               component: PlacesUpdateView
             }
