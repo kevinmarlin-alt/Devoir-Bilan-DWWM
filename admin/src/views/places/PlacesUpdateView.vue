@@ -1,8 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
-import { getPlaceById } from '@/services/places.service.js'
-import { getAllImages } from '@/services/places.service.js'
+import { useRoute, useRouter } from 'vue-router'
+import { getPlaceById, getAllImages, updatePlace } from '@/services/places.service.js'
 import { getAllCategories } from '@/services/categories.service.js'
 import { getAllExploitationTypes } from '@/services/exploitationTypes.service.js'
 import { toFormateDateTime } from '@/utilities/date.js'
@@ -11,6 +10,7 @@ import TagStatus from '@/components/TagStatus.vue';
 import ImagePlace from '@/components/ImagePlace.vue'
 
 const route = useRoute()
+const router = useRouter()
 const place = ref({})
 const categories = ref([])
 const types = ref([])
@@ -20,6 +20,8 @@ const isLoading = ref(true)
 const isSubmitted = ref(false)
 const successMessage = ref('')
 const errorMessage = ref('')
+const isSaving = ref(false)
+const isSaved = ref(false)
 const form = ref({
   name: '',
   description: '',
@@ -52,7 +54,7 @@ const isFormModified = computed(() => {
     const placeExploitationTypeIds = place.value.exploitationTypes
       ?.map((type) => type.exploitationTypeId)
       .sort() ?? []
-    const formExploitationTypeIds = form.value.exploitationTypeIds.sort()
+    const formExploitationTypeIds = [...form.value.exploitationTypeIds].sort()
   
     return (
       form.value.name.trim() !== (place.value.name ?? '') ||
@@ -61,7 +63,7 @@ const isFormModified = computed(() => {
       JSON.stringify(formExploitationTypeIds) !== JSON.stringify(placeExploitationTypeIds) ||
       JSON.stringify([...form.value.imageIds].sort()) !==
         JSON.stringify(place.value.images?.map((image) => image.imageId).sort() ?? []) ||
-      form.value.mainImageId !== place.value.images?.find((image) => image.isMain)?.imageId
+      form.value.mainImageId !== (place.value.images?.find((image) => image.isMain)?.imageId ?? null)
     )
 })
 
@@ -157,9 +159,35 @@ const setMainImage = (imageId) => {
 const validateForm = () => {
   isSubmitted.value = true
   successMessage.value = ''
-  if (!isFormValid.value) return
-  successMessage.value =
-    'Les informations modifiées sont conservées dans le formulaire. L’enregistrement en base de données sera ajouté ultérieurement.'
+  return isFormValid.value
+}
+
+const saveHandler = async () => {
+  if (!isFormModified.value || isSaving.value || !validateForm()) return
+
+  isSaving.value = true
+  isSaved.value = false
+  errorMessage.value = ''
+
+  try {
+    await updatePlace(route.params.id, {
+      ...form.value,
+      name: form.value.name.trim(),
+      description: form.value.description.trim(),
+    })
+
+    await loadPlace()
+    isSaved.value = true
+    successMessage.value = 'Les modifications ont bien été enregistrées.'
+  } catch (error) {
+    errorMessage.value = error.message
+  } finally {
+    isSaving.value = false
+  }
+}
+
+const cancelHandler = () => {
+  router.push({ name: 'places_detail', params: { id: route.params.id } })
 }
 
 onMounted(loadPlace)
@@ -307,16 +335,17 @@ onMounted(loadPlace)
     </section>
 
     <div class="button-group">
-        <RegistrationStatus :is-saved="false"/>
-        <button class="button-secondary" @click="">
+        <RegistrationStatus :is-saved="isSaved"/>
+        <button type="button" class="button-secondary" :disabled="isSaving" @click="cancelHandler">
             Annuler
         </button>
-        <button 
-            class="button-primary"
-            :disabled="!isFormModified"
-            @click="nextStepHandler"
+        <button
+          type="button"
+          class="button-primary"
+          :disabled="!isFormModified || isSaving"
+          @click="saveHandler"
         >
-            {{ place.status === 'published' ? 'Publier' : 'Enregistrer' }}
+            {{ isSaving ? 'Enregistrement...' : place.status === 'published' ? 'Publier' : 'Enregistrer' }}
         </button>
  
     </div>

@@ -55,6 +55,15 @@ test('accepts a complete publication', () => {
     assert.equal(place.mainImageId, 4);
 });
 
+test('accepts an archived place', () => {
+    const place = validatePlacePayload({
+        name: 'Villa des Pins',
+        status: 'archived'
+    });
+
+    assert.equal(place.status, 'archived');
+});
+
 test('rejects an incomplete publication', () => {
     assert.throws(
         () => validatePlacePayload({ name: 'Villa des Pins', status: 'published' }),

@@ -23,7 +23,7 @@ export const validatePlacePayload = (payload) => {
         });
     }
 
-    if (!['draft', 'published'].includes(status)) {
+    if (!['draft', 'published', 'archived'].includes(status)) {
         throw new AppError('Le statut du lieu est invalide.', {
             status: 400,
             code: 'INVALID_PLACE_DATA'
