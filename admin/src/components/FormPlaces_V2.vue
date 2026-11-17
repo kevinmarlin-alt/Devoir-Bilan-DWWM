@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { getAllCategories } from '@/services/categories.service.js';
 import { getAll } from '@/services/exploitationTypes.service.js';
 import { getAvailableImages } from '@/services/places.service.js';
@@ -24,6 +24,27 @@ const error = ref({
 const categories = ref([]);
 const types = ref([]);
 const availableImages = ref([]);
+
+const allImages = computed(() => {
+    const placeImages = props.place?.images || [];
+    const imageMap = new Map();
+
+    [...placeImages, ...availableImages.value].forEach((image) => {
+        imageMap.set(image.imageId, image);
+    });
+
+    return [...imageMap.values()];
+});
+
+const selectedImages = computed(() => {
+    return form.value.imagesSelected
+        .map((imageId) => allImages.value.find((image) => image.imageId === imageId))
+        .filter(Boolean);
+});
+
+const unselectedAvailableImages = computed(() => {
+    return availableImages.value.filter((image) => !form.value.imagesSelected.includes(image.imageId));
+});
 
 const form = ref({
     name: '',
@@ -121,6 +142,10 @@ function setMainImage(imageId) {
     form.value.mainImageId = imageId;
 }
 
+function thumbnailPath(filename) {
+    return `/assets/images/thumbnails/${filename}`;
+}
+
 onMounted(async () => {
     await Promise.all([
         loadCategories(),
@@ -193,6 +218,73 @@ onMounted(async () => {
                 </fieldset>
             </div>
         </fieldset>        
+        <fieldset v-else-if="currentStep === 2" name="photographies" class="photographs-section">
+            <legend>Photographies du lieu</legend>
+
+            <section aria-labelledby="selected-images-title">
+                <div class="section-heading">
+                    <h2 id="selected-images-title">Images sélectionnées</h2>
+                    <p>{{ selectedImages.length }} image<span v-if="selectedImages.length !== 1">s</span> sélectionnée<span v-if="selectedImages.length !== 1">s</span></p>
+                </div>
+
+                <p v-if="selectedImages.length === 0">Aucune image n’est encore sélectionnée.</p>
+                <ul v-else class="images-grid" role="list">
+                    <li v-for="image in selectedImages" :key="image.imageId" class="image-card">
+                        <figure>
+                            <img
+                                :src="thumbnailPath(image.filename)"
+                                :alt="image.alt || ''"
+                                width="320"
+                                height="180"
+                            >
+                            <figcaption>
+                                <label :for="`main-image-${image.imageId}`">
+                                    <input
+                                        :id="`main-image-${image.imageId}`"
+                                        v-model="form.mainImageId"
+                                        type="radio"
+                                        name="main-image"
+                                        :value="image.imageId"
+                                        @change="setMainImage(image.imageId)"
+                                    >
+                                    Image principale
+                                </label>
+                                <span v-if="form.mainImageId === image.imageId">Image principale actuelle</span>
+                            </figcaption>
+                        </figure>
+                        <button type="button" class="button-light" @click="removeImage(image.imageId)">
+                            Retirer l’image
+                        </button>
+                    </li>
+                </ul>
+            </section>
+
+            <section aria-labelledby="available-images-title">
+                <div class="section-heading">
+                    <h2 id="available-images-title">Images disponibles</h2>
+                    <p>Images non affectées à un autre lieu.</p>
+                </div>
+
+                <p v-if="loading.images">Chargement des images disponibles…</p>
+                <p v-else-if="error.images">{{ error.images }}</p>
+                <p v-else-if="unselectedAvailableImages.length === 0">Aucune image disponible.</p>
+                <ul v-else class="images-grid" role="list">
+                    <li v-for="image in unselectedAvailableImages" :key="image.imageId" class="image-card">
+                        <figure>
+                            <img
+                                :src="thumbnailPath(image.filename)"
+                                :alt="image.alt || ''"
+                                width="320"
+                                height="180"
+                            >
+                        </figure>
+                        <button type="button" class="button-secondary" @click="addImage(image.imageId)">
+                            Ajouter l’image
+                        </button>
+                    </li>
+                </ul>
+            </section>
+        </fieldset>
     </form>
 </template>
 
@@ -208,5 +300,57 @@ onMounted(async () => {
     display: grid;
     grid-template-columns: 700px 1fr;
     gap: var(--space-large);
+}
+
+.photographs-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-large);
+}
+
+.photographs-section section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-medium);
+}
+
+.section-heading h2,
+.section-heading p {
+    margin: 0;
+}
+
+.images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--space-medium);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.image-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-small);
+}
+
+.image-card figure {
+    margin: 0;
+}
+
+.image-card img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: var(--radius-large);
+}
+
+.image-card figcaption {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-small);
+    margin-top: var(--space-small);
 }
 </style>

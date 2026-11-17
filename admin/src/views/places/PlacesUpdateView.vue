@@ -26,6 +26,6 @@ onMounted(async () => {
     <h1>Modifier un lieu</h1>
     <FormPlaces_V2
         :place="place"
-        :current-step="1"
+        :current-step="2"
     />
 </template>
