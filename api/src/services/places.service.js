@@ -1,9 +1,10 @@
-import { createOne, findAll, findById, findBySlug, updateOne, deleteOne } from "../repositories/places.repository.js"
+import { createOne, findAll, findById, findBySlug, updateOne, updateStatus, deleteOne } from "../repositories/places.repository.js"
 import { findCategoryById } from '../repositories/categories.repository.js';
 import { getExploitationTypeById } from '../repositories/exploitationTypes.repository.js';
 import { assignImagesToPlace, clearImagesFromPlace, findImageById } from '../repositories/images.repository.js';
 import { AppError } from '../errors/AppError.js';
 import sequelize from '../db/database.js';
+import { validatePlaceDeletion, validatePlaceStatusTransition, validatePlaceUpdateTransition } from '../validators/place.validator.js';
 
 export const getAll = async () => {
     return await findAll()
@@ -46,6 +47,8 @@ export const updateOnePlace = async (placeId, data) => {
         });
     }
 
+    validatePlaceUpdateTransition(place.status, data.status);
+
     await validatePlaceReferences(data, placeId);
 
     const slug = data.name.toLowerCase().replaceAll(' ', '-');
@@ -64,6 +67,21 @@ export const updateOnePlace = async (placeId, data) => {
 
         return updatedPlace;
     });
+}
+
+export const updatePlaceStatus = async (placeId, status) => {
+    const place = await findById(placeId);
+
+    if (!place) {
+        throw new AppError('Le lieu à modifier n’existe pas.', {
+            status: 404,
+            code: 'PLACE_NOT_FOUND'
+        });
+    }
+
+    validatePlaceStatusTransition(place.status, status);
+
+    return await updateStatus(placeId, status);
 }
 
 const validatePlaceReferences = async (data, placeId = null) => {
@@ -120,5 +138,16 @@ const validateSlugAvailability = async (slug, placeId = null) => {
 }
 
 export const deleteOnePlace = async (placeId) => {
+    const place = await findById(placeId);
+
+    if (!place) {
+        throw new AppError('Le lieu à supprimer n’existe pas.', {
+            status: 404,
+            code: 'PLACE_NOT_FOUND'
+        });
+    }
+
+    validatePlaceDeletion(place.status);
+
     await deleteOne(placeId);
 }
