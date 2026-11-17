@@ -87,6 +87,40 @@ async function loadAvailableImages() {
     }
 }
 
+function addImage(imageId) {
+    if (form.value.imagesSelected.includes(imageId)) {
+        return;
+    }
+
+    form.value.imagesSelected.push(imageId);
+
+    if (form.value.mainImageId === null) {
+        form.value.mainImageId = imageId;
+    }
+}
+
+function removeImage(imageId) {
+    const imageIndex = form.value.imagesSelected.indexOf(imageId);
+
+    if (imageIndex === -1) {
+        return;
+    }
+
+    form.value.imagesSelected.splice(imageIndex, 1);
+
+    if (form.value.mainImageId === imageId) {
+        form.value.mainImageId = form.value.imagesSelected[0] || null;
+    }
+}
+
+function setMainImage(imageId) {
+    if (!form.value.imagesSelected.includes(imageId)) {
+        return;
+    }
+
+    form.value.mainImageId = imageId;
+}
+
 onMounted(async () => {
     await Promise.all([
         loadCategories(),
