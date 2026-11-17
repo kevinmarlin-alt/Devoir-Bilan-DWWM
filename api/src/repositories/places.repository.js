@@ -89,6 +89,14 @@ export const updateOne = async (placeId, data, transaction) => {
     return await findById(placeId, transaction);
 }
 
+export const updateStatus = async (placeId, status) => {
+    await Place.update({ status }, {
+        where: { placeId }
+    });
+
+    return await findById(placeId);
+}
+
 export const deleteOne = async (id) => {
     return await Place.destroy({
         where: { placeId: id }

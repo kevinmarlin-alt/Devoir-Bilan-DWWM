@@ -54,3 +54,59 @@ export const validatePlacePayload = (payload) => {
         status
     };
 };
+
+export const validatePlaceStatusPayload = (payload) => {
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+        throw new AppError('Le corps de la requête est invalide.', {
+            status: 400,
+            code: 'INVALID_PLACE_STATUS'
+        });
+    }
+
+    if (!['draft', 'archived'].includes(payload.status)) {
+        throw new AppError('Le statut demandé est invalide.', {
+            status: 400,
+            code: 'INVALID_PLACE_STATUS'
+        });
+    }
+
+    return payload.status;
+};
+
+export const validatePlaceUpdateTransition = (currentStatus, nextStatus) => {
+    const allowedTransitions = {
+        draft: ['draft', 'published'],
+        published: ['published'],
+        archived: []
+    };
+
+    if (!allowedTransitions[currentStatus]?.includes(nextStatus)) {
+        throw new AppError('Cette modification de statut n’est pas autorisée.', {
+            status: 409,
+            code: 'INVALID_PLACE_TRANSITION'
+        });
+    }
+};
+
+export const validatePlaceStatusTransition = (currentStatus, nextStatus) => {
+    const allowedTransitions = {
+        published: ['archived'],
+        archived: ['draft']
+    };
+
+    if (!allowedTransitions[currentStatus]?.includes(nextStatus)) {
+        throw new AppError('Ce changement de statut n’est pas autorisé.', {
+            status: 409,
+            code: 'INVALID_PLACE_TRANSITION'
+        });
+    }
+};
+
+export const validatePlaceDeletion = (status) => {
+    if (!['draft', 'archived'].includes(status)) {
+        throw new AppError('Un lieu publié doit être archivé avant d’être supprimé.', {
+            status: 409,
+            code: 'PLACE_DELETE_FORBIDDEN'
+        });
+    }
+};
