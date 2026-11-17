@@ -2,6 +2,7 @@
 import { ref, onMounted, watch } from 'vue';
 import { getAllCategories } from '@/services/categories.service.js';
 import { getAll } from '@/services/exploitationTypes.service.js';
+import { getAvailableImages } from '@/services/places.service.js';
 
 const props = defineProps({
     place: { type: Object, default: null },
@@ -10,30 +11,40 @@ const props = defineProps({
 
 const loading = ref({
     categories: false,
-    types: false
+    types: false,
+    images: false
 });
 
 const error = ref({
     categories: null,
-    types: null
+    types: null,
+    images: null
 });
 
 const categories = ref([]);
 const types = ref([]);
+const availableImages = ref([]);
 
 const form = ref({
     name: '',
     description: '',
     categorySelected: '',
-    typesSelected: []
+    typesSelected: [],
+    imagesSelected: [],
+    mainImageId: null
 });
 
 watch(() => props.place, (place) => {
+    const selectedImages = place?.images || [];
+    const mainImage = selectedImages.find((image) => image.isMain);
+
     form.value = {
         name: place?.name || '',
         description: place?.description || '',
         categorySelected: place?.category?.categoryId || place?.categoryId || '',
-        typesSelected: place?.exploitationTypes?.map(type => type.exploitationTypeId) || []
+        typesSelected: place?.exploitationTypes?.map(type => type.exploitationTypeId) || [],
+        imagesSelected: selectedImages.map((image) => image.imageId),
+        mainImageId: mainImage?.imageId || null
     };
 }, { immediate: true });
 
@@ -63,10 +74,24 @@ async function loadTypes() {
     }
 }
 
+async function loadAvailableImages() {
+    loading.value.images = true;
+    error.value.images = null;
+
+    try {
+        availableImages.value = await getAvailableImages();
+    } catch (err) {
+        error.value.images = err.message || 'Impossible de charger les images disponibles.';
+    } finally {
+        loading.value.images = false;
+    }
+}
+
 onMounted(async () => {
     await Promise.all([
         loadCategories(),
-        loadTypes()
+        loadTypes(),
+        loadAvailableImages()
     ]);
 });
 </script>
