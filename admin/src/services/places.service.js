@@ -78,6 +78,23 @@ export const updatePlace = async (placeId, data) => {
     return await response.json();
 }
 
+export const updatePlaceStatus = async (placeId, status) => {
+    const response = await apiFetch(`api/admin/places/${placeId}/status`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status })
+    });
+
+    if (!response.ok) {
+        const { error } = await response.json();
+        throw new Error(error.message ?? 'Une erreur est survenue lors du changement de statut du lieu.');
+    }
+
+    return await response.json();
+}
+
 export const detelePlace = async (placeId) => {
     const response = await apiFetch(`api/admin/places/${placeId}`, {
         method: 'DELETE',
