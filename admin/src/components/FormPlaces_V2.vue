@@ -3,6 +3,7 @@ import { computed, ref, onMounted, watch } from 'vue';
 import { getAllCategories } from '@/services/categories.service.js';
 import { getAll } from '@/services/exploitationTypes.service.js';
 import { getAvailableImages } from '@/services/places.service.js';
+import PlaceImageSelectionCard from '@/components/images/PlaceImageSelectionCard.vue';
 
 const props = defineProps({
     place: { type: Object, default: null },
@@ -142,10 +143,6 @@ function setMainImage(imageId) {
     form.value.mainImageId = imageId;
 }
 
-function thumbnailPath(filename) {
-    return `/assets/images/thumbnails/${filename}`;
-}
-
 onMounted(async () => {
     await Promise.all([
         loadCategories(),
@@ -229,35 +226,20 @@ onMounted(async () => {
 
                 <p v-if="selectedImages.length === 0">Aucune image n’est encore sélectionnée.</p>
                 <ul v-else class="images-grid" role="list">
-                    <li v-for="image in selectedImages" :key="image.imageId" class="image-card">
-                        <figure>
-                            <img
-                                :src="thumbnailPath(image.filename)"
-                                :alt="image.alt || ''"
-                                width="320"
-                                height="180"
-                            >
-                            <figcaption>
-                                <label :for="`main-image-${image.imageId}`">
-                                    <input
-                                        :id="`main-image-${image.imageId}`"
-                                        v-model="form.mainImageId"
-                                        type="radio"
-                                        name="main-image"
-                                        :value="image.imageId"
-                                        @change="setMainImage(image.imageId)"
-                                    >
-                                    Image principale
-                                </label>
-                                <span v-if="form.mainImageId === image.imageId">Image principale actuelle</span>
-                            </figcaption>
-                        </figure>
-                        <button type="button" class="button-light" @click="removeImage(image.imageId)">
-                            Retirer l’image
-                        </button>
-                    </li>
+                    <PlaceImageSelectionCard
+                        v-for="image in selectedImages"
+                        :key="image.imageId"
+                        :image="image"
+                        selected
+                        :is-main="form.mainImageId === image.imageId"
+                        show-main-choice
+                        @remove="removeImage"
+                        @set-main="setMainImage"
+                    />
                 </ul>
             </section>
+
+            <hr class="images-separator">
 
             <section aria-labelledby="available-images-title">
                 <div class="section-heading">
@@ -269,19 +251,12 @@ onMounted(async () => {
                 <p v-else-if="error.images">{{ error.images }}</p>
                 <p v-else-if="unselectedAvailableImages.length === 0">Aucune image disponible.</p>
                 <ul v-else class="images-grid" role="list">
-                    <li v-for="image in unselectedAvailableImages" :key="image.imageId" class="image-card">
-                        <figure>
-                            <img
-                                :src="thumbnailPath(image.filename)"
-                                :alt="image.alt || ''"
-                                width="320"
-                                height="180"
-                            >
-                        </figure>
-                        <button type="button" class="button-secondary" @click="addImage(image.imageId)">
-                            Ajouter l’image
-                        </button>
-                    </li>
+                    <PlaceImageSelectionCard
+                        v-for="image in unselectedAvailableImages"
+                        :key="image.imageId"
+                        :image="image"
+                        @add="addImage"
+                    />
                 </ul>
             </section>
         </fieldset>
@@ -314,6 +289,14 @@ onMounted(async () => {
     gap: var(--space-medium);
 }
 
+.images-separator {
+    width: 100%;
+    height: 2px;
+    margin: 0;
+    border: 0;
+    background-color: var(--black-500);
+}
+
 .section-heading h2,
 .section-heading p {
     margin: 0;
@@ -328,29 +311,4 @@ onMounted(async () => {
     list-style: none;
 }
 
-.image-card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-small);
-}
-
-.image-card figure {
-    margin: 0;
-}
-
-.image-card img {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-    border-radius: var(--radius-large);
-}
-
-.image-card figcaption {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-small);
-    margin-top: var(--space-small);
-}
 </style>
