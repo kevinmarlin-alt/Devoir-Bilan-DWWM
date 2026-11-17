@@ -10,6 +10,8 @@ const props = defineProps({
     currentStep: Number
 })
 
+const emit = defineEmits(['update-form']);
+
 const loading = ref({
     categories: false,
     types: false,
@@ -69,6 +71,29 @@ watch(() => props.place, (place) => {
         mainImageId: mainImage?.imageId || null
     };
 }, { immediate: true });
+
+watch(form, (value) => {
+    emit('update-form', {
+        name: value.name.trim(),
+        description: value.description.trim(),
+        categoryId: value.categorySelected || null,
+        exploitationTypeIds: [...value.typesSelected],
+        imageIds: [...value.imagesSelected],
+        mainImageId: value.mainImageId
+    });
+}, { deep: true, immediate: true });
+
+const publicationRules = computed(() => [
+    { label: 'Nom renseigné', isValid: form.value.name.trim().length > 0 && form.value.name.trim().length <= 50 },
+    { label: 'Description renseignée', isValid: form.value.description.trim().length > 0 },
+    { label: 'Catégorie renseignée', isValid: Boolean(form.value.categorySelected) },
+    { label: "Types d’exploitation renseignés", isValid: form.value.typesSelected.length > 0 },
+    { label: `Au moins une photographie (${form.value.imagesSelected.length})`, isValid: form.value.imagesSelected.length > 0 },
+    {
+        label: 'Photo principale sélectionnée',
+        isValid: form.value.mainImageId !== null && form.value.imagesSelected.includes(form.value.mainImageId)
+    }
+]);
 
 async function loadCategories() {
     loading.value.categories = true;
@@ -153,7 +178,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <form action="" method="POST">
+    <form @submit.prevent>
         <fieldset v-if="currentStep === 1" name="informations" class="informations-grid">
             <div>
                 <div class="input-group">
@@ -164,6 +189,7 @@ onMounted(async () => {
                         id="name" 
                         placeholder="Nom du lieu..."
                         v-model="form.name"
+                        maxlength="50"
                         required
                     />
                 </div>
@@ -260,6 +286,33 @@ onMounted(async () => {
                 </ul>
             </section>
         </fieldset>
+        <fieldset v-else-if="currentStep === 3" name="publication" class="publication-section">
+            <legend>Vérification avant validation</legend>
+            <div class="validation-card">
+                <p>Le lieu peut être publié s’il remplit les conditions suivantes</p>
+                <ul>
+                    <li v-for="rule in publicationRules" :key="rule.label">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="30"
+                            height="30"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            :class="rule.isValid ? 'color-success' : 'color-warning'"
+                            aria-hidden="true"
+                        >
+                            <path d="M21.801 10A10 10 0 1 1 17 3.335"/>
+                            <path d="m9 11 3 3L22 4"/>
+                        </svg>
+                        {{ rule.label }}
+                    </li>
+                </ul>
+            </div>
+        </fieldset>
     </form>
 </template>
 
@@ -309,6 +362,48 @@ onMounted(async () => {
     margin: 0;
     padding: 0;
     list-style: none;
+}
+
+.publication-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-medium);
+}
+
+.validation-card {
+    padding: var(--space-large);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-large);
+    background-color: var(--card-background);
+}
+
+.validation-card > p {
+    margin-top: 0;
+    margin-bottom: var(--space-large);
+    color: var(--champagne);
+}
+
+.validation-card ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-large);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.validation-card li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-small);
+}
+
+.color-success {
+    color: var(--green-soft);
+}
+
+.color-warning {
+    color: var(--amber-warm);
 }
 
 </style>
