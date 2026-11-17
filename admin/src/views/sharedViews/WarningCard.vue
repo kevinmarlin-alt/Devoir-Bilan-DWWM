@@ -12,6 +12,10 @@ defineProps({
         type: String,
         required: false,
         default: 'column'
+    },
+    description: {
+        type: String,
+        default: 'Cette action sera définitive.'
     }
 })
 </script>
@@ -28,7 +32,7 @@ defineProps({
         </svg>
         <div class="notification__wrapper">
             <p class="notification-title">{{ title }}</p>
-            <p>Cette action sera définitive.</p>
+            <p>{{ description }}</p>
         </div>
         <p>Souhaitez-vous confirmer cette action ?</p>
         <button class="button-secondary" @click="emit('cancel')">Non</button>
