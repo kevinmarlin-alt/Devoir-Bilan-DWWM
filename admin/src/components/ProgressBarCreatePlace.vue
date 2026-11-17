@@ -1,9 +1,13 @@
 <script setup>
-defineProps({
+const props = defineProps({
     currentStep: {
         type: Number,
         required: true,
         validator: (value) => value >= 1 && value <= 3,
+    },
+    allowNavigation: {
+        type: Boolean,
+        default: true,
     },
 });
 
@@ -24,7 +28,7 @@ const emits = defineEmits(['selected-step'])
             <div class="step">
                 <div    
                     class="step_number" :class="{ active_step: index < currentStep }"
-                    @mousedown="index < currentStep ? emits('selected-step', index + 1) : null"
+                    @mousedown="allowNavigation && index < currentStep ? emits('selected-step', index + 1) : null"
                 >
                     {{ index + 1 }}
                 </div>
