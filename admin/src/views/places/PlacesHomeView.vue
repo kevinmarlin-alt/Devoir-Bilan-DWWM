@@ -8,10 +8,6 @@ import { toFormateDateTime } from '@/utilities/date.js';
 import TagStatus from '@/components/TagStatus.vue';
 import { computed, onMounted, ref } from 'vue';
 import Table from '@/components/Table.vue';
-import inProgressCard from '@/views/sharedViews/inProgressCard.vue'
-import errorCard from '@/views/sharedViews/errorCard.vue';
-import successCard from '@/views/sharedViews/successCard.vue';
-import WarningCard from '@/views/sharedViews/WarningCard.vue';
 import router from '@/router';
 
 
@@ -19,9 +15,6 @@ const places = ref([]);
 const filteredPlaces = ref([]);
 const error = ref(null);
 const loading = ref(true);
-const status = ref(null);
-const errorMessage = ref('');
-const place = ref('');
 const categories = ref([]);
 
 const optionsCategories = computed(() => {
@@ -69,34 +62,8 @@ const archived = computed(() => {
     return places.value.filter(place => place.status === 'archived').length || null
 })
 
-const showWarningCard = (entity) => {
-    place.value = entity
-    status.value = 'warning';
-}
-
-const deletePlace = async () => {
-    status.value = 'inProgress';
-    try {
-        await detelePlace(place.value.placeId)
-        status.value = 'success' 
-        getAllPlaces();  
-        setTimeout(() => {
-            status.value = null
-        }, 3000)     
-    } catch (err) {
-        errorMessage.value = err.message
-        status.value = 'error'
-    }
-
-}
-
 const handleResults = (data) => {
     filteredPlaces.value = data
-}
-
-const cancelHandler = () => {
-    place.value = null
-    status.value = null;
 }
 
 const getCategories = async () => {
@@ -171,26 +138,6 @@ onMounted(async () => {
             :data="places"
             @results-change="handleResults"
         />
-        <WarningCard v-if="status === 'warning'"
-            title="Vous êtes sur le point de supprimer ce lieu."
-            flex-direction="row"
-            @confirm="deletePlace"
-            @cancel="cancelHandler" 
-        />
-        <inProgressCard v-else-if="status === 'inProgress'"
-            title="Suppression en cours..."
-        />
-        <errorCard v-else-if="status === 'error'"
-            title="Echec de la suppression"
-            :error="errorMessage"
-            flex-direction="row"
-            @retry="deletePlace"
-            @cancel="cancelHandler"
-        />
-        <successCard v-else-if="status === 'success'"
-            :title="`Le lieu ${place.name} à bien été supprimé !`"
-            path="/admin/places"
-        />
         <Table 
             :headers="[
                 'Nom',
@@ -216,21 +163,11 @@ onMounted(async () => {
                 {{ toFormateDateTime(new Date(entity.updatedAt  ?? entity.createdAt))  }}
             </template>
             <template #actions="{ entity }">
-                <!-- <button class="button-table" @click="editExploitation(entity)"> -->
                 <button class="button-table" >
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-line preview-icon">
                         <path d="M13 21h8"/>
                         <path d="m15 5 4 4"/>
                         <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
-                    </svg>
-                </button>
-                <button class="button-table-delete"  @click="showWarningCard(entity)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash preview-icon">
-                        <path d="M10 11v6"/>
-                        <path d="M14 11v6"/>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
-                        <path d="M3 6h18"/>
-                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                     </svg>
                 </button>
             </template>
