@@ -36,6 +36,10 @@
   --label-color: var(--champagne);
   --button-color-disable: var(--taupe-warm);
   --metrics-value-color: var(--champagne);
+  --button-secondary-color: var(--ivory);
+  --success-color: var(--green-soft);
+  --warning-color: var(--amber-warm);
+  --error-color: var(--red-soft);
 
   /* Spacer */
   --space-small: 0.5rem;
@@ -53,7 +57,7 @@
   --radius-large: 1em;
 
   /* Border */
-  --input-border-color: var(--taupe-warm);
+  --input-border-color: var(--ivory);
   --metrics-border-color: var(--black-500);
   --table-border-color: var(--black-500);
   --card-border: var(--black-500);
@@ -95,6 +99,21 @@ body {
 h1 {
   font-family: "Baskervville Regular", serif;
   font-size: 3rem;
+}
+
+h2 {
+  font-family: "Baskervville Regular", serif;
+  font-size: 1.5rem;
+  margin-bottom: var(--space-medium);
+}
+
+h3 {
+  font-family: "Montserrat Regular", sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: var(--letter-space);
+  text-transform: uppercase;
+  color: var(--baseline-color);
+  margin-bottom: var(--space-small);
 }
 
 form {

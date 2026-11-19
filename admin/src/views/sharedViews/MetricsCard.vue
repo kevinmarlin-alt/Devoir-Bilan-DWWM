@@ -19,7 +19,7 @@ defineProps({
     font-size: 0.75rem;
     padding: 1em;
     border-radius: 1em;
-    min-width: 250px;
+    min-width: 200px;
 }
 
 span {
