@@ -8,12 +8,19 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { getOnePlace } from '@/services/places.service.js';
 import { toFormateDateTime } from '@/utilities/date.js';
+import WarningCard from '../sharedViews/WarningCard.vue';
 
 const route = useRoute();
 
 const place = ref({});
 const isLoadingPlace = ref(true);
 const error = ref(null);
+
+const visibleWarningBox = ref(false);
+
+function showWarningBox() {
+    visibleWarningBox.value = true
+}
 
 onMounted(async () => {
     try {
@@ -98,14 +105,30 @@ onMounted(async () => {
                     </ul>
                 </template>
             </section>
-            <div
+            <div v-if="!visibleWarningBox"
                 role="group"
                 aria-label="Actions liées au lieu"
-                style="display: flex; align-items: stretch; width: 250px; flex-direction: column; gap: 0.5rem;"
+                style="display: flex; align-items: stretch; width: 350px; flex-direction: column; gap: 0.5rem;"
             >
                 <ButtonPrimary>Modifier</ButtonPrimary>
-                <ButtonSecondary>Archiver</ButtonSecondary>
+
+                <ButtonSecondary v-if="place.status !== 'published'" 
+                    variant="error"
+                >
+                    Supprimer
+                </ButtonSecondary>
+                <ButtonSecondary v-else 
+                    @click="showWarningBox"
+                >
+                    Archiver
+                </ButtonSecondary>
             </div>
+            <WarningCard v-else 
+                title="Vous êtes sur le point d'archiver ce lieu."
+                style="width: 350px;"
+                @cancel="visibleWarningBox = false"
+                @confirm=""
+            />
         </div>
     </template>
     
