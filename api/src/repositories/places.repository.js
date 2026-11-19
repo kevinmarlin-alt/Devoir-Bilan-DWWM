@@ -7,6 +7,7 @@ export const findById = async (id, transaction) => {
     return await Place.findOne({
         where: { placeId: id },
         transaction,
+        exclude: ['category'],
         include: [
             {
                 model: ExploitationType,
@@ -26,6 +27,14 @@ export const findById = async (id, transaction) => {
                     'filename',
                     'alt',
                     'isMain'
+                ]
+            },
+            {
+                model: Category,
+                as: 'category',
+                attributes: [
+                    'categoryId',
+                    'categoryName'
                 ]
             }
         ]

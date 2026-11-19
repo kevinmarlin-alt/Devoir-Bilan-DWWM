@@ -7,6 +7,7 @@ import ImagePlace from '@/components/images/ImagePlace.vue';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { getOnePlace } from '@/services/places.service.js';
+import { toFormateDateTime } from '@/utilities/date.js';
 
 const route = useRoute();
 
@@ -43,9 +44,10 @@ onMounted(async () => {
     </div>
     <template v-else>
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h1>Titre du lieu</h1>
-            <TagStatus status="draft"/>
+            <h1>{{ place.name }}</h1>
+            <TagStatus :status="place.status"/>
         </div>
+        <p style="font-size: 0.8rem;">Dernière mise à jour enregistré : {{ toFormateDateTime(new Date(place.updatedAt  ?? place.createdAt))  }}</p>
         <div style="display: flex; gap: 1rem;">
             <MetricsCard 
                 description="Consultations"
@@ -60,24 +62,22 @@ onMounted(async () => {
             <h2>Informations générales</h2>
             <section style="margin-bottom: 1rem;">
                 <h3>Description</h3>
-                <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Numquam, accusantium dicta cumque nihil aliquid, laboriosam odit soluta dolor nulla ipsam optio neque ea reiciendis explicabo, aliquam sapiente voluptates repellendus animi.
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Numquam, accusantium dicta cumque nihil aliquid, laboriosam odit soluta dolor nulla ipsam optio neque ea reiciendis explicabo, aliquam sapiente voluptates repellendus animi.
-                </p>
+                <p>{{ place.description || 'Aucune description pour le moment' }}</p>
             </section>
             <div style="display: flex; gap: 5rem; flex-wrap: wrap;">
                 <section>
                     <h3>Catégorie</h3>
                     <p>
-                        Nom de la catégorie
+                        {{ place.category?.categoryName || 'Aucune catégorie séléctionnée' }}
                     </p>
                 </section>
                 <section>
                     <h3>Types d'exploitation</h3>
-                    <ul>
-                        <li>Type 1</li>
-                        <li>Type 2</li>
-                        <li>Type 3</li>
+                    <p v-if="place.exploitationTypes?.length === 0">Aucun type d'exploitation séléctionné pour le moment</p>
+                    <ul v-else style="list-style: initial; margin-inline-start: 1.5rem;">
+                        <li v-for="type in place.exploitationTypes" :key="type.exploitationTypeId">
+                            {{ type.exploitationTypeName }}
+                        </li>
                     </ul>
                 </section>
             </div>
@@ -85,12 +85,20 @@ onMounted(async () => {
         <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end;">
             <section>
                 <h2>Photographies</h2>
-                <h3>Images séléctionnées (3)</h3>
-                <ul style="display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem; max-width: 800px;">
-                    <li>
-                        <ImagePlace style="" :source="{ imageId: 1, slug: 'test-slug', filename: 'loft-industriel.png', alt: 'alt-test', isMain: false}"/>
-                    </li>
-                </ul>
+                <template v-if="place.images?.length === 0">
+                    <h3>Images</h3>
+                    <p>Aucune image séléctionnée pour le moment</p>
+                </template>
+                <template v-else>
+                    <h3>Image<span v-if="place.images.length > 1">s</span> ({{ place.images.length }})</h3>
+                    <ul v-for="image in place.images" :key="image.imageId"
+                        style="display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem; max-width: 800px;"
+                    >
+                        <li>
+                            <ImagePlace style="" :source="image"/>
+                        </li>
+                    </ul>
+                </template>
             </section>
             <div
                 role="group"
@@ -102,6 +110,5 @@ onMounted(async () => {
             </div>
         </div>
     </template>
-    {{ place }}
-
+    
 </template>
