@@ -4,7 +4,17 @@ import MetricsCard from '../sharedViews/MetricsCard.vue';
 import ButtonPrimary from '@/components/buttons/ButtonPrimary.vue';
 import ButtonSecondary from '@/components/buttons/ButtonSecondary.vue';
 import ImagePlace from '@/components/images/ImagePlace.vue';
+import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { getOnePlace } from '@/services/places.service.js';
 
+const route = useRoute();
+
+const place = ref({})
+
+onMounted(async () => {
+    place.value = await getOnePlace(route.params?.id)
+})
 </script>
 
 <template>
@@ -23,11 +33,11 @@ import ImagePlace from '@/components/images/ImagePlace.vue';
     <div style="display: flex; gap: 1rem;">
         <MetricsCard 
             description="Consultations"
-            value="6"
+            :value="6"
         />
         <MetricsCard 
             description="Demandes d'information"
-            value="1"
+            :value="1"
         />
     </div>
     <section>
@@ -75,6 +85,6 @@ import ImagePlace from '@/components/images/ImagePlace.vue';
             <ButtonSecondary>Archiver</ButtonSecondary>
         </div>
     </div>
-
+    {{ place }}
 
 </template>
