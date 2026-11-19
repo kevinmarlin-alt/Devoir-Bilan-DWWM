@@ -91,10 +91,8 @@ onMounted(async () => {
                 </template>
                 <template v-else>
                     <h3>Image<span v-if="place.images.length > 1">s</span> ({{ place.images.length }})</h3>
-                    <ul v-for="image in place.images" :key="image.imageId"
-                        style="display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem; max-width: 800px;"
-                    >
-                        <li>
+                    <ul style="display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem; max-width: 800px;">
+                        <li v-for="image in place.images" :key="image.imageId">
                             <ImagePlace style="" :source="image"/>
                         </li>
                     </ul>
