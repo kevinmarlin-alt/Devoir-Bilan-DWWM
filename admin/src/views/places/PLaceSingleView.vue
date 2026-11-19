@@ -9,6 +9,7 @@ import { useRoute } from 'vue-router';
 import { getOnePlace } from '@/services/places.service.js';
 import { toFormateDateTime } from '@/utilities/date.js';
 import WarningCard from '../sharedViews/WarningCard.vue';
+import InProgressCard from '../sharedViews/inProgressCard.vue';
 
 const route = useRoute();
 
@@ -16,10 +17,31 @@ const place = ref({});
 const isLoadingPlace = ref(true);
 const error = ref(null);
 
-const visibleWarningBox = ref(false);
+const visibleButtonGroup = ref(true);
+
+const archivingState = ref({
+    warning: false,
+    inProgress: false,
+    success: false,
+    error: false
+});
 
 function showWarningBox() {
-    visibleWarningBox.value = true
+    visibleButtonGroup.value = false
+
+    archivingState.value.warning = true
+}
+
+function handleArchiving() {
+    visibleButtonGroup.value = false
+    
+    archivingState.value.warning = false
+    archivingState.value.inProgress = true
+}
+
+function handleCancelArchiving() {
+    visibleButtonGroup.value = true
+    archivingState.value.warning = false
 }
 
 onMounted(async () => {
@@ -105,7 +127,7 @@ onMounted(async () => {
                     </ul>
                 </template>
             </section>
-            <div v-if="!visibleWarningBox"
+            <div v-if="visibleButtonGroup"
                 role="group"
                 aria-label="Actions liées au lieu"
                 style="display: flex; align-items: stretch; width: 350px; flex-direction: column; gap: 0.5rem;"
@@ -123,12 +145,19 @@ onMounted(async () => {
                     Archiver
                 </ButtonSecondary>
             </div>
-            <WarningCard v-else 
-                title="Vous êtes sur le point d'archiver ce lieu."
-                style="width: 350px;"
-                @cancel="visibleWarningBox = false"
-                @confirm=""
-            />
+            <template v-else>
+                <WarningCard v-if="archivingState.warning" 
+                    title="Vous êtes sur le point d'archiver ce lieu."
+                    style="width: 350px;"
+                    @cancel="handleCancelArchiving"
+                    @confirm="handleArchiving"
+                />
+                <InProgressCard v-else-if="archivingState.inProgress"
+                    style="width: 350px;"
+                    title="Archivage en cours..."
+                />
+
+            </template>
         </div>
     </template>
     
