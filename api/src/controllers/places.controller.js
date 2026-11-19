@@ -1,11 +1,25 @@
-import { createOnePlace, getAll, updateOnePlace, deleteOnePlace } from "../services/places.service.js";
 import { AppError } from '../errors/AppError.js';
 import { validatePlacePayload } from '../validators/place.validator.js';
+import { isParamsExiste } from '../validators/params.validator.js'
+import { 
+    createOnePlace, 
+    getAll, 
+    updateOnePlace, 
+    deleteOnePlace,
+    getOnePlaceById
+} from "../services/places.service.js";
 
 export const getAllplaces = async (req, res) => {
     const places = await getAll();
 
     res.status(200).json( places )
+}
+
+export const getPlace = async (req, res) => {
+    isParamsExiste(req, ['id']);
+    const place = await getOnePlaceById(req.params.id);
+
+    res.status(200).json( place )
 }
 
 export const createPlace = async (req, res) => {

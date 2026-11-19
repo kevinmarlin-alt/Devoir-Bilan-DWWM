@@ -1,10 +1,34 @@
 import { Category } from "../models/Category.js";
 import { Place } from "../models/Place.js";
+import { ExploitationType } from '../models/ExploitationType.js';
+import { Image } from '../models/Image.js'
 
 export const findById = async (id, transaction) => {
     return await Place.findOne({
         where: { placeId: id },
-        transaction
+        transaction,
+        include: [
+            {
+                model: ExploitationType,
+                as: 'exploitationTypes',
+                attributes: [
+                    'exploitationTypeId',
+                    'exploitationTypeName'
+                ],
+                through: { attributes: [] }
+            },
+            {
+                model: Image,
+                as: 'images',
+                attributes: [
+                    'imageId',
+                    'slug',
+                    'filename',
+                    'alt',
+                    'isMain'
+                ]
+            }
+        ]
     })
 }
 

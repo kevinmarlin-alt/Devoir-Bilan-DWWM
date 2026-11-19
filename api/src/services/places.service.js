@@ -9,6 +9,10 @@ export const getAll = async () => {
     return await findAll()
 }
 
+export const getOnePlaceById = async (id) => {
+    return await findById(id);
+}
+
 export const createOnePlace = async (data) => {
     await validatePlaceReferences(data);
 
