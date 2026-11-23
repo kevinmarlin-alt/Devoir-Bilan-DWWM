@@ -43,7 +43,7 @@ export const changeStatusPlace = async (req, res) => {
     isParamsExiste(req, ['id']);
     const placeId = req.params.id;
     const status = req.body.status;
-    console.log(status)
+    
     const place = await updateStatus(placeId, status);
     res.status(200).json(place)
 }

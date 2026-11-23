@@ -75,7 +75,8 @@ export const createOne = async (data, transaction) => {
 
 export const changeStatus = async (placeId, status) => {
     return await Place.update({
-        status
+        status,
+        updatedAt: new Date().toISOString()
     }, {
         where: { placeId }
     })

@@ -20,7 +20,6 @@ const isLoadingPlace = ref(true);
 const error = ref(null);
 const archivingError = ref('');
 const visibleButtonGroup = ref(true);
-const archivedStatus = 'archived';
 let successTimer;
 
 const archivingState = ref({
@@ -45,12 +44,10 @@ async function handleArchiving() {
     archivingError.value = ''
 
     try {
-        await changeStatus(route.params.id, archivedStatus)
+        await changeStatus(route.params.id, 'archived')
 
         place.value = {
-            ...place.value,
-            status: archivedStatus,
-            updatedAt: new Date().toISOString()
+            status: 'archived',
         }
         archivingState.value.inProgress = false
         archivingState.value.success = true
