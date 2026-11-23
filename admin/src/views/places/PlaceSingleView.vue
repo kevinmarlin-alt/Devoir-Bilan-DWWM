@@ -49,6 +49,13 @@ function showDeletionWarning() {
     deletionState.value.warning = true
 }
 
+function handleUpdate() {
+    router.push({
+        name: 'places_update',
+        params: { id: place.value.placeId }
+    })
+}
+
 async function handleDeletion() {
     visibleButtonGroup.value = false
     deletionState.value.warning = false
@@ -205,7 +212,12 @@ onMounted(async () => {
                 aria-label="Actions liées au lieu"
                 style="display: flex; align-items: stretch; width: 350px; flex-direction: column; gap: 0.5rem;"
             >
-                <ButtonPrimary>Modifier</ButtonPrimary>
+                <ButtonPrimary
+                    v-if="['draft', 'published'].includes(place.status)"
+                    @click="handleUpdate"
+                >
+                    Modifier
+                </ButtonPrimary>
 
                 <ButtonSecondary v-if="place.status !== 'published'"
                     variant="error"
