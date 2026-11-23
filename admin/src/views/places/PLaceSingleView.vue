@@ -4,20 +4,24 @@ import MetricsCard from '../sharedViews/MetricsCard.vue';
 import ButtonPrimary from '@/components/buttons/ButtonPrimary.vue';
 import ButtonSecondary from '@/components/buttons/ButtonSecondary.vue';
 import ImagePlace from '@/components/images/ImagePlace.vue';
-import { onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { getOnePlace } from '@/services/places.service.js';
+import { changeStatus, getOnePlace } from '@/services/places.service.js';
 import { toFormateDateTime } from '@/utilities/date.js';
 import WarningCard from '../sharedViews/WarningCard.vue';
 import InProgressCard from '../sharedViews/inProgressCard.vue';
+import SuccessCard from '../sharedViews/successCard.vue';
+import ErrorCard from '../sharedViews/errorCard.vue';
 
 const route = useRoute();
 
 const place = ref({});
 const isLoadingPlace = ref(true);
 const error = ref(null);
-
+const archivingError = ref('');
 const visibleButtonGroup = ref(true);
+const archivedStatus = 'archived';
+let successTimer;
 
 const archivingState = ref({
     warning: false,
@@ -32,17 +36,44 @@ function showWarningBox() {
     archivingState.value.warning = true
 }
 
-function handleArchiving() {
+async function handleArchiving() {
     visibleButtonGroup.value = false
-    
     archivingState.value.warning = false
     archivingState.value.inProgress = true
+    archivingState.value.success = false
+    archivingState.value.error = false
+    archivingError.value = ''
+
+    try {
+        await changeStatus(route.params.id, archivedStatus)
+
+        place.value = {
+            ...place.value,
+            status: archivedStatus,
+            updatedAt: new Date().toISOString()
+        }
+        archivingState.value.inProgress = false
+        archivingState.value.success = true
+
+        successTimer = setTimeout(() => {
+            archivingState.value.success = false
+            visibleButtonGroup.value = true
+        }, 3000)
+    } catch (err) {
+        archivingError.value = err.message
+        archivingState.value.inProgress = false
+        archivingState.value.error = true
+    }
 }
 
 function handleCancelArchiving() {
     visibleButtonGroup.value = true
     archivingState.value.warning = false
+    archivingState.value.error = false
+    archivingError.value = ''
 }
+
+onBeforeUnmount(() => clearTimeout(successTimer))
 
 onMounted(async () => {
     try {
@@ -156,9 +187,20 @@ onMounted(async () => {
                     style="width: 350px;"
                     title="Archivage en cours..."
                 />
+                <SuccessCard v-else-if="archivingState.success"
+                    style="width: 350px;"
+                    title="Le lieu a bien été archivé."
+                />
+                <ErrorCard v-else-if="archivingState.error"
+                    style="width: 350px;"
+                    title="Échec de l'archivage"
+                    :error="archivingError"
+                    :cancel-path="null"
+                    @retry="handleArchiving"
+                    @cancel="handleCancelArchiving"
+                />
 
             </template>
         </div>
     </template>
-    
 </template>

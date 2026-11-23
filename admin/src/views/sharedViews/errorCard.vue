@@ -35,9 +35,10 @@ defineProps({
         <p>{{ error }}</p>
         
         <button class="button-primary" @click="emit('retry')">réessayer</button>
-        <RouterLink :to="cancelPath">
+        <RouterLink v-if="cancelPath" :to="cancelPath">
             <button class="button-secondary" @click="emit('cancel')">Annuler</button>
         </RouterLink>
+        <button v-else class="button-secondary" @click="emit('cancel')">Annuler</button>
        
     </NotificationCardLayout>
 </template>
