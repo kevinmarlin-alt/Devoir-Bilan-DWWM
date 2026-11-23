@@ -1,10 +1,12 @@
 import { Image } from '../models/Image.js';
 
-export const findAllImages = async () => {
+export const findAvailableImages = async () => {
     return await Image.findAll({
         where: { placeId: null }
     })
 };
+
+export const findAllImages = findAvailableImages;
 
 export const findImageById = async (imageId) => {
     return await Image.findOne({
