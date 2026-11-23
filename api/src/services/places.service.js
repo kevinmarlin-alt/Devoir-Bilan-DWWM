@@ -1,4 +1,4 @@
-import { createOne, findAll, findById, findBySlug, updateOne, deleteOne } from "../repositories/places.repository.js"
+import { createOne, findAll, findById, findBySlug, updateOne, deleteOne, changeStatus } from "../repositories/places.repository.js"
 import { findCategoryById } from '../repositories/categories.repository.js';
 import { getExploitationTypeById } from '../repositories/exploitationTypes.repository.js';
 import { assignImagesToPlace, clearImagesFromPlace, findImageById } from '../repositories/images.repository.js';
@@ -9,8 +9,16 @@ export const getAll = async () => {
     return await findAll()
 }
 
-export const getOnePlaceById = async (id) => {
-    return await findById(id);
+export const getOnePlaceById = async (placeId) => {
+    const place = await findById(placeId);
+
+    if (!place) {
+        throw new AppError('Le lieu à modifier n’existe pas.', {
+            status: 404,
+            code: 'PLACE_NOT_FOUND'
+        });
+    }
+    return place;
 }
 
 export const createOnePlace = async (data) => {
@@ -37,14 +45,7 @@ export const createOnePlace = async (data) => {
 }
 
 export const updateOnePlace = async (placeId, data) => {
-    const place = await findById(placeId);
-
-    if (!place) {
-        throw new AppError('Le lieu à modifier n’existe pas.', {
-            status: 404,
-            code: 'PLACE_NOT_FOUND'
-        });
-    }
+    const place = getOnePlaceById(placeId);
 
     await validatePlaceReferences(data, placeId);
 
@@ -64,6 +65,35 @@ export const updateOnePlace = async (placeId, data) => {
 
         return updatedPlace;
     });
+}
+
+export const updateStatus = async (placeId, status) => {
+    const place = await getOnePlaceById(placeId);
+
+    if (place.status === status) {
+        throw new AppError('Le status est identique, aucun changement n\'a été effectué.',
+            {
+                status: 400,
+                code: 'STATUS_NOT_CHANGE'
+            }
+        )
+    }
+
+    const isStatusChangeForbidden =
+        (place.status === 'published' && status === 'draft') ||
+        (place.status === 'archived' && status === 'published') ||
+        (place.status === 'draft' && status === 'archived');
+
+    if (isStatusChangeForbidden) {
+        throw new AppError(`Le passage du statut "${place.status}" au statut "${status}" n'est pas autorisé.`,
+            {
+                status: 400,
+                code: 'STATUS_CHANGE_NOT_POSSIBLE'
+            }
+        );
+    }
+
+    return await changeStatus(place.placeId, status)
 }
 
 const validatePlaceReferences = async (data, placeId = null) => {

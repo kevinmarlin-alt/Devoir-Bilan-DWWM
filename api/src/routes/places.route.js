@@ -4,7 +4,8 @@ import {
     getAllplaces, 
     updatePlace, 
     deletePlace,
-    getPlace
+    getPlace,
+    changeStatusPlace
 } from "../controllers/places.controller.js";
 
 const placesRouter = Router();
@@ -13,6 +14,7 @@ placesRouter.get('/', getAllplaces)
 placesRouter.get('/:id', getPlace)
 placesRouter.post('/', createPlace)
 placesRouter.patch('/:id', updatePlace)
+placesRouter.patch('/:id/status', changeStatusPlace)
 placesRouter.delete('/:id', deletePlace)
 
 export default placesRouter;

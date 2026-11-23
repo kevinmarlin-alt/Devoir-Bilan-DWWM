@@ -73,6 +73,14 @@ export const createOne = async (data, transaction) => {
     }, { transaction })
 }
 
+export const changeStatus = async (placeId, status) => {
+    return await Place.update({
+        status
+    }, {
+        where: { placeId }
+    })
+}
+
 export const updateOne = async (placeId, data, transaction) => {
     await Place.update({
         slug: data.slug,
