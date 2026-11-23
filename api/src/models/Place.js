@@ -25,10 +25,6 @@ Place.init(
             type: DataTypes.STRING,
             field: 'description'
         },
-        additionalInformation: {
-            type: DataTypes.STRING,
-            field: 'additional_information'
-        },
         status: {
             type: DataTypes.STRING,
             allowNull: false,

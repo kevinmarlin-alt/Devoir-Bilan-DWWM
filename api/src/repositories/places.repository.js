@@ -67,7 +67,6 @@ export const createOne = async (data, transaction) => {
         slug: data.slug,
         name: data.name,
         description: data.description,
-        additionalInformation: data.additionalInformation,
         status: data.status,
         categoryId: data.categoryId
     }, { transaction })
@@ -87,7 +86,6 @@ export const updateOne = async (placeId, data, transaction) => {
         slug: data.slug,
         name: data.name,
         description: data.description,
-        additionalInformation: data.additionalInformation,
         status: data.status,
         categoryId: data.categoryId
     }, {
