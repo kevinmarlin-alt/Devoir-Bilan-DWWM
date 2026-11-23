@@ -5,7 +5,7 @@ import ButtonPrimary from '@/components/buttons/ButtonPrimary.vue';
 import ButtonSecondary from '@/components/buttons/ButtonSecondary.vue';
 import ImagePlace from '@/components/images/ImagePlace.vue';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { changeStatus, deletePlace, getOnePlace } from '@/services/places.service.js';
 import { toFormateDateTime } from '@/utilities/date.js';
 import WarningCard from '../sharedViews/WarningCard.vue';
@@ -14,6 +14,7 @@ import SuccessCard from '../sharedViews/successCard.vue';
 import ErrorCard from '../sharedViews/errorCard.vue';
 
 const route = useRoute();
+const router = useRouter();
 
 const place = ref({});
 const isLoadingPlace = ref(true);
@@ -61,6 +62,10 @@ async function handleDeletion() {
 
         deletionState.value.inProgress = false
         deletionState.value.success = true
+
+        successTimer = setTimeout(() => {
+            router.push({ name: 'places_home' })
+        }, 3000)
     } catch (err) {
         deletionError.value = err.message
         deletionState.value.inProgress = false
