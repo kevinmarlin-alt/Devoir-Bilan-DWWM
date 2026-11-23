@@ -15,7 +15,7 @@ test('rejects a missing HTTP request parameter', () => {
         (error) => (
             error instanceof AppError
             && error.statusCode === 402
-            && error.code === 'NO_CONTENT'
+            && error.code === 'NO_CONTENT_PARAMS'
             && error.message === 'Le paramettre "slug" de la requêtte HTTP est manquant.'
         )
     );
