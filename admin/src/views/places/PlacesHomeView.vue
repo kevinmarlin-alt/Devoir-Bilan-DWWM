@@ -2,7 +2,7 @@
 import MainHeader from '@/components/MainHeader.vue';
 import MetricsCard from '@/views/sharedViews/MetricsCard.vue';
 import SearchForm from '@/components/SearchForm.vue';
-import { getAllPlaces, detelePlace } from '@/services/places.service.js';
+import { getAllPlaces } from '@/services/places.service.js';
 import { getAllCategories } from '@/services/categories.service.js';
 import { toFormateDateTime } from '@/utilities/date.js';
 import TagStatus from '@/components/TagStatus.vue';

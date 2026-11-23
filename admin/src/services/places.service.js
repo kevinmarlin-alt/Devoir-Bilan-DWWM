@@ -85,11 +85,13 @@ export const changeStatus = async (placeId, status) => {
     return await response.json();
 }
 
-export const detelePlace = async (placeId) => {
+export const deletePlace = async (placeId) => {
     const response = await apiFetch(`api/admin/places/${placeId}`, {
         method: 'DELETE',
-    })
+    });
 
-    if(!response.ok) {
-        throw new Error('Une erreur est survenue lors de la suppression du lieu.')
-    }}
+    if (!response.ok) {
+        const { error } = await response.json();
+        throw new Error(error.message ?? 'Une erreur est survenue lors de la suppression du lieu.');
+    }
+}

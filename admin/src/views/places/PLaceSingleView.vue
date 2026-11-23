@@ -6,7 +6,7 @@ import ButtonSecondary from '@/components/buttons/ButtonSecondary.vue';
 import ImagePlace from '@/components/images/ImagePlace.vue';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { changeStatus, getOnePlace } from '@/services/places.service.js';
+import { changeStatus, deletePlace, getOnePlace } from '@/services/places.service.js';
 import { toFormateDateTime } from '@/utilities/date.js';
 import WarningCard from '../sharedViews/WarningCard.vue';
 import InProgressCard from '../sharedViews/inProgressCard.vue';
@@ -19,6 +19,7 @@ const place = ref({});
 const isLoadingPlace = ref(true);
 const error = ref(null);
 const archivingError = ref('');
+const deletionError = ref('');
 const visibleButtonGroup = ref(true);
 let successTimer;
 
@@ -30,7 +31,10 @@ const archivingState = ref({
 });
 
 const deletionState = ref({
-    warning: false
+    warning: false,
+    inProgress: false,
+    success: false,
+    error: false
 });
 
 function showWarningBox() {
@@ -42,6 +46,26 @@ function showWarningBox() {
 function showDeletionWarning() {
     visibleButtonGroup.value = false
     deletionState.value.warning = true
+}
+
+async function handleDeletion() {
+    visibleButtonGroup.value = false
+    deletionState.value.warning = false
+    deletionState.value.inProgress = true
+    deletionState.value.success = false
+    deletionState.value.error = false
+    deletionError.value = ''
+
+    try {
+        await deletePlace(route.params.id)
+
+        deletionState.value.inProgress = false
+        deletionState.value.success = true
+    } catch (err) {
+        deletionError.value = err.message
+        deletionState.value.inProgress = false
+        deletionState.value.error = true
+    }
 }
 
 async function handleArchiving() {
@@ -82,6 +106,8 @@ function handleCancelArchiving() {
 function handleCancelDeletion() {
     visibleButtonGroup.value = true
     deletionState.value.warning = false
+    deletionState.value.error = false
+    deletionError.value = ''
 }
 
 onBeforeUnmount(() => clearTimeout(successTimer))
@@ -192,6 +218,23 @@ onMounted(async () => {
                 <WarningCard v-if="deletionState.warning"
                     :title="`Vous êtes sur le point de supprimer le lieu « ${place.name} ». Ses images seront conservées.`"
                     style="width: 350px;"
+                    @cancel="handleCancelDeletion"
+                    @confirm="handleDeletion"
+                />
+                <InProgressCard v-else-if="deletionState.inProgress"
+                    style="width: 350px;"
+                    title="Suppression en cours..."
+                />
+                <SuccessCard v-else-if="deletionState.success"
+                    style="width: 350px;"
+                    title="Le lieu a bien été supprimé."
+                />
+                <ErrorCard v-else-if="deletionState.error"
+                    style="width: 350px;"
+                    title="Échec de la suppression"
+                    :error="deletionError"
+                    :cancel-path="null"
+                    @retry="handleDeletion"
                     @cancel="handleCancelDeletion"
                 />
                 <WarningCard v-else-if="archivingState.warning"
