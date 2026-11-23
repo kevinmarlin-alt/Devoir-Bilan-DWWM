@@ -82,3 +82,54 @@ test('rejects a publication without a main image', () => {
         (error) => error instanceof AppError && error.code === 'INCOMPLETE_PLACE_PUBLICATION' && error.statusCode === 400
     );
 });
+
+test('normalizes numeric identifiers from the admin form', () => {
+    const place = validatePlacePayload({
+        name: 'Villa des Pins',
+        categoryId: '1',
+        exploitationTypeIds: ['2', '3'],
+        imageIds: ['4', '5'],
+        mainImageId: '4',
+        status: 'draft'
+    });
+
+    assert.equal(place.categoryId, 1);
+    assert.deepEqual(place.exploitationTypeIds, [2, 3]);
+    assert.deepEqual(place.imageIds, [4, 5]);
+    assert.equal(place.mainImageId, 4);
+});
+
+test('rejects identifier collections that are not arrays', () => {
+    assert.throws(
+        () => validatePlacePayload({ name: 'Villa des Pins', imageIds: '4' }),
+        (error) => error instanceof AppError && error.code === 'INVALID_PLACE_DATA'
+    );
+});
+
+test('rejects duplicate identifiers', () => {
+    assert.throws(
+        () => validatePlacePayload({ name: 'Villa des Pins', exploitationTypeIds: [2, '2'] }),
+        (error) => error instanceof AppError && error.code === 'INVALID_PLACE_DATA'
+    );
+});
+
+test('rejects non-positive identifiers', () => {
+    assert.throws(
+        () => validatePlacePayload({ name: 'Villa des Pins', categoryId: 0 }),
+        (error) => error instanceof AppError && error.code === 'INVALID_PLACE_DATA'
+    );
+});
+
+test('rejects identifiers with a non-numeric type', () => {
+    assert.throws(
+        () => validatePlacePayload({ name: 'Villa des Pins', imageIds: [true] }),
+        (error) => error instanceof AppError && error.code === 'INVALID_PLACE_DATA'
+    );
+});
+
+test('rejects a main image outside the normalized image selection', () => {
+    assert.throws(
+        () => validatePlacePayload({ name: 'Villa des Pins', imageIds: ['4'], mainImageId: '5' }),
+        (error) => error instanceof AppError && error.code === 'INVALID_MAIN_IMAGE'
+    );
+});

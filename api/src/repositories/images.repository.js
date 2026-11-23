@@ -8,9 +8,11 @@ export const findAvailableImages = async () => {
 
 export const findAllImages = findAvailableImages;
 
-export const findImageById = async (imageId) => {
+export const findImageById = async (imageId, transaction) => {
     return await Image.findOne({
-        where: { imageId }
+        where: { imageId },
+        transaction,
+        ...(transaction ? { lock: transaction.LOCK.UPDATE } : {})
     });
 };
 
