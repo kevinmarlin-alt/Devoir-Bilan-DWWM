@@ -9,11 +9,11 @@ export const getAll = async () => {
     return await findAll()
 }
 
-export const getOnePlaceById = async (placeId) => {
-    const place = await findById(placeId);
+export const getOnePlaceById = async (placeId, transaction) => {
+    const place = await findById(placeId, transaction);
 
     if (!place) {
-        throw new AppError('Le lieu à modifier n’existe pas.', {
+        throw new AppError('Le lieu demandé n’existe pas.', {
             status: 404,
             code: 'PLACE_NOT_FOUND'
         });
@@ -150,5 +150,17 @@ const validateSlugAvailability = async (slug, placeId = null) => {
 }
 
 export const deleteOnePlace = async (placeId) => {
-    await deleteOne(placeId);
+    return await sequelize.transaction(async (transaction) => {
+        const place = await getOnePlaceById(placeId, transaction);
+
+        if (place.status === 'published') {
+            throw new AppError('Un lieu publié doit être archivé avant d’être supprimé.', {
+                status: 409,
+                code: 'PUBLISHED_PLACE_DELETE_FORBIDDEN'
+            });
+        }
+
+        await clearImagesFromPlace(placeId, transaction);
+        await deleteOne(placeId, transaction);
+    });
 }
