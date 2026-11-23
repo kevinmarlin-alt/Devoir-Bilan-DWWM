@@ -34,6 +34,16 @@ export const getAllImages = async () => {
     return response.json();
 }
 
+export const getAvailableImages = async () => {
+    const response = await apiFetch('api/admin/images/available');
+
+    if (!response.ok) {
+        throw new Error('Impossible de récupérer les images disponibles');
+    }
+
+    return response.json();
+}
+
 export const createPlace = async (data) => {
     const response = await apiFetch('api/admin/places', {
         method: 'POST',
