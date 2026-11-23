@@ -29,10 +29,19 @@ const archivingState = ref({
     error: false
 });
 
+const deletionState = ref({
+    warning: false
+});
+
 function showWarningBox() {
     visibleButtonGroup.value = false
 
     archivingState.value.warning = true
+}
+
+function showDeletionWarning() {
+    visibleButtonGroup.value = false
+    deletionState.value.warning = true
 }
 
 async function handleArchiving() {
@@ -68,6 +77,11 @@ function handleCancelArchiving() {
     archivingState.value.warning = false
     archivingState.value.error = false
     archivingError.value = ''
+}
+
+function handleCancelDeletion() {
+    visibleButtonGroup.value = true
+    deletionState.value.warning = false
 }
 
 onBeforeUnmount(() => clearTimeout(successTimer))
@@ -162,8 +176,9 @@ onMounted(async () => {
             >
                 <ButtonPrimary>Modifier</ButtonPrimary>
 
-                <ButtonSecondary v-if="place.status !== 'published'" 
+                <ButtonSecondary v-if="place.status !== 'published'"
                     variant="error"
+                    @click="showDeletionWarning"
                 >
                     Supprimer
                 </ButtonSecondary>
@@ -174,7 +189,12 @@ onMounted(async () => {
                 </ButtonSecondary>
             </div>
             <template v-else>
-                <WarningCard v-if="archivingState.warning" 
+                <WarningCard v-if="deletionState.warning"
+                    :title="`Vous êtes sur le point de supprimer le lieu « ${place.name} ». Ses images seront conservées.`"
+                    style="width: 350px;"
+                    @cancel="handleCancelDeletion"
+                />
+                <WarningCard v-else-if="archivingState.warning"
                     title="Vous êtes sur le point d'archiver ce lieu."
                     style="width: 350px;"
                     @cancel="handleCancelArchiving"
