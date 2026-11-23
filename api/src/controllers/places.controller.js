@@ -6,8 +6,10 @@ import {
     getAll, 
     updateOnePlace, 
     deleteOnePlace,
-    getOnePlaceById
+    getOnePlaceById,
+    updateStatus
 } from "../services/places.service.js";
+import { isBodyExiste } from '../validators/body.validator.js';
 
 export const getAllplaces = async (req, res) => {
     const places = await getAll();
@@ -34,6 +36,16 @@ export const updatePlace = async (req, res) => {
     const place = await updateOnePlace(req.params.id, data);
 
     res.status(200).json(place);
+}
+
+export const changeStatusPlace = async (req, res) => {
+    isBodyExiste(req, ['status']);
+    isParamsExiste(req, ['id']);
+    const placeId = req.params.id;
+    const status = req.body.status;
+    
+    const place = await updateStatus(placeId, status);
+    res.status(200).json(place)
 }
 
 export const deletePlace = async (req, res) => {

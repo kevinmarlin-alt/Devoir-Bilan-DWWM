@@ -16,7 +16,7 @@ defineProps({
             <path d="m16 9-5.5 5.5L8 12"/>
         </svg>
         <p class="notification-title">{{ title }}</p>        
-        <RouterLink :to="path">
+        <RouterLink v-if="path" :to="path">
             <button class="button-secondary">Retour à la liste</button>
         </RouterLink>
        
