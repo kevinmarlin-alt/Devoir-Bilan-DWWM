@@ -1,55 +1,96 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { computed } from 'vue';
 import ImagePlace from './ImagePlace.vue';
-import successPublication from '@/components/publication/successPublication.vue'
 
-defineProps({
-    categories: { type: Array, default: [] },
-    types: { type: Array, default: [] },
-    images: { type: Array, default: [] },
-    currentStep: Number,
-    status: String,
-    place: Object
-})
+const props = defineProps({
+    modelValue: {
+        type: Object,
+        required: true
+    },
+    categories: { type: Array, default: () => [] },
+    types: { type: Array, default: () => [] },
+    images: { type: Array, default: () => [] },
+    currentStep: {
+        type: Number,
+        required: true
+    }
+});
 
-const emits = defineEmits(['data-form'])
+const emit = defineEmits(['update:modelValue']);
 
-const name = ref('');
-const description = ref('');
-const category = ref('');
-const selectedTypes = ref([]);
-const selectedImages = ref([]);
-const mainImageId = ref(null);
+const updateForm = (changes) => {
+    emit('update:modelValue', {
+        ...props.modelValue,
+        ...changes
+    });
+};
+
+const name = computed({
+    get: () => props.modelValue.name,
+    set: (value) => updateForm({ name: value })
+});
+
+const description = computed({
+    get: () => props.modelValue.description,
+    set: (value) => updateForm({ description: value })
+});
+
+const categoryId = computed({
+    get: () => props.modelValue.categoryId,
+    set: (value) => updateForm({ categoryId: value })
+});
+
+const selectedImages = computed(() => (
+    props.modelValue.imageIds
+        .map((imageId) => props.images.find((image) => image.imageId === imageId))
+        .filter(Boolean)
+));
+
+const availableImages = computed(() => (
+    props.images.filter((image) => !props.modelValue.imageIds.includes(image.imageId))
+));
+
+const toggleType = (typeId) => {
+    const selectedTypeIds = [...props.modelValue.exploitationTypeIds];
+    const typeIndex = selectedTypeIds.indexOf(typeId);
+
+    if (typeIndex === -1) {
+        selectedTypeIds.push(typeId);
+    } else {
+        selectedTypeIds.splice(typeIndex, 1);
+    }
+
+    updateForm({ exploitationTypeIds: selectedTypeIds });
+};
 
 const toggleImage = (imageId) => {
-    const imageIndex = selectedImages.value.indexOf(imageId);
+    const selectedImageIds = [...props.modelValue.imageIds];
+    const imageIndex = selectedImageIds.indexOf(imageId);
 
     if (imageIndex === -1) {
-        selectedImages.value.push(imageId);
+        selectedImageIds.push(imageId);
+        updateForm({
+            imageIds: selectedImageIds,
+            mainImageId: props.modelValue.mainImageId ?? imageId
+        });
         return;
     }
 
-    selectedImages.value.splice(imageIndex, 1);
+    selectedImageIds.splice(imageIndex, 1);
 
-    if (mainImageId.value === imageId) {
-        mainImageId.value = null;
-    }
+    updateForm({
+        imageIds: selectedImageIds,
+        mainImageId: props.modelValue.mainImageId === imageId
+            ? (selectedImageIds[0] ?? null)
+            : props.modelValue.mainImageId
+    });
 };
 
 const setMainImage = (imageId) => {
-    mainImageId.value = imageId;
+    if (props.modelValue.imageIds.includes(imageId)) {
+        updateForm({ mainImageId: imageId });
+    }
 };
-
-watch([name, description, category, selectedTypes, selectedImages, mainImageId], () => {
-    emits('data-form', {
-        name: name.value.trim(),
-        description: description.value.trim(),
-        category: category.value,
-        types: [...selectedTypes.value],
-        images: [...selectedImages.value],
-        mainImageId: mainImageId.value
-    });
-}, { deep: true });
 </script>
 
 <template>
@@ -79,8 +120,8 @@ watch([name, description, category, selectedTypes, selectedImages, mainImageId],
             <div class="flex-container-row">
                 <div class="input-group">
                     <label for="category">Catégories</label>
-                    <select name="category" id="category" v-model="category">
-                        <option value="" disabled>
+                    <select name="category" id="category" v-model="categoryId">
+                        <option :value="null" disabled>
                             {{ categories.length > 0  ? 'Sélectionner une catégorie' : 'Aucune catégorie' }}
                         </option>
                         <option
@@ -98,14 +139,15 @@ watch([name, description, category, selectedTypes, selectedImages, mainImageId],
                         Aucun type d'exploitation
                     </div>
                     <template v-else>
-                        <div v-for="type in types" :key="type.id" class="checkbox-group">
+                        <div v-for="type in types" :key="type.exploitationTypeId" class="checkbox-group">
                             <label :for="type.exploitationTypeId">
                                 <input
-                                    v-model="selectedTypes"
                                     type="checkbox"
                                     :name="type.exploitationTypeId"
                                     :id="type.exploitationTypeId"
                                     :value="type.exploitationTypeId"
+                                    :checked="modelValue.exploitationTypeIds.includes(type.exploitationTypeId)"
+                                    @change="toggleType(type.exploitationTypeId)"
                                 >
                                 {{ type.exploitationTypeName }}
                             </label>
@@ -116,17 +158,29 @@ watch([name, description, category, selectedTypes, selectedImages, mainImageId],
         </template>
         <template v-else-if="currentStep === 2">
             <h2>Photographies</h2>
-            <p>Images ajoutées ({{ selectedImages.length }})</p>
+            <h3>Images sélectionnées ({{ modelValue.imageIds.length }})</h3>
             <div class="container-images">
-                <p v-if="images.length === 0">Aucune image disponible.</p>
+                <p v-if="selectedImages.length === 0">Aucune image sélectionnée.</p>
                 <ImagePlace
-                    v-for="image in images"
+                    v-for="image in selectedImages"
                     :key="image.imageId"
                     :source="image"
-                    :selected="selectedImages.includes(image.imageId)"
-                    :is-main="mainImageId === image.imageId"
+                    selected
+                    :is-main="modelValue.mainImageId === image.imageId"
                     @image="toggleImage"
                     @main-image="setMainImage"
+                />
+            </div>
+            <h3 class="available-images-title">Images disponibles ({{ availableImages.length }})</h3>
+            <div class="container-images">
+                <p v-if="availableImages.length === 0">Aucune image disponible.</p>
+                <ImagePlace
+                    v-for="image in availableImages"
+                    :key="image.imageId"
+                    :source="image"
+                    :selected="false"
+                    :is-main="false"
+                    @image="toggleImage"
                 />
             </div>
         </template>
@@ -138,7 +192,7 @@ watch([name, description, category, selectedTypes, selectedImages, mainImageId],
                     <ul>
                         <li>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            :class="!name ? 'color-warning' : 'color-success'">
+                            :class="!name.trim() ? 'color-warning' : 'color-success'">
                                 <path d="M21.801 10A10 10 0 1 1 17 3.335"/>
                                 <path d="m9 11 3 3L22 4"/>
                             </svg>
@@ -146,7 +200,7 @@ watch([name, description, category, selectedTypes, selectedImages, mainImageId],
                         </li>
                         <li>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            :class="!description ? 'color-warning' : 'color-success'">
+                            :class="!description.trim() ? 'color-warning' : 'color-success'">
                                 <path d="M21.801 10A10 10 0 1 1 17 3.335"/>
                                 <path d="m9 11 3 3L22 4"/>
                             </svg>
@@ -154,7 +208,7 @@ watch([name, description, category, selectedTypes, selectedImages, mainImageId],
                         </li>
                         <li>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            :class="!category ? 'color-warning' : 'color-success'">
+                            :class="!modelValue.categoryId ? 'color-warning' : 'color-success'">
                                 <path d="M21.801 10A10 10 0 1 1 17 3.335"/>
                                 <path d="m9 11 3 3L22 4"/>
                             </svg>
@@ -162,7 +216,7 @@ watch([name, description, category, selectedTypes, selectedImages, mainImageId],
                         </li>
                         <li>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            :class="selectedTypes.length === 0 ? 'color-warning' : 'color-success'">
+                            :class="modelValue.exploitationTypeIds.length === 0 ? 'color-warning' : 'color-success'">
                                 <path d="M21.801 10A10 10 0 1 1 17 3.335"/>
                                 <path d="m9 11 3 3L22 4"/>
                             </svg>
@@ -170,24 +224,21 @@ watch([name, description, category, selectedTypes, selectedImages, mainImageId],
                         </li>
                         <li>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            :class="selectedImages.length >= 1 ? 'color-success' : 'color-warning'">
+                            :class="modelValue.imageIds.length >= 1 ? 'color-success' : 'color-warning'">
                                 <path d="M21.801 10A10 10 0 1 1 17 3.335"/>
                                 <path d="m9 11 3 3L22 4"/>
                             </svg>
-                            Au moins une photographie ({{ selectedImages.length }})
+                            Au moins une photographie ({{ modelValue.imageIds.length }})
                         </li>
                         <li>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            :class="mainImageId ? 'color-success' : 'color-warning'">
+                            :class="modelValue.mainImageId ? 'color-success' : 'color-warning'">
                                 <path d="M21.801 10A10 10 0 1 1 17 3.335"/>
                                 <path d="m9 11 3 3L22 4"/>
                             </svg>
                             Photo principale sélectionnée
                         </li>
                     </ul>
-                    <successPublication v-if="status === 'success'"
-                    :slug="place?.slug"
-                    />
                 </div>
             </div>
         </template>
@@ -214,6 +265,10 @@ watch([name, description, category, selectedTypes, selectedImages, mainImageId],
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: var(--space-medium);
     width: 100%;
+}
+
+.available-images-title {
+    margin-top: var(--space-large);
 }
 
 .validation-card {
