@@ -1,9 +1,10 @@
-import { createOne, findAll, findById, findBySlug, updateOne, deleteOne, changeStatus } from "../repositories/places.repository.js"
+import { createOne, findAll, findById, findByIdForUpdate, findBySlug, updateOne, deleteOne, changeStatus } from "../repositories/places.repository.js"
 import { findCategoryById } from '../repositories/categories.repository.js';
 import { getExploitationTypeById } from '../repositories/exploitationTypes.repository.js';
 import { assignImagesToPlace, clearImagesFromPlace, findImageById } from '../repositories/images.repository.js';
 import { AppError } from '../errors/AppError.js';
 import sequelize from '../db/database.js';
+import { createPlaceSlug } from '../utilities/placeSlug.js';
 
 export const getAll = async () => {
     return await findAll()
@@ -24,47 +25,62 @@ export const getOnePlaceById = async (placeId, transaction) => {
 export const createOnePlace = async (data) => {
     await validatePlaceReferences(data);
 
-    const slug = data.name.toLowerCase().replaceAll(' ', '-');
+    const slug = buildPlaceSlug(data.name);
     await validateSlugAvailability(slug);
 
-    return await sequelize.transaction(async (transaction) => {
-        const place = await createOne({
-            ...data,
-            slug
-        }, transaction);
+    try {
+        return await sequelize.transaction(async (transaction) => {
+            const place = await createOne({
+                ...data,
+                slug
+            }, transaction);
 
-        await place.setExploitationTypes(data.exploitationTypeIds, { transaction });
-        await assignImagesToPlace({
-            imageIds: data.imageIds,
-            mainImageId: data.mainImageId,
-            placeId: place.placeId
-        }, transaction);
+            await place.setExploitationTypes(data.exploitationTypeIds, { transaction });
+            await assignImagesToPlace({
+                imageIds: data.imageIds,
+                mainImageId: data.mainImageId,
+                placeId: place.placeId
+            }, transaction);
 
-        return place;
-    });
+            return place;
+        });
+    } catch (error) {
+        throwSlugConflict(error);
+    }
 }
 
 export const updateOnePlace = async (placeId, data) => {
-    const place = getOnePlaceById(placeId);
+    try {
+        return await sequelize.transaction(async (transaction) => {
+            const place = await findByIdForUpdate(placeId, transaction);
 
-    await validatePlaceReferences(data, placeId);
+            if (!place) {
+                throw new AppError('Le lieu demandé n’existe pas.', {
+                    status: 404,
+                    code: 'PLACE_NOT_FOUND'
+                });
+            }
 
-    const slug = data.name.toLowerCase().replaceAll(' ', '-');
-    await validateSlugAvailability(slug, placeId);
+            validateUpdateStatus(place.status, data.status);
+            await validatePlaceReferences(data, placeId, transaction);
 
-    return await sequelize.transaction(async (transaction) => {
-        const updatedPlace = await updateOne(placeId, { ...data, slug }, transaction);
+            const slug = buildPlaceSlug(data.name);
+            await validateSlugAvailability(slug, placeId, transaction);
 
-        await updatedPlace.setExploitationTypes(data.exploitationTypeIds, { transaction });
-        await clearImagesFromPlace(placeId, transaction);
-        await assignImagesToPlace({
-            imageIds: data.imageIds,
-            mainImageId: data.mainImageId,
-            placeId
-        }, transaction);
+            await updateOne(placeId, { ...data, slug }, transaction);
+            await place.setExploitationTypes(data.exploitationTypeIds, { transaction });
+            await clearImagesFromPlace(placeId, transaction);
+            await assignImagesToPlace({
+                imageIds: data.imageIds,
+                mainImageId: data.mainImageId,
+                placeId
+            }, transaction);
 
-        return updatedPlace;
-    });
+            return await getOnePlaceById(placeId, transaction);
+        });
+    } catch (error) {
+        throwSlugConflict(error);
+    }
 }
 
 export const updateStatus = async (placeId, status) => {
@@ -96,9 +112,9 @@ export const updateStatus = async (placeId, status) => {
     return await changeStatus(place.placeId, status)
 }
 
-const validatePlaceReferences = async (data, placeId = null) => {
+const validatePlaceReferences = async (data, placeId = null, transaction) => {
     if (data.categoryId) {
-        const category = await findCategoryById(data.categoryId);
+        const category = await findCategoryById(data.categoryId, transaction);
 
         if (!category) {
             throw new AppError('La catégorie sélectionnée n’existe pas.', {
@@ -109,7 +125,7 @@ const validatePlaceReferences = async (data, placeId = null) => {
     }
 
     for (const typeId of data.exploitationTypeIds) {
-        const type = await getExploitationTypeById(typeId);
+        const type = await getExploitationTypeById(typeId, transaction);
 
         if (!type) {
             throw new AppError('Un type d’exploitation sélectionné n’existe pas.', {
@@ -120,7 +136,7 @@ const validatePlaceReferences = async (data, placeId = null) => {
     }
 
     for (const imageId of data.imageIds) {
-        const image = await findImageById(imageId);
+        const image = await findImageById(imageId, transaction);
 
         if (!image) {
             throw new AppError('Une image sélectionnée n’existe pas.', {
@@ -129,24 +145,65 @@ const validatePlaceReferences = async (data, placeId = null) => {
             });
         }
 
-        if (image.placeId && image.placeId !== placeId) {
+        if (image.placeId !== null && Number(image.placeId) !== Number(placeId)) {
             throw new AppError('Une image sélectionnée est déjà liée à un autre lieu.', {
-                status: 400,
+                status: 409,
                 code: 'IMAGE_ALREADY_ASSIGNED'
             });
         }
     }
 }
 
-const validateSlugAvailability = async (slug, placeId = null) => {
-    const placeWithSameSlug = await findBySlug(slug);
+const validateSlugAvailability = async (slug, placeId = null, transaction) => {
+    const placeWithSameSlug = await findBySlug(slug, transaction);
 
-    if (placeWithSameSlug && placeWithSameSlug.placeId !== Number(placeId)) {
+    if (placeWithSameSlug && Number(placeWithSameSlug.placeId) !== Number(placeId)) {
         throw new AppError('Un lieu avec ce nom existe déjà. Veuillez choisir un autre nom.', {
             status: 409,
             code: 'SLUG_ALREADY_EXISTS'
         });
     }
+}
+
+const validateUpdateStatus = (currentStatus, nextStatus) => {
+    if (currentStatus === 'archived') {
+        throw new AppError('Un lieu archivé ne peut pas être modifié.', {
+            status: 409,
+            code: 'ARCHIVED_PLACE_UPDATE_FORBIDDEN'
+        });
+    }
+
+    if (currentStatus === 'published' && nextStatus === 'draft') {
+        throw new AppError('Un lieu publié ne peut pas être repassé en brouillon par cette route.', {
+            status: 409,
+            code: 'STATUS_CHANGE_NOT_POSSIBLE'
+        });
+    }
+}
+
+const buildPlaceSlug = (name) => {
+    const slug = createPlaceSlug(name);
+
+    if (!slug) {
+        throw new AppError('Le nom du lieu doit contenir au moins un caractère utilisable dans son URL.', {
+            status: 400,
+            code: 'INVALID_PLACE_DATA'
+        });
+    }
+
+    return slug;
+}
+
+const throwSlugConflict = (error) => {
+    if (error?.name === 'SequelizeUniqueConstraintError') {
+        throw new AppError('Un lieu avec ce nom existe déjà. Veuillez choisir un autre nom.', {
+            status: 409,
+            code: 'SLUG_ALREADY_EXISTS',
+            cause: error
+        });
+    }
+
+    throw error;
 }
 
 export const deleteOnePlace = async (placeId) => {

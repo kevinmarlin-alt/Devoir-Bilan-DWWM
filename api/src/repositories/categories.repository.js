@@ -1,10 +1,11 @@
 import { Category } from '../models/Category.js'
 
-export const findCategoryById = async (categoryId) => {
+export const findCategoryById = async (categoryId, transaction) => {
     return await Category.findOne({
         where: {
             categoryId
-        }
+        },
+        transaction
     })
 }
 export const findAllCategories = async () => {
