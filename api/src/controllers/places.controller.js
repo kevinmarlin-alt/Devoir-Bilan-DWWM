@@ -1,4 +1,3 @@
-import { AppError } from '../errors/AppError.js';
 import { validatePlacePayload } from '../validators/place.validator.js';
 import { isParamsExiste } from '../validators/params.validator.js'
 import { 
@@ -49,16 +48,10 @@ export const changeStatusPlace = async (req, res) => {
 }
 
 export const deletePlace = async (req, res) => {
-    if(!req.params.id) {
-        throw new AppError('Le paramettre "id" de la requêtte HTTP est vide', {
-            statusCode: 402,
-            code: 'NO_CONTENT'
-        })
-    }
-
+    isParamsExiste(req, ['id']);
     const placeId = req.params.id;
 
     await deleteOnePlace(placeId);
 
-    res.sendStatus(200)
+    res.status(204).send();
 }
