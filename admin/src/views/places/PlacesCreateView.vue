@@ -4,14 +4,22 @@ import ProgressBarCreatePlace from '@/components/ProgressBarCreatePlace.vue';
 import FormPlaces from '@/components/FormPlaces.vue';
 import router from '@/router';
 import { getAllCategories } from '@/services/categories.service.js'
-import { createPlace, getAllImages, updatePlace } from '@/services/places.service.js';
+import { createPlace, getAvailableImages, updatePlace } from '@/services/places.service.js';
 import { getAll } from '@/services/exploitationTypes.service';
 import RegistrationStatus from '@/components/RegistrationStatus.vue';
 import inProgressCard from '@/views/sharedViews/inProgressCard.vue';
 import errorCard from '@/views/sharedViews/errorCard.vue';
+import successPublication from '@/components/publication/successPublication.vue';
 
 const currentStep = ref(1);
-const data = ref({});
+const formData = ref({
+    name: '',
+    description: '',
+    categoryId: null,
+    exploitationTypeIds: [],
+    imageIds: [],
+    mainImageId: null
+});
 const categories = ref([]);
 const types = ref([]);
 const images = ref([]);
@@ -32,12 +40,7 @@ const createHandler = async (status) => {
 
     try {
         const placeData = {
-            name: data.value.name,
-            description: data.value.description,
-            categoryId: data.value.category,
-            exploitationTypeIds: data.value.types,
-            imageIds: data.value.images,
-            mainImageId: data.value.mainImageId,
+            ...formData.value,
             status
         };
 
@@ -70,18 +73,18 @@ const nextStepHandler = () => {
 }
 
 const isPublishable = computed(() => {
-    const hasName = data.value.name !== '';
-    const hasDescription = data.value.description !== '';
-    const hasCategory = data.value.category !== '';
-    const hasTypes = data.value.types?.length > 0;
-    const hasImages = data.value.images?.length >= 1;
-    const hasMainImage = data.value.mainImageId !== null;
+    const hasName = formData.value.name.trim() !== '';
+    const hasDescription = formData.value.description.trim() !== '';
+    const hasCategory = formData.value.categoryId !== null;
+    const hasTypes = formData.value.exploitationTypeIds.length > 0;
+    const hasImages = formData.value.imageIds.length >= 1;
+    const hasMainImage = formData.value.mainImageId !== null;
 
     return hasName && hasDescription && hasCategory && hasTypes && hasImages && hasMainImage
 })
 
 const isRegistrable = computed(() => {
-    return data.value.name !== '';
+    return formData.value.name.trim() !== '';
 })
 
 const isSaving = computed(() => requestStatus.value === 'inProgress');
@@ -93,7 +96,7 @@ const changeStep = (step) => {
 onMounted(async () => {
     categories.value = await getAllCategories();
     types.value = await getAll();
-    images.value = await getAllImages();
+    images.value = await getAvailableImages();
 })
 </script>
 
@@ -105,27 +108,44 @@ onMounted(async () => {
         >
             Retour à la liste
         </RouterLink>
-        <button v-if="currentStep < 3" type="button" class="button-secondary" :disabled="!data.name || isSaving" @click="createHandler('draft')">Enregistrer</button>
+        <button v-if="currentStep < 3" type="button" class="button-secondary" :disabled="!isRegistrable || isSaving" @click="createHandler('draft')">Enregistrer</button>
         <button v-else-if="requestStatus !== 'success'" type="button" class="button-primary" :disabled="!isPublishable || isSaving" @click="createHandler('published')">Publier</button>
     </nav>
     <h1>Nouveau lieu</h1>
     <ProgressBarCreatePlace :current-step="currentStep" @selected-step="v => changeStep(v)"/>
     
     <FormPlaces 
+        v-model="formData"
         :current-step="currentStep"
         :categories="categories"
         :types="types"
         :images="images"
-        :status="requestStatus"
-        :place="publishedPlace"
-        @data-form="value => data = {...value}"
-    />
+    >
+        <template #validation-feedback>
+            <inProgressCard
+                v-if="requestStatus === 'inProgress'"
+                title="Enregistrement en cours..."
+            />
+            <errorCard
+                v-else-if="requestStatus === 'error'"
+                title="Échec de l'enregistrement"
+                :error="errorMessage"
+                cancel-path="/admin/places"
+                @retry="retryHandler"
+                @cancel="cancelHandler"
+            />
+            <successPublication
+                v-else-if="requestStatus === 'success'"
+                :slug="publishedPlace?.slug"
+            />
+        </template>
+    </FormPlaces>
     <inProgressCard
-        v-if="requestStatus === 'inProgress'"
+        v-if="currentStep !== 3 && requestStatus === 'inProgress'"
         title="Enregistrement en cours..."
     />
     <errorCard
-        v-else-if="requestStatus === 'error'"
+        v-else-if="currentStep !== 3 && requestStatus === 'error'"
         title="Échec de l'enregistrement"
         :error="errorMessage"
         cancel-path="/admin/places"
@@ -154,7 +174,6 @@ onMounted(async () => {
             Publier
         </button>
     </div>
-    {{ data }}
 </template>
 
 <style>

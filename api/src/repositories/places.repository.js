@@ -41,9 +41,18 @@ export const findById = async (id, transaction) => {
     })
 }
 
-export const findBySlug = async (slug) => {
+export const findByIdForUpdate = async (id, transaction) => {
     return await Place.findOne({
-        where: { slug }
+        where: { placeId: id },
+        transaction,
+        lock: transaction.LOCK.UPDATE
+    });
+}
+
+export const findBySlug = async (slug, transaction) => {
+    return await Place.findOne({
+        where: { slug },
+        transaction
     });
 }
 
@@ -67,7 +76,6 @@ export const createOne = async (data, transaction) => {
         slug: data.slug,
         name: data.name,
         description: data.description,
-        additionalInformation: data.additionalInformation,
         status: data.status,
         categoryId: data.categoryId
     }, { transaction })
@@ -87,15 +95,14 @@ export const updateOne = async (placeId, data, transaction) => {
         slug: data.slug,
         name: data.name,
         description: data.description,
-        additionalInformation: data.additionalInformation,
         status: data.status,
-        categoryId: data.categoryId
+        categoryId: data.categoryId,
+        updatedAt: new Date().toISOString()
     }, {
         where: { placeId },
         transaction
     });
 
-    return await findById(placeId, transaction);
 }
 
 export const deleteOne = async (id, transaction) => {

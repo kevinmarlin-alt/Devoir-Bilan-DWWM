@@ -49,6 +49,13 @@ function showDeletionWarning() {
     deletionState.value.warning = true
 }
 
+function handleUpdate() {
+    router.push({
+        name: 'places_update',
+        params: { id: place.value.placeId }
+    })
+}
+
 async function handleDeletion() {
     visibleButtonGroup.value = false
     deletionState.value.warning = false
@@ -82,11 +89,9 @@ async function handleArchiving() {
     archivingError.value = ''
 
     try {
-        await changeStatus(route.params.id, 'archived')
+        const archivedPlace = await changeStatus(route.params.id, 'archived')
 
-        place.value = {
-            status: 'archived',
-        }
+        place.value = archivedPlace
         archivingState.value.inProgress = false
         archivingState.value.success = true
 
@@ -192,7 +197,7 @@ onMounted(async () => {
                     <p>Aucune image séléctionnée pour le moment</p>
                 </template>
                 <template v-else>
-                    <h3>Image<span v-if="place.images.length > 1">s</span> ({{ place.images.length }})</h3>
+                    <h3>{{ place.images.length > 1 ? 'Images' : 'Image' }} ({{ place.images.length }})</h3>
                     <ul style="display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem; max-width: 800px;">
                         <li v-for="image in place.images" :key="image.imageId">
                             <ImagePlace style="" :source="image"/>
@@ -205,7 +210,11 @@ onMounted(async () => {
                 aria-label="Actions liées au lieu"
                 style="display: flex; align-items: stretch; width: 350px; flex-direction: column; gap: 0.5rem;"
             >
-                <ButtonPrimary>Modifier</ButtonPrimary>
+                <ButtonPrimary
+                    @click="handleUpdate"
+                >
+                    Modifier
+                </ButtonPrimary>
 
                 <ButtonSecondary v-if="place.status !== 'published'"
                     variant="error"

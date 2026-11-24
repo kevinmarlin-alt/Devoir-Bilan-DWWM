@@ -1,5 +1,5 @@
 import { validatePlacePayload } from '../validators/place.validator.js';
-import { isParamsExiste } from '../validators/params.validator.js'
+import { isParamsExiste, validatePositiveIntegerParam } from '../validators/params.validator.js'
 import { 
     createOnePlace, 
     getAll, 
@@ -31,8 +31,9 @@ export const createPlace = async (req, res) => {
 }
 
 export const updatePlace = async (req, res) => {
+    const placeId = validatePositiveIntegerParam(req.params.id);
     const data = validatePlacePayload(req.body);
-    const place = await updateOnePlace(req.params.id, data);
+    const place = await updateOnePlace(placeId, data);
 
     res.status(200).json(place);
 }

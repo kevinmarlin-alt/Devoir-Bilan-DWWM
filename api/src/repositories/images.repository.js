@@ -1,14 +1,18 @@
 import { Image } from '../models/Image.js';
 
-export const findAllImages = async () => {
+export const findAvailableImages = async () => {
     return await Image.findAll({
         where: { placeId: null }
     })
 };
 
-export const findImageById = async (imageId) => {
+export const findAllImages = findAvailableImages;
+
+export const findImageById = async (imageId, transaction) => {
     return await Image.findOne({
-        where: { imageId }
+        where: { imageId },
+        transaction,
+        ...(transaction ? { lock: transaction.LOCK.UPDATE } : {})
     });
 };
 
