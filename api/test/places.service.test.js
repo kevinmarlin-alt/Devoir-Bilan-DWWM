@@ -131,6 +131,28 @@ test('rejects reactivating an archived place through the status-only route', asy
     );
 });
 
+test('returns the enriched archived place after a status update', async (context) => {
+    const publishedPlace = { placeId: 7, status: 'published' };
+    const archivedPlace = {
+        placeId: 7,
+        name: 'Villa archivée',
+        status: 'archived',
+        updatedAt: '2026-11-24T09:40:00.000Z'
+    };
+    let lookupCount = 0;
+    context.mock.method(Place, 'findOne', async () => {
+        lookupCount += 1;
+        return lookupCount === 1 ? publishedPlace : archivedPlace;
+    });
+    const update = context.mock.method(Place, 'update', async () => [1]);
+
+    const result = await updateStatus(7, 'archived');
+
+    assert.equal(result, archivedPlace);
+    assert.equal(update.mock.callCount(), 1);
+    assert.equal(lookupCount, 2);
+});
+
 test('rejects a published to draft transition', async (context) => {
     mockTransaction(context);
     context.mock.method(Place, 'findOne', async () => ({ placeId: 7, status: 'published' }));

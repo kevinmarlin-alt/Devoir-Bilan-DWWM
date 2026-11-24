@@ -109,7 +109,9 @@ export const updateStatus = async (placeId, status) => {
         );
     }
 
-    return await changeStatus(place.placeId, status)
+    await changeStatus(place.placeId, status);
+
+    return await getOnePlaceById(place.placeId);
 }
 
 const validatePlaceReferences = async (data, placeId = null, transaction) => {

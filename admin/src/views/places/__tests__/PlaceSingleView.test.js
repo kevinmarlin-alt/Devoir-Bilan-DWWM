@@ -1,7 +1,10 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { getOnePlace } from '@/services/places.service.js';
+import { changeStatus, getOnePlace } from '@/services/places.service.js';
+import InProgressCard from '@/views/sharedViews/inProgressCard.vue';
+import SuccessCard from '@/views/sharedViews/successCard.vue';
+import WarningCard from '@/views/sharedViews/WarningCard.vue';
 import PlaceSingleView from '../PlaceSingleView.vue';
 
 const router = { push: vi.fn() };
@@ -71,6 +74,50 @@ describe('PlaceSingleView update action', () => {
             name: 'places_update',
             params: { id: 12 }
         });
+    });
+
+    it('completes the archive cycle while preserving the enriched place', async () => {
+        vi.useFakeTimers();
+        let resolveArchiving;
+        const publishedPlace = place('published');
+        const archivedPlace = {
+            ...publishedPlace,
+            status: 'archived',
+            updatedAt: '2026-11-24T09:40:00.000Z'
+        };
+        getOnePlace.mockResolvedValue(publishedPlace);
+        changeStatus.mockReturnValue(new Promise((resolve) => {
+            resolveArchiving = resolve;
+        }));
+
+        try {
+            const wrapper = mountView();
+            await flushPromises();
+
+            await wrapper.findAll('button').find((button) => button.text() === 'Archiver').trigger('click');
+            wrapper.findComponent(WarningCard).vm.$emit('confirm');
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.findComponent(InProgressCard).exists()).toBe(true);
+
+            resolveArchiving(archivedPlace);
+            await flushPromises();
+
+            expect(changeStatus).toHaveBeenCalledWith('12', 'archived');
+            expect(wrapper.findComponent(InProgressCard).exists()).toBe(false);
+            expect(wrapper.findComponent(SuccessCard).exists()).toBe(true);
+            expect(wrapper.text()).toContain('Villa');
+            expect(wrapper.text()).toContain('Archivé');
+
+            vi.advanceTimersByTime(3000);
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.findComponent(SuccessCard).exists()).toBe(false);
+            expect(wrapper.text()).toContain('Modifier');
+            expect(wrapper.text()).toContain('Supprimer');
+        } finally {
+            vi.useRealTimers();
+        }
     });
 
     it('renders the image count with the parent heading typography', async () => {

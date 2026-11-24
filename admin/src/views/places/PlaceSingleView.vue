@@ -89,11 +89,9 @@ async function handleArchiving() {
     archivingError.value = ''
 
     try {
-        await changeStatus(route.params.id, 'archived')
+        const archivedPlace = await changeStatus(route.params.id, 'archived')
 
-        place.value = {
-            status: 'archived',
-        }
+        place.value = archivedPlace
         archivingState.value.inProgress = false
         archivingState.value.success = true
 
