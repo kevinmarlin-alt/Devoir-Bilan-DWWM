@@ -5,6 +5,7 @@ import { useRoute, useRouter } from 'vue-router';
 import FormPlaces from '@/components/FormPlaces.vue';
 import ProgressBarCreatePlace from '@/components/ProgressBarCreatePlace.vue';
 import RegistrationStatus from '@/components/RegistrationStatus.vue';
+import TagStatus from '@/components/TagStatus.vue';
 import successPublication from '@/components/publication/successPublication.vue';
 import { getAllCategories } from '@/services/categories.service.js';
 import { getAll } from '@/services/exploitationTypes.service';
@@ -189,7 +190,7 @@ onMounted(loadEditor);
 
         <div class="editor-heading">
             <h1>Modifier {{ place.name }}</h1>
-            <RegistrationStatus :is-saved="!isDirty" />
+            <TagStatus :status="place.status" />
         </div>
 
         <ProgressBarCreatePlace
@@ -203,26 +204,42 @@ onMounted(loadEditor);
             :categories="categories"
             :types="types"
             :images="images"
-        />
+        >
+            <template #validation-feedback>
+                <inProgressCard
+                    v-if="requestStatus === 'inProgress'"
+                    title="Enregistrement en cours..."
+                />
+                <errorCard
+                    v-else-if="requestStatus === 'error'"
+                    title="Échec de l'enregistrement"
+                    :error="requestError"
+                    :cancel-path="null"
+                    @retry="retrySubmit"
+                    @cancel="cancel"
+                />
+                <successPublication
+                    v-else-if="requestStatus === 'success'"
+                    :slug="publishedPlace?.slug"
+                />
+            </template>
+        </FormPlaces>
 
         <inProgressCard
-            v-if="requestStatus === 'inProgress'"
+            v-if="currentStep !== 3 && requestStatus === 'inProgress'"
             title="Enregistrement en cours..."
         />
         <errorCard
-            v-else-if="requestStatus === 'error'"
+            v-else-if="currentStep !== 3 && requestStatus === 'error'"
             title="Échec de l'enregistrement"
             :error="requestError"
             :cancel-path="null"
             @retry="retrySubmit"
             @cancel="cancel"
         />
-        <successPublication
-            v-else-if="requestStatus === 'success'"
-            :slug="publishedPlace?.slug"
-        />
 
         <div v-if="requestStatus !== 'success'" class="button-group">
+            <RegistrationStatus :is-saved="!isDirty" />
             <button type="button" class="button-secondary" @click="cancel">
                 Annuler
             </button>
@@ -269,5 +286,15 @@ onMounted(loadEditor);
     align-items: center;
     justify-content: space-between;
     gap: var(--space-large);
+    width: 100%;
+}
+
+.editor-heading h1 {
+    min-width: 0;
+}
+
+.editor-heading .tag {
+    flex: 0 0 auto;
+    margin-left: auto;
 }
 </style>

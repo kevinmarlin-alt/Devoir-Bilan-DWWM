@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import FormPlaces from '@/components/FormPlaces.vue';
 import ProgressBarCreatePlace from '@/components/ProgressBarCreatePlace.vue';
 import RegistrationStatus from '@/components/RegistrationStatus.vue';
+import TagStatus from '@/components/TagStatus.vue';
 import successPublication from '@/components/publication/successPublication.vue';
 import { getAvailableImages, getOnePlace, updatePlace } from '@/services/places.service.js';
 import errorCard from '@/views/sharedViews/errorCard.vue';
@@ -101,7 +102,9 @@ describe('PlacesUpdateView', () => {
         });
         expect(form.props('images').map((image) => image.imageId)).toEqual([3, 4]);
         expect(wrapper.findComponent(ProgressBarCreatePlace).props('allowNavigation')).toBe(false);
-        expect(wrapper.findComponent(RegistrationStatus).props('isSaved')).toBe(true);
+        expect(wrapper.find('.editor-heading').findComponent(TagStatus).props('status')).toBe('draft');
+        expect(wrapper.find('.editor-heading').findComponent(RegistrationStatus).exists()).toBe(false);
+        expect(wrapper.find('.button-group').findComponent(RegistrationStatus).props('isSaved')).toBe(true);
     });
 
     it('tracks normalized changes and saves with the current status', async () => {
@@ -141,6 +144,7 @@ describe('PlacesUpdateView', () => {
             status: 'published'
         }));
         expect(wrapper.findComponent(successPublication).exists()).toBe(true);
+        expect(wrapper.find('.validation-feedback').findComponent(successPublication).exists()).toBe(true);
     });
 
     it('preserves published status when saving changes', async () => {

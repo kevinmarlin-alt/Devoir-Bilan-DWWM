@@ -17,7 +17,7 @@ vi.mock('@/services/places.service.js', () => ({
     getOnePlace: vi.fn()
 }));
 
-const place = (status) => ({
+const place = (status, images = []) => ({
     placeId: 12,
     name: 'Villa',
     description: 'Description',
@@ -25,7 +25,7 @@ const place = (status) => ({
     createdAt: '2026-01-01T00:00:00.000Z',
     category: null,
     exploitationTypes: [],
-    images: []
+    images
 });
 
 const mountView = () => mount(PlaceSingleView, {
@@ -66,5 +66,18 @@ describe('PlaceSingleView update action', () => {
         await flushPromises();
 
         expect(wrapper.text()).not.toContain('Modifier');
+    });
+
+    it('renders the image count with the parent heading typography', async () => {
+        getOnePlace.mockResolvedValue(place('published', [
+            { imageId: 1, filename: 'one.jpg', isMain: true },
+            { imageId: 2, filename: 'two.jpg', isMain: false }
+        ]));
+        const wrapper = mountView();
+        await flushPromises();
+        const imageHeading = wrapper.findAll('h3').find((heading) => heading.text() === 'Images (2)');
+
+        expect(imageHeading.exists()).toBe(true);
+        expect(imageHeading.find('span').exists()).toBe(false);
     });
 });

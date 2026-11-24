@@ -105,4 +105,18 @@ describe('FormPlaces', () => {
 
         expect(wrapper.emitted('update:modelValue').at(-1)[0].mainImageId).toBe(2);
     });
+
+    it('renders feedback inside the validation card', () => {
+        const wrapper = mount(FormPlaces, {
+            props: {
+                modelValue: emptyForm(),
+                currentStep: 3
+            },
+            slots: {
+                'validation-feedback': '<aside data-testid="feedback">Retour</aside>'
+            }
+        });
+
+        expect(wrapper.find('.validation-card .validation-feedback [data-testid="feedback"]').exists()).toBe(true);
+    });
 });

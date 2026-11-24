@@ -120,22 +120,37 @@ onMounted(async () => {
         :categories="categories"
         :types="types"
         :images="images"
-    />
+    >
+        <template #validation-feedback>
+            <inProgressCard
+                v-if="requestStatus === 'inProgress'"
+                title="Enregistrement en cours..."
+            />
+            <errorCard
+                v-else-if="requestStatus === 'error'"
+                title="Échec de l'enregistrement"
+                :error="errorMessage"
+                cancel-path="/admin/places"
+                @retry="retryHandler"
+                @cancel="cancelHandler"
+            />
+            <successPublication
+                v-else-if="requestStatus === 'success'"
+                :slug="publishedPlace?.slug"
+            />
+        </template>
+    </FormPlaces>
     <inProgressCard
-        v-if="requestStatus === 'inProgress'"
+        v-if="currentStep !== 3 && requestStatus === 'inProgress'"
         title="Enregistrement en cours..."
     />
     <errorCard
-        v-else-if="requestStatus === 'error'"
+        v-else-if="currentStep !== 3 && requestStatus === 'error'"
         title="Échec de l'enregistrement"
         :error="errorMessage"
         cancel-path="/admin/places"
         @retry="retryHandler"
         @cancel="cancelHandler"
-    />
-    <successPublication
-        v-else-if="requestStatus === 'success'"
-        :slug="publishedPlace?.slug"
     />
     <div v-if="requestStatus !== 'success'" class="button-group">
         <RegistrationStatus :is-saved="registrationStatus"/>
