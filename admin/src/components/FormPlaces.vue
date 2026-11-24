@@ -44,10 +44,13 @@ const selectedImages = computed(() => (
     props.modelValue.imageIds
         .map((imageId) => props.images.find((image) => image.imageId === imageId))
         .filter(Boolean)
+        .sort((firstImage, secondImage) => firstImage.imageId - secondImage.imageId)
 ));
 
 const availableImages = computed(() => (
-    props.images.filter((image) => !props.modelValue.imageIds.includes(image.imageId))
+    props.images
+        .filter((image) => !props.modelValue.imageIds.includes(image.imageId))
+        .sort((firstImage, secondImage) => firstImage.imageId - secondImage.imageId)
 ));
 
 const toggleType = (typeId) => {

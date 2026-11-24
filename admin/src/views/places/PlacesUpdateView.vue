@@ -20,6 +20,7 @@ import {
 } from '@/utilities/placeForm.js';
 import errorCard from '@/views/sharedViews/errorCard.vue';
 import inProgressCard from '@/views/sharedViews/inProgressCard.vue';
+import SuccessCard from '@/views/sharedViews/successCard.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -139,6 +140,8 @@ const submitPlace = async (status) => {
         if (isPublishing && place.value.status === 'published') {
             publishedPlace.value = savedPlace;
             requestStatus.value = 'success';
+        } else if (place.value.status === 'published') {
+            requestStatus.value = 'saved';
         } else {
             requestStatus.value = null;
         }
@@ -221,6 +224,10 @@ onMounted(loadEditor);
                 <successPublication
                     v-else-if="requestStatus === 'success'"
                     :slug="publishedPlace?.slug"
+                />
+                <SuccessCard
+                    v-else-if="requestStatus === 'saved'"
+                    title="Les modifications du lieu ont bien été enregistrées."
                 />
             </template>
         </FormPlaces>

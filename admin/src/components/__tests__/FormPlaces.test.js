@@ -106,6 +106,37 @@ describe('FormPlaces', () => {
         expect(wrapper.emitted('update:modelValue').at(-1)[0].mainImageId).toBe(2);
     });
 
+    it('orders image containers by ascending image id after deselection', async () => {
+        const wrapper = mount(FormPlaces, {
+            props: {
+                modelValue: {
+                    ...emptyForm(),
+                    imageIds: [3, 1],
+                    mainImageId: 1
+                },
+                currentStep: 2,
+                images: [
+                    { imageId: 3, filename: 'three.jpg', alt: 'Three' },
+                    { imageId: 1, filename: 'one.jpg', alt: 'One' },
+                    { imageId: 2, filename: 'two.jpg', alt: 'Two' }
+                ]
+            }
+        });
+
+        expect(wrapper.findAll('.container-images').map((container) => (
+            container.findAllComponents(ImagePlace).map((image) => image.props('source').imageId)
+        ))).toEqual([[1, 3], [2]]);
+
+        findImage(wrapper, 3).vm.$emit('image', 3);
+        await wrapper.setProps({
+            modelValue: wrapper.emitted('update:modelValue').at(-1)[0]
+        });
+
+        expect(wrapper.findAll('.container-images').map((container) => (
+            container.findAllComponents(ImagePlace).map((image) => image.props('source').imageId)
+        ))).toEqual([[1], [2, 3]]);
+    });
+
     it('renders feedback inside the validation card', () => {
         const wrapper = mount(FormPlaces, {
             props: {

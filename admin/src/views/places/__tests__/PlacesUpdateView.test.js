@@ -8,6 +8,7 @@ import TagStatus from '@/components/TagStatus.vue';
 import successPublication from '@/components/publication/successPublication.vue';
 import { getAvailableImages, getOnePlace, updatePlace } from '@/services/places.service.js';
 import errorCard from '@/views/sharedViews/errorCard.vue';
+import SuccessCard from '@/views/sharedViews/successCard.vue';
 import PlacesUpdateView from '../PlacesUpdateView.vue';
 
 const route = { params: { id: '12' } };
@@ -166,6 +167,20 @@ describe('PlacesUpdateView', () => {
             status: 'published'
         }));
         expect(wrapper.findComponent(successPublication).exists()).toBe(false);
+        expect(wrapper.findComponent(SuccessCard).exists()).toBe(false);
+
+        await buttonWithText(wrapper, 'Suivant').trigger('click');
+        await buttonWithText(wrapper, 'Suivant').trigger('click');
+
+        form.vm.$emit('update:modelValue', {
+            ...form.props('modelValue'),
+            description: 'Nouvelle description enregistrée'
+        });
+        await wrapper.vm.$nextTick();
+        await buttonWithText(wrapper, 'Enregistrer').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.validation-feedback').findComponent(SuccessCard).exists()).toBe(true);
     });
 
     it('disables saving an incomplete published place', async () => {

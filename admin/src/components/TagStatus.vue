@@ -28,7 +28,7 @@ const statusUI = () => {
     </div>
 </template>
 
-<style>
+<style scoped>
 .tag {
     display: inline-block;
     padding: var(--space-small) var(--space-medium);
@@ -57,9 +57,9 @@ const statusUI = () => {
 
 .tag span {
     display: inline-block;
-    width: .2em;
-    height: .2em;
-    border-radius: .5em;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
     margin-right: 0.25em;
 }
 
