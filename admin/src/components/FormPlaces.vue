@@ -276,8 +276,10 @@ const setMainImage = (imageId) => {
 }
 
 .container-images {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
     gap: var(--space-medium);
     width: 100%;
 }
