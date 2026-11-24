@@ -55,6 +55,8 @@ defineProps({
 .notification-card button {
     width: 100%;
     max-width: 200px;
+    justify-content: center;
+    text-align: center;
 }
 .notification-card .button-secondary {
     background-color: transparent;
