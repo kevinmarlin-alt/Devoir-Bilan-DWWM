@@ -89,14 +89,6 @@ const loadEditor = async () => {
     try {
         const loadedPlace = await getOnePlace(route.params.id);
 
-        if (loadedPlace.status === 'archived') {
-            await router.replace({
-                name: 'places_single',
-                params: { id: loadedPlace.placeId }
-            });
-            return;
-        }
-
         const [loadedCategories, loadedTypes, availableImages] = await Promise.all([
             getAllCategories(),
             getAll(),
@@ -120,12 +112,13 @@ const submitPlace = async (status) => {
     requestError.value = '';
     lastRequestedStatus.value = status;
     const submittedForm = normalizePlaceForm(formData.value);
+    const submittedStatus = place.value.status === 'archived' ? 'draft' : status;
     const isPublishing = place.value.status === 'draft' && status === 'published';
 
     try {
         const savedPlace = await updatePlace(place.value.placeId, {
             ...submittedForm,
-            status
+            status: submittedStatus
         });
         let availableImages = images.value;
 

@@ -213,7 +213,6 @@ onMounted(async () => {
                 style="display: flex; align-items: stretch; width: 350px; flex-direction: column; gap: 0.5rem;"
             >
                 <ButtonPrimary
-                    v-if="['draft', 'published'].includes(place.status)"
                     @click="handleUpdate"
                 >
                     Modifier

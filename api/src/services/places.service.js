@@ -97,7 +97,7 @@ export const updateStatus = async (placeId, status) => {
 
     const isStatusChangeForbidden =
         (place.status === 'published' && status === 'draft') ||
-        (place.status === 'archived' && status === 'published') ||
+        place.status === 'archived' ||
         (place.status === 'draft' && status === 'archived');
 
     if (isStatusChangeForbidden) {
@@ -166,10 +166,10 @@ const validateSlugAvailability = async (slug, placeId = null, transaction) => {
 }
 
 const validateUpdateStatus = (currentStatus, nextStatus) => {
-    if (currentStatus === 'archived') {
-        throw new AppError('Un lieu archivé ne peut pas être modifié.', {
+    if (currentStatus === 'archived' && nextStatus !== 'draft') {
+        throw new AppError('La modification d’un lieu archivé doit le réactiver en brouillon.', {
             status: 409,
-            code: 'ARCHIVED_PLACE_UPDATE_FORBIDDEN'
+            code: 'STATUS_CHANGE_NOT_POSSIBLE'
         });
     }
 

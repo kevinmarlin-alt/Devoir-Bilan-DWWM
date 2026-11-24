@@ -39,7 +39,7 @@ const mountView = () => mount(PlaceSingleView, {
 describe('PlaceSingleView update action', () => {
     beforeEach(() => vi.clearAllMocks());
 
-    it.each(['draft', 'published'])('shows Modify for a %s place', async (status) => {
+    it.each(['draft', 'published', 'archived'])('shows Modify for a %s place', async (status) => {
         getOnePlace.mockResolvedValue(place(status));
         const wrapper = mountView();
         await flushPromises();
@@ -60,12 +60,17 @@ describe('PlaceSingleView update action', () => {
         });
     });
 
-    it('hides Modify for an archived place', async () => {
+    it('opens the update route for an archived place', async () => {
         getOnePlace.mockResolvedValue(place('archived'));
         const wrapper = mountView();
         await flushPromises();
 
-        expect(wrapper.text()).not.toContain('Modifier');
+        await wrapper.findAll('button').find((button) => button.text() === 'Modifier').trigger('click');
+
+        expect(router.push).toHaveBeenCalledWith({
+            name: 'places_update',
+            params: { id: 12 }
+        });
     });
 
     it('renders the image count with the parent heading typography', async () => {

@@ -217,18 +217,27 @@ describe('PlacesUpdateView', () => {
         expect(wrapper.findComponent(RegistrationStatus).props('isSaved')).toBe(true);
     });
 
-    it('redirects an archived place without rendering the editor', async () => {
+    it('keeps an archived place archived until saving then reactivates it as draft', async () => {
         getOnePlace.mockResolvedValue({ ...draftPlace(), status: 'archived' });
-        getAvailableImages.mockRejectedValue(new Error('Ne doit pas être appelée'));
         const wrapper = mountView();
         await flushPromises();
+        const form = wrapper.findComponent(FormPlaces);
 
-        expect(router.replace).toHaveBeenCalledWith({
-            name: 'places_single',
-            params: { id: 12 }
+        expect(wrapper.find('.editor-heading').findComponent(TagStatus).props('status')).toBe('archived');
+
+        form.vm.$emit('update:modelValue', {
+            ...form.props('modelValue'),
+            name: 'Villa réactivée'
         });
-        expect(getAvailableImages).not.toHaveBeenCalled();
-        expect(wrapper.findComponent(FormPlaces).exists()).toBe(false);
+        await wrapper.vm.$nextTick();
+        await buttonWithText(wrapper, 'Enregistrer').trigger('click');
+        await flushPromises();
+
+        expect(updatePlace).toHaveBeenCalledWith(12, expect.objectContaining({
+            name: 'Villa réactivée',
+            status: 'draft'
+        }));
+        expect(wrapper.find('.editor-heading').findComponent(TagStatus).props('status')).toBe('draft');
     });
 
     it('ignores a concurrent submission while a request is active', async () => {
