@@ -7,7 +7,7 @@ import { ExploitationType } from '../src/models/ExploitationType.js';
 import { Image } from '../src/models/Image.js';
 import { Place } from '../src/models/Place.js';
 import { AppError } from '../src/errors/AppError.js';
-import { createOnePlace, updateOnePlace } from '../src/services/places.service.js';
+import { createOnePlace, updateOnePlace, updateStatus } from '../src/services/places.service.js';
 
 const transaction = {
     LOCK: { UPDATE: 'UPDATE' }
@@ -84,18 +84,73 @@ test('updates associations and returns the final enriched place', async (context
     assert.equal(Place.findOne.mock.calls[0].arguments[0].lock, transaction.LOCK.UPDATE);
 });
 
-test('rejects an archived place before writing', async (context) => {
+test('reactivates an archived place as a draft during a full update', async (context) => {
     mockTransaction(context);
-    context.mock.method(Place, 'findOne', async () => ({ placeId: 7, status: 'archived' }));
+    mockReferences(context);
+    const archivedPlace = {
+        placeId: 7,
+        status: 'archived',
+        setExploitationTypes: async () => {}
+    };
+    const reactivatedPlace = { placeId: 7, status: 'draft' };
+    let lookupCount = 0;
+    context.mock.method(Place, 'findOne', async (options) => {
+        if (options.where.slug) return null;
+
+        lookupCount += 1;
+        return lookupCount === 1 ? archivedPlace : reactivatedPlace;
+    });
     const update = context.mock.method(Place, 'update', async () => [1]);
 
+    const result = await updateOnePlace(7, completeDraft);
+
+    assert.equal(result, reactivatedPlace);
+    assert.equal(update.mock.calls[0].arguments[0].status, 'draft');
+});
+
+test('rejects updating an archived place directly as published', async (context) => {
+    mockTransaction(context);
+    context.mock.method(Place, 'findOne', async () => ({ placeId: 7, status: 'archived' }));
+
     await assert.rejects(
-        () => updateOnePlace(7, completeDraft),
+        () => updateOnePlace(7, { ...completeDraft, status: 'published' }),
         (error) => error instanceof AppError
             && error.statusCode === 409
-            && error.code === 'ARCHIVED_PLACE_UPDATE_FORBIDDEN'
+            && error.code === 'STATUS_CHANGE_NOT_POSSIBLE'
     );
-    assert.equal(update.mock.callCount(), 0);
+});
+
+test('rejects reactivating an archived place through the status-only route', async (context) => {
+    context.mock.method(Place, 'findOne', async () => ({ placeId: 7, status: 'archived' }));
+
+    await assert.rejects(
+        () => updateStatus(7, 'draft'),
+        (error) => error instanceof AppError
+            && error.statusCode === 400
+            && error.code === 'STATUS_CHANGE_NOT_POSSIBLE'
+    );
+});
+
+test('returns the enriched archived place after a status update', async (context) => {
+    const publishedPlace = { placeId: 7, status: 'published' };
+    const archivedPlace = {
+        placeId: 7,
+        name: 'Villa archivée',
+        status: 'archived',
+        updatedAt: '2026-11-24T09:40:00.000Z'
+    };
+    let lookupCount = 0;
+    context.mock.method(Place, 'findOne', async () => {
+        lookupCount += 1;
+        return lookupCount === 1 ? publishedPlace : archivedPlace;
+    });
+    const update = context.mock.method(Place, 'update', async () => [1]);
+
+    const result = await updateStatus(7, 'archived');
+
+    assert.equal(result, archivedPlace);
+    assert.equal(update.mock.callCount(), 1);
+    assert.equal(lookupCount, 2);
 });
 
 test('rejects a published to draft transition', async (context) => {

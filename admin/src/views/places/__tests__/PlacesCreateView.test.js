@@ -117,6 +117,7 @@ describe('PlacesCreateView', () => {
             status: 'published'
         });
         expect(wrapper.findComponent(successPublication).exists()).toBe(true);
+        expect(wrapper.find('.validation-feedback').findComponent(successPublication).exists()).toBe(true);
         expect(wrapper.findComponent(FormPlaces).props()).not.toHaveProperty('status');
         expect(wrapper.findComponent(FormPlaces).props()).not.toHaveProperty('place');
     });

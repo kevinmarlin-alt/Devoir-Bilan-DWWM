@@ -44,10 +44,13 @@ const selectedImages = computed(() => (
     props.modelValue.imageIds
         .map((imageId) => props.images.find((image) => image.imageId === imageId))
         .filter(Boolean)
+        .sort((firstImage, secondImage) => firstImage.imageId - secondImage.imageId)
 ));
 
 const availableImages = computed(() => (
-    props.images.filter((image) => !props.modelValue.imageIds.includes(image.imageId))
+    props.images
+        .filter((image) => !props.modelValue.imageIds.includes(image.imageId))
+        .sort((firstImage, secondImage) => firstImage.imageId - secondImage.imageId)
 ));
 
 const toggleType = (typeId) => {
@@ -94,7 +97,7 @@ const setMainImage = (imageId) => {
 </script>
 
 <template>
-    <form action="#" method="" class="form-container">
+    <form action="#" method="" class="form-container" @submit.prevent>
         <template v-if="currentStep === 1">
             <h2>Informations générales</h2>
             <div class="input-group">
@@ -188,7 +191,7 @@ const setMainImage = (imageId) => {
             <h2>Vérification avant validation</h2>
             <div class="validation-card">
                 <p>Le lieu peut être publié s’il rempli les conditions suivantes</p>
-                <div>
+                <div class="validation-card__content">
                     <ul>
                         <li>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -239,6 +242,12 @@ const setMainImage = (imageId) => {
                             Photo principale sélectionnée
                         </li>
                     </ul>
+                    <div
+                        v-if="$slots['validation-feedback']"
+                        class="validation-feedback"
+                    >
+                        <slot name="validation-feedback" />
+                    </div>
                 </div>
             </div>
         </template>
@@ -252,17 +261,25 @@ const setMainImage = (imageId) => {
 
 .flex-container-row {
     display: flex;
+    flex-wrap: wrap;
     width: 100%;
     gap: var(--space-large);
 }
 
 .flex-container-row .input-group {
-    width: 500px;
+    flex: 1 1 320px;
+    width: min(500px, 100%);
+}
+
+.flex-container-row fieldset {
+    flex: 1 1 240px;
 }
 
 .container-images {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
     gap: var(--space-medium);
     width: 100%;
 }
@@ -284,15 +301,27 @@ const setMainImage = (imageId) => {
     margin-bottom: var(--space-large);
 }
 
-.validation-card > div {
-    display: flex;
+.validation-card__content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    align-items: start;
+    gap: var(--space-large);
 }
 
 .validation-card ul {
     display: flex;
     flex-direction: column;
     gap: var(--space-large);
-    min-width: 600px;
+    min-width: 0;
+}
+
+.validation-feedback {
+    min-width: 0;
+}
+
+.validation-feedback .notification-card {
+    width: 100%;
+    padding: var(--space-large);
 }
 
 .validation-card li {
@@ -310,5 +339,11 @@ const setMainImage = (imageId) => {
 
 .color-warning {
     color: var(--amber-warm);
+}
+
+@media (max-width: 1000px) {
+    .validation-card__content {
+        grid-template-columns: 1fr;
+    }
 }
 </style>

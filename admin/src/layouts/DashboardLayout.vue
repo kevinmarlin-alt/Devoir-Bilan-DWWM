@@ -118,6 +118,7 @@ const navHandler = (event) => {
     grid-area: main;
     display: flex;
     flex-direction: column;
+    min-width: 0;
     gap: 2.5rem;
     padding-left: 2.5rem;
 }

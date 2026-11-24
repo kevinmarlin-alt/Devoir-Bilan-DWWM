@@ -7,7 +7,7 @@ defineProps({
 <template>
     <div :class="`registration-status ${ isSaved ? 'success' : 'warning' }`">
         <span :class="`tag-status tag-status-${ isSaved ? 'success' : 'warning' }`"></span>
-        {{ isSaved ? 'Enregisté' : 'Non enregistré' }}
+        {{ isSaved ? 'Enregistré' : 'Non enregistré' }}
     </div>
 </template>
 

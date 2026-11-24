@@ -12,7 +12,7 @@ defineProps({
     </div>
 </template>
 
-<style>
+<style scoped>
 .metric-card {
     background-color: var(--metric-background);
     border: 1px solid var(--metrics-border-color);

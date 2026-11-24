@@ -5,6 +5,10 @@ defineProps({
         required: true,
         validator: (value) => value >= 1 && value <= 3,
     },
+    allowNavigation: {
+        type: Boolean,
+        default: true
+    }
 });
 
 const steps = [
@@ -22,12 +26,16 @@ const emits = defineEmits(['selected-step'])
         <template v-for="(step, index) in steps" :key="step.title">
             <div v-if="index > 0" class="step_line" :class="{ active_step: index < currentStep }"></div>
             <div class="step">
-                <div    
-                    class="step_number" :class="{ active_step: index < currentStep }"
-                    @mousedown="index < currentStep ? emits('selected-step', index + 1) : null"
+                <button
+                    type="button"
+                    class="step_number"
+                    :class="{ active_step: index < currentStep }"
+                    :disabled="!allowNavigation || index >= currentStep"
+                    :aria-label="`Aller à l’étape ${index + 1} : ${step.title}`"
+                    @click="emits('selected-step', index + 1)"
                 >
                     {{ index + 1 }}
-                </div>
+                </button>
                 <p class="step_title">
                     {{ step.title }}
                 </p>
@@ -63,6 +71,14 @@ const emits = defineEmits(['selected-step'])
     border-radius: 100%;
     background-color: var(--black-500);
     font-size: 1.5rem;    
+    color: inherit;
+    border: 0;
+    cursor: pointer;
+}
+
+.step_number:disabled {
+    cursor: default;
+    opacity: 1;
 }
 
 .step_title {
