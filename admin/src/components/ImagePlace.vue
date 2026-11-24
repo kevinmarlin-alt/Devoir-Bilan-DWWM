@@ -54,14 +54,20 @@ const setMainImage = () => {
 <style scoped>
 .place-image-container {
     position: relative;
+    width: 180px;
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
 }
 
 .place_image {
     width: 100%;
-    aspect-ratio: 16 / 9;
+    height: 100%;
+    padding: 0;
+    aspect-ratio: 1 / 1;
     overflow: hidden;
     background-color: var(--card-background);
     cursor: pointer;
+    border: 0;
     border-radius: var(--radius-large);
     transition: transform 160ms ease, box-shadow 160ms ease, outline-color 160ms ease;
 }
@@ -98,16 +104,17 @@ const setMainImage = () => {
 
 .main-image-button {
     position: absolute;
-    top: var(--space-small);
-    right: var(--space-small);
+    top: 10px;
+    right: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 35px;
+    height: 35px;
+    padding: 0;
     border-radius: 50%;
-    border: 1px solid var(--champagne);
-    background-color: var(--black-900);
+    border: 0;
+    background-color: var(--black-700);
     color: var(--champagne);
 }
 
