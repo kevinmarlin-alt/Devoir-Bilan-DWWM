@@ -33,3 +33,11 @@ Les plafonds par IP sont de 60 consultations par minute
 Les compteurs restent en mémoire dans chaque instance de l’API. Si un proxy inverse
 est utilisé, la résolution de l’IP cliente dépend de la configuration Express du
 proxy de confiance. L’adresse IP ne figure pas dans les événements enregistrés.
+
+`GET /api/admin/places/:placeId/metrics` requiert une session admin. Pour un
+lieu existant, quel que soit son statut, la réponse contient `placeId`,
+`periodDays` (90), `from`, `to`, `views`, `inquiries` et `conversionRate`.
+La période est fixe et les deux bornes UTC sont incluses. Le taux correspond
+au pourcentage de demandes par consultation, arrondi à l’entier et plafonné à
+100. Il vaut 0 en l’absence de consultation. La route répond `404` pour un
+lieu absent et `503` si le stockage des métriques est indisponible.
