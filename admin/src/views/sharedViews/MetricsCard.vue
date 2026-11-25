@@ -1,14 +1,15 @@
 <script setup>
 defineProps({
     description: String,
-    value: Number
+    value: Number,
+    suffix: { type: String, default: '' }
 })
 </script>
 
 <template>
     <div class="metric-card">
         <p>{{ description }}</p>
-        <span>{{ value }}</span>
+        <span>{{ value }}{{ suffix }}</span>
     </div>
 </template>
 
