@@ -3,6 +3,14 @@ import { Place } from "../models/Place.js";
 import { ExploitationType } from '../models/ExploitationType.js';
 import { Image } from '../models/Image.js'
 
+export const isPublishedPlace = async (placeId) => {
+    const place = await Place.findOne({
+        where: { placeId, status: 'published' },
+        attributes: ['placeId']
+    });
+    return place !== null;
+};
+
 export const findById = async (id, transaction) => {
     return await Place.findOne({
         where: { placeId: id },

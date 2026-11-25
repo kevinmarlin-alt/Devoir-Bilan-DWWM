@@ -13,3 +13,8 @@ Au démarrage de l’API, le compte MongoDB doit pouvoir créer la collection
 ou indisponible. Si une variable manque, les métriques sont désactivées. Si
 l’initialisation échoue, l’API réessaie après 30 secondes. Une fois la collection
 initialisée, le pilote gère la reconnexion.
+
+Un événement reçoit un UUID, un identifiant de lieu publié et le type `view`
+ou `inquiry`. L’UUID est normalisé en minuscules pour dédupliquer les reprises.
+L’API attribue l’horodatage UTC et calcule l’expiration 24 mois plus tard. Un
+événement du 29 février expire le dernier jour de février de l’année cible.
