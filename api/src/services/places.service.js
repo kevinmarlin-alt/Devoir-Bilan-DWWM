@@ -5,6 +5,7 @@ import { assignImagesToPlace, clearImagesFromPlace, findImageById } from '../rep
 import { AppError } from '../errors/AppError.js';
 import sequelize from '../db/database.js';
 import { createPlaceSlug } from '../utilities/placeSlug.js';
+import { deletePlaceEvents } from '../repositories/placeEvents.repository.js';
 
 export const getAll = async () => {
     return await findAll()
@@ -209,7 +210,7 @@ const throwSlugConflict = (error) => {
 }
 
 export const deleteOnePlace = async (placeId) => {
-    return await sequelize.transaction(async (transaction) => {
+    const deletedPlaceId = await sequelize.transaction(async (transaction) => {
         const place = await getOnePlaceById(placeId, transaction);
 
         if (place.status === 'published') {
@@ -221,5 +222,12 @@ export const deleteOnePlace = async (placeId) => {
 
         await clearImagesFromPlace(placeId, transaction);
         await deleteOne(placeId, transaction);
+        return place.placeId;
     });
+
+    try {
+        await deletePlaceEvents(deletedPlaceId);
+    } catch {
+        console.warn('MongoDB : nettoyage des événements de lieu impossible.', { placeId: deletedPlaceId });
+    }
 }

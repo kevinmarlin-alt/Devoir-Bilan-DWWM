@@ -6,7 +6,7 @@ import ButtonSecondary from '@/components/buttons/ButtonSecondary.vue';
 import ImagePlace from '@/components/images/ImagePlace.vue';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { changeStatus, deletePlace, getOnePlace } from '@/services/places.service.js';
+import { changeStatus, deletePlace, getOnePlace, getPlaceMetrics } from '@/services/places.service.js';
 import { toFormateDateTime } from '@/utilities/date.js';
 import WarningCard from '../sharedViews/WarningCard.vue';
 import InProgressCard from '../sharedViews/inProgressCard.vue';
@@ -19,6 +19,9 @@ const router = useRouter();
 const place = ref({});
 const isLoadingPlace = ref(true);
 const error = ref(null);
+const metrics = ref(null);
+const isLoadingMetrics = ref(true);
+const metricsError = ref(false);
 const archivingError = ref('');
 const deletionError = ref('');
 const visibleButtonGroup = ref(true);
@@ -122,16 +125,32 @@ function handleCancelDeletion() {
 
 onBeforeUnmount(() => clearTimeout(successTimer))
 
-onMounted(async () => {
+async function loadPlace(id) {
     try {
-        place.value = await getOnePlace(route.params?.id)
+        place.value = await getOnePlace(id)
         
     } catch (err) {
         error.value = err.message
     } finally {
         isLoadingPlace.value = false
     }
-})
+}
+
+async function loadMetrics(id) {
+    try {
+        metrics.value = await getPlaceMetrics(id);
+    } catch {
+        metricsError.value = true;
+    } finally {
+        isLoadingMetrics.value = false;
+    }
+}
+
+onMounted(() => {
+    const id = route.params.id;
+    void loadPlace(id);
+    void loadMetrics(id);
+});
 </script>
 
 <template>
@@ -155,18 +174,22 @@ onMounted(async () => {
             <TagStatus :status="place.status"/>
         </div>
         <p style="font-size: 0.8rem;">Dernière mise à jour enregistré : {{ toFormateDateTime(new Date(place.updatedAt  ?? place.createdAt))  }}</p>
-        <div style="display: flex; gap: 1rem;">
-            <MetricsCard 
-                description="Consultations"
-                :value="6"
-            />
-            <MetricsCard 
-                description="Demandes d'information"
-                :value="1"
-            />
-        </div>
+        <section aria-label="Métriques du lieu">
+            <p>Données des 90 derniers jours</p>
+            <p v-if="isLoadingMetrics" role="status">Chargement des métriques…</p>
+            <p v-else-if="metricsError" role="status">Les métriques sont temporairement indisponibles.</p>
+            <div v-else class="place-cards">
+                <MetricsCard description="Consultations" :value="metrics.views" />
+                <MetricsCard description="Demandes d’information" :value="metrics.inquiries" />
+                <MetricsCard description="Taux de conversion" :value="metrics.conversionRate" suffix=" %" />
+            </div>
+        </section>
         <section>
             <h2>Informations générales</h2>
+            <div class="place-cards place-content-cards" role="group" aria-label="Contenu de la fiche">
+                <MetricsCard description="Photos associées" :value="place.images?.length ?? 0" />
+                <MetricsCard description="Types d’exploitation associés" :value="place.exploitationTypes?.length ?? 0" />
+            </div>
             <section style="margin-bottom: 1rem;">
                 <h3>Description</h3>
                 <p>{{ place.description || 'Aucune description pour le moment' }}</p>
@@ -278,3 +301,15 @@ onMounted(async () => {
         </div>
     </template>
 </template>
+
+<style scoped>
+.place-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.place-content-cards {
+    margin-block: 1rem;
+}
+</style>
