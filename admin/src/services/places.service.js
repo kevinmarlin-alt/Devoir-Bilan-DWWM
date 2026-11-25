@@ -24,6 +24,14 @@ export const getOnePlace = async (id) => {
     return place;
 }
 
+export const getPlaceMetrics = async (id) => {
+    const response = await apiFetch(`api/admin/places/${id}/metrics`);
+    if (!response.ok) {
+        throw new Error('Les métriques sont temporairement indisponibles.');
+    }
+    return response.json();
+};
+
 export const getAllImages = async () => {
     const response = await apiFetch('api/admin/images');
 

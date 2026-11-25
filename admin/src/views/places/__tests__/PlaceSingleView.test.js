@@ -1,7 +1,7 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { changeStatus, getOnePlace } from '@/services/places.service.js';
+import { changeStatus, getOnePlace, getPlaceMetrics } from '@/services/places.service.js';
 import InProgressCard from '@/views/sharedViews/inProgressCard.vue';
 import SuccessCard from '@/views/sharedViews/successCard.vue';
 import WarningCard from '@/views/sharedViews/WarningCard.vue';
@@ -17,7 +17,8 @@ vi.mock('vue-router', () => ({
 vi.mock('@/services/places.service.js', () => ({
     changeStatus: vi.fn(),
     deletePlace: vi.fn(),
-    getOnePlace: vi.fn()
+    getOnePlace: vi.fn(),
+    getPlaceMetrics: vi.fn()
 }));
 
 const place = (status, images = []) => ({
@@ -39,8 +40,53 @@ const mountView = () => mount(PlaceSingleView, {
     }
 });
 
-describe('PlaceSingleView update action', () => {
-    beforeEach(() => vi.clearAllMocks());
+const zeroMetrics = { views: 0, inquiries: 0, conversionRate: 0 };
+
+describe('PlaceSingleView', () => {
+    beforeEach(() => {
+        vi.resetAllMocks();
+        getPlaceMetrics.mockResolvedValue(zeroMetrics);
+    });
+
+    it('loads the place and its metrics in parallel and renders the metrics when ready', async () => {
+        let resolvePlace;
+        let resolveMetrics;
+        getOnePlace.mockReturnValue(new Promise((resolve) => { resolvePlace = resolve; }));
+        getPlaceMetrics.mockReturnValue(new Promise((resolve) => { resolveMetrics = resolve; }));
+        const wrapper = mountView();
+        expect(getOnePlace).toHaveBeenCalledWith('12');
+        expect(getPlaceMetrics).toHaveBeenCalledWith('12');
+
+        resolvePlace(place('published'));
+        await flushPromises();
+        expect(wrapper.text()).toContain('Chargement des métriques');
+        expect(wrapper.text()).toContain('Modifier');
+        expect(wrapper.findAll('.metric-card')).toHaveLength(0);
+
+        resolveMetrics({ views: 42, inquiries: 5, conversionRate: 12 });
+        await flushPromises();
+        expect(wrapper.findAll('.metric-card span').map((value) => value.text())).toEqual(['42', '5', '12 %']);
+        expect(wrapper.text().match(/Données des 90 derniers jours/g)).toHaveLength(1);
+    });
+
+    it('renders zero values and the percent suffix for a draft place', async () => {
+        getOnePlace.mockResolvedValue(place('draft'));
+        const wrapper = mountView();
+        await flushPromises();
+        expect(wrapper.findAll('.metric-card span').map((value) => value.text())).toEqual(['0', '0', '0 %']);
+    });
+
+    it('keeps place details and the Modify action usable when metrics fail', async () => {
+        getOnePlace.mockResolvedValue(place('archived'));
+        getPlaceMetrics.mockRejectedValue(new Error('503'));
+        const wrapper = mountView();
+        await flushPromises();
+        expect(wrapper.text()).toContain('Les métriques sont temporairement indisponibles.');
+        expect(wrapper.text()).toContain('Informations générales');
+        expect(wrapper.findAll('.metric-card')).toHaveLength(0);
+        await wrapper.findAll('button').find((button) => button.text() === 'Modifier').trigger('click');
+        expect(router.push).toHaveBeenCalledWith({ name: 'places_update', params: { id: 12 } });
+    });
 
     it.each(['draft', 'published', 'archived'])('shows Modify for a %s place', async (status) => {
         getOnePlace.mockResolvedValue(place(status));
