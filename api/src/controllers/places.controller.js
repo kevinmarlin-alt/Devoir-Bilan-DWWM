@@ -9,6 +9,8 @@ import {
     updateStatus
 } from "../services/places.service.js";
 import { isBodyExiste } from '../validators/body.validator.js';
+import { AppError } from '../errors/AppError.js';
+import { getPlaceMetrics } from '../services/placeMetrics.service.js';
 
 export const getAllplaces = async (req, res) => {
     const places = await getAll();
@@ -22,6 +24,15 @@ export const getPlace = async (req, res) => {
 
     res.status(200).json( place )
 }
+
+export const getMetrics = async (req, res) => {
+    const placeId = validatePositiveIntegerParam(req.params.placeId, 'placeId');
+    if (!Number.isSafeInteger(placeId)) {
+        throw new AppError('Identifiant de lieu invalide.', { status: 400, code: 'INVALID_PLACE_ID' });
+    }
+
+    res.status(200).json(await getPlaceMetrics(placeId));
+};
 
 export const createPlace = async (req, res) => {
     const data = validatePlacePayload(req.body);

@@ -11,6 +11,11 @@ export const isPublishedPlace = async (placeId) => {
     return place !== null;
 };
 
+export const placeExists = async (placeId) => {
+    const place = await Place.findByPk(placeId, { attributes: ['placeId'] });
+    return place !== null;
+};
+
 export const findById = async (id, transaction) => {
     return await Place.findOne({
         where: { placeId: id },
