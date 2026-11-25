@@ -9,6 +9,7 @@ import exploitationTypesRouter from './routes/exploitationTypes.route.js';
 import { authenticate } from './middlewares/auth.middleware.js';
 import placesRouter from './routes/places.route.js';
 import imagesRouter from './routes/images.route.js';
+import { createPublicPlaceEventsRouter } from './routes/publicPlaceEvents.route.js';
 
 export const createApp = () => {
 
@@ -16,6 +17,7 @@ export const createApp = () => {
 
     app.use(cookieParser());
     app.use(morgan("dev"));
+    app.use('/api/public/place-events', createPublicPlaceEventsRouter());
     app.use(express.json());
     app.use(cors({
         origin: process.env.CORS_ORIGIN,
