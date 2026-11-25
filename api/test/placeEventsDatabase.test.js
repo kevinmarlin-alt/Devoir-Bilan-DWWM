@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { MongoClient } from 'mongodb';
 import { createPlaceEventsDatabase } from '../src/db/placeEventsDatabase.js';
 
 const config = { uri: 'mongodb://localhost', databaseName: 'metrics_test' };
@@ -49,6 +50,20 @@ test('exposes the collection after ensuring all three indexes once per startup',
         { key: { placeId: 1, occurredAt: -1, type: 1 } },
         { key: { expiresAt: 1 }, expireAfterSeconds: 0 }
     ]);
+});
+
+test('sets supported MongoDB timeouts to bound connection and socket waits', async (context) => {
+    const { client, logger } = fixture(context);
+    const connect = context.mock.method(MongoClient.prototype, 'connect', async () => {});
+    context.mock.method(MongoClient.prototype, 'db', client.db);
+    const database = createPlaceEventsDatabase({ ...config, logger });
+
+    await database.start();
+
+    const { options } = connect.mock.calls[0].this;
+    for (const name of ['connectTimeoutMS', 'serverSelectionTimeoutMS', 'socketTimeoutMS', 'waitQueueTimeoutMS']) {
+        assert.equal(options[name], 5_000);
+    }
 });
 
 test('stays unavailable on connection or index failure and retries in the background', async (context) => {

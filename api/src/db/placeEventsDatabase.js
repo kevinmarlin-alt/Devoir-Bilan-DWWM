@@ -11,8 +11,10 @@ export function createPlaceEventsDatabase({
     uri,
     databaseName,
     createClient = (uri) => new MongoClient(uri, {
+        connectTimeoutMS: 5_000,
         serverSelectionTimeoutMS: 5_000,
-        timeoutMS: 5_000
+        socketTimeoutMS: 5_000,
+        waitQueueTimeoutMS: 5_000
     }),
     logger = console
 }) {
