@@ -178,7 +178,7 @@ onMounted(() => {
             <p>Données des 90 derniers jours</p>
             <p v-if="isLoadingMetrics" role="status">Chargement des métriques…</p>
             <p v-else-if="metricsError" role="status">Les métriques sont temporairement indisponibles.</p>
-            <div v-else style="display: flex; flex-wrap: wrap; gap: 1rem;">
+            <div v-else class="place-cards">
                 <MetricsCard description="Consultations" :value="metrics.views" />
                 <MetricsCard description="Demandes d’information" :value="metrics.inquiries" />
                 <MetricsCard description="Taux de conversion" :value="metrics.conversionRate" suffix=" %" />
@@ -186,6 +186,10 @@ onMounted(() => {
         </section>
         <section>
             <h2>Informations générales</h2>
+            <div class="place-cards place-content-cards" role="group" aria-label="Contenu de la fiche">
+                <MetricsCard description="Photos associées" :value="place.images?.length ?? 0" />
+                <MetricsCard description="Types d’exploitation associés" :value="place.exploitationTypes?.length ?? 0" />
+            </div>
             <section style="margin-bottom: 1rem;">
                 <h3>Description</h3>
                 <p>{{ place.description || 'Aucune description pour le moment' }}</p>
@@ -297,3 +301,15 @@ onMounted(() => {
         </div>
     </template>
 </template>
+
+<style scoped>
+.place-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.place-content-cards {
+    margin-block: 1rem;
+}
+</style>

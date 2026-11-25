@@ -41,6 +41,9 @@ const mountView = () => mount(PlaceSingleView, {
 });
 
 const zeroMetrics = { views: 0, inquiries: 0, conversionRate: 0 };
+const metricsGroup = '[aria-label="Métriques du lieu"]';
+const contentGroup = '[aria-label="Contenu de la fiche"]';
+const cardValues = (group) => group.findAll('.metric-card span').map((value) => value.text());
 
 describe('PlaceSingleView', () => {
     beforeEach(() => {
@@ -61,11 +64,12 @@ describe('PlaceSingleView', () => {
         await flushPromises();
         expect(wrapper.text()).toContain('Chargement des métriques');
         expect(wrapper.text()).toContain('Modifier');
-        expect(wrapper.findAll('.metric-card')).toHaveLength(0);
+        expect(cardValues(wrapper.get(metricsGroup))).toEqual([]);
+        expect(cardValues(wrapper.get(contentGroup))).toEqual(['0', '0']);
 
         resolveMetrics({ views: 42, inquiries: 5, conversionRate: 12 });
         await flushPromises();
-        expect(wrapper.findAll('.metric-card span').map((value) => value.text())).toEqual(['42', '5', '12 %']);
+        expect(cardValues(wrapper.get(metricsGroup))).toEqual(['42', '5', '12 %']);
         expect(wrapper.text().match(/Données des 90 derniers jours/g)).toHaveLength(1);
     });
 
@@ -73,17 +77,29 @@ describe('PlaceSingleView', () => {
         getOnePlace.mockResolvedValue(place('draft'));
         const wrapper = mountView();
         await flushPromises();
-        expect(wrapper.findAll('.metric-card span').map((value) => value.text())).toEqual(['0', '0', '0 %']);
+        expect(cardValues(wrapper.get(metricsGroup))).toEqual(['0', '0', '0 %']);
+        expect(cardValues(wrapper.get(contentGroup))).toEqual(['0', '0']);
     });
 
     it('keeps place details and the Modify action usable when metrics fail', async () => {
-        getOnePlace.mockResolvedValue(place('archived'));
+        getOnePlace.mockResolvedValue({
+            ...place('archived', [{ imageId: 1, filename: 'one.jpg', isMain: true }]),
+            exploitationTypes: [
+                { exploitationTypeId: 1, exploitationTypeName: 'Séminaire' },
+                { exploitationTypeId: 2, exploitationTypeName: 'Réception' }
+            ]
+        });
         getPlaceMetrics.mockRejectedValue(new Error('503'));
         const wrapper = mountView();
         await flushPromises();
         expect(wrapper.text()).toContain('Les métriques sont temporairement indisponibles.');
         expect(wrapper.text()).toContain('Informations générales');
-        expect(wrapper.findAll('.metric-card')).toHaveLength(0);
+        expect(cardValues(wrapper.get(metricsGroup))).toEqual([]);
+        const content = wrapper.get(contentGroup);
+        expect(cardValues(content)).toEqual(['1', '2']);
+        expect(content.findAll('.metric-card p').map((label) => label.text())).toEqual([
+            'Photos associées', 'Types d’exploitation associés'
+        ]);
         await wrapper.findAll('button').find((button) => button.text() === 'Modifier').trigger('click');
         expect(router.push).toHaveBeenCalledWith({ name: 'places_update', params: { id: 12 } });
     });
