@@ -41,3 +41,9 @@ La période est fixe et les deux bornes UTC sont incluses. Le taux correspond
 au pourcentage de demandes par consultation, arrondi à l’entier et plafonné à
 100. Il vaut 0 en l’absence de consultation. La route répond `404` pour un
 lieu absent et `503` si le stockage des métriques est indisponible.
+
+L’archivage conserve les métriques. Lors d’une suppression définitive, l’API
+valide la suppression dans MariaDB, puis tente de retirer les événements
+associés dans MongoDB. Ces opérations ne forment pas une transaction unique.
+Si le nettoyage échoue, l’API journalise l’échec. La route de lecture renvoie
+`404` pour le lieu supprimé et les événements restants expirent via l’index TTL.

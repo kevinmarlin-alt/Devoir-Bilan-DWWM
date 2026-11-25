@@ -47,3 +47,7 @@ export async function countPlaceEvents(placeId, from, to, getCollection = placeE
         throw metricsUnavailable();
     }
 }
+
+export async function deletePlaceEvents(placeId, getCollection = placeEventsDatabase.getCollection) {
+    await requireCollection(getCollection).deleteMany({ placeId });
+}
