@@ -11,5 +11,6 @@ export class AppError extends Error {
         this.statusCode = status
         this.code = code
         this.details = details
+        this.cause = cause
     }
 }
