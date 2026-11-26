@@ -12,6 +12,18 @@ export const getAllPlaces= async () => {
     return places;
 }
 
+export const getEventsPlace = async (placeId) => {
+    const response = await apiFetch(`api/events/${placeId}`)
+
+    if (!response.ok) {
+        return null
+    }
+    
+    const eventsPLace = await response.json();
+
+    return eventsPLace;
+}
+
 export const getOnePlace = async (id) => {
     const response = await apiFetch(`api/admin/places/${id}`)
 

@@ -8,7 +8,7 @@ import { AppError } from '../errors/AppError.js';
  */
 export const findEventsById = async (placeId) => {
     try {
-        return await mongoDatabase.find({ placeId }).toArray();
+        return await mongoDatabase.findOne({ placeId });
     } catch (error) {
         throw new AppError('Le serveur de stockage des événements est indisponible.', {
             status: 503,
