@@ -9,6 +9,7 @@ import exploitationTypesRouter from './routes/exploitationTypes.route.js';
 import { authenticate } from './middlewares/auth.middleware.js';
 import placesRouter from './routes/places.route.js';
 import imagesRouter from './routes/images.route.js';
+import { connectToEventsCollection } from './db/mongodb.js';
 
 export const createApp = () => {
 
@@ -32,6 +33,13 @@ export const createApp = () => {
     app.use('/api/admin/exploitation-types', authenticate, exploitationTypesRouter);
     app.use('/api/admin/places', authenticate, placesRouter);
     app.use('/api/admin/images', authenticate, imagesRouter);
+
+    app.get('/api/events', async (req, res) => {
+        const collection = await connectToEventsCollection();
+        const events = await collection.find().toArray();
+
+        res.status(200).json(events);
+    })
 
     app.use(errorHandler);
 
