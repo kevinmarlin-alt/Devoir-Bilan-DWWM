@@ -1,29 +1,24 @@
 import { MongoClient } from 'mongodb';
 import { AppError } from '../errors/AppError.js';
 
-const client = new MongoClient(process.env.MONGODB_URI);
+const EVENTS_COLLECTION = 'events-private-place';
 
-export async function connectToMongoDB() {
-  try {
-    await client.connect();
-    console.log("You successfully connected to MongoDB!");
-    return client;
-  } catch (err) {
-    throw new AppError('Le serveur de stockage des événements est indisponible.', {
-      status: 503,
-      code: 'EVENTS_SERVER_UNAVAILABLE',
-      cause: err
-    })
+class MongoDatabase {
+  constructor(uri) {
+    this.client = new MongoClient(uri);
+    this.collection = this.client.db().collection(EVENTS_COLLECTION);
+  }
+
+  async getCollection() {
+    return this.collection;
+  }
+
+  async disconnect() {
+    await this.client.close();
   }
 }
 
-export async function connectToEventsCollection () {
-  const db = await connectToMongoDB();
-  return db.db().collection('events-private-place');
+const database = new MongoDatabase(process.env.MONGODB_URI);
 
-}
-
-// Call this only when your application terminates
-export async function disconnectFromMongoDB() {
-  await client.close();
-}
+export const mongoDatabase = await database.getCollection();
+export const disconnectMongoDatabase = () => database.disconnect();

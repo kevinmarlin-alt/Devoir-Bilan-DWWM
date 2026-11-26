@@ -1,4 +1,5 @@
-import { connectToEventsCollection } from "../db/mongodb.js"
+import { mongoDatabase } from '../db/mongodb.js';
+import { AppError } from '../errors/AppError.js';
 
 /**
  * 
@@ -6,7 +7,13 @@ import { connectToEventsCollection } from "../db/mongodb.js"
  * @returns 
  */
 export const findEventsById = async (placeId) => {
-    const eventsCollection = await connectToEventsCollection();
-
-    return eventsCollection.find({placeId}).toArray()
+    try {
+        return await mongoDatabase.find({ placeId }).toArray();
+    } catch (error) {
+        throw new AppError('Le serveur de stockage des événements est indisponible.', {
+            status: 503,
+            code: 'EVENTS_SERVER_UNAVAILABLE',
+            cause: error
+        });
+    }
 }
