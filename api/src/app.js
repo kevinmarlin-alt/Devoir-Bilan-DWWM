@@ -10,6 +10,7 @@ import { authenticate } from './middlewares/auth.middleware.js';
 import placesRouter from './routes/places.route.js';
 import imagesRouter from './routes/images.route.js';
 import { connectToEventsCollection } from './db/mongodb.js';
+import eventsRouter from './routes/events.route.js';
 
 export const createApp = () => {
 
@@ -33,6 +34,8 @@ export const createApp = () => {
     app.use('/api/admin/exploitation-types', authenticate, exploitationTypesRouter);
     app.use('/api/admin/places', authenticate, placesRouter);
     app.use('/api/admin/images', authenticate, imagesRouter);
+
+    app.use('/api/events', eventsRouter);
 
     app.get('/api/events', async (req, res) => {
         const collection = await connectToEventsCollection();
