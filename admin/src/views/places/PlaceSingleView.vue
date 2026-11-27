@@ -6,7 +6,7 @@ import ButtonSecondary from '@/components/buttons/ButtonSecondary.vue';
 import ImagePlace from '@/components/images/ImagePlace.vue';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { changeStatus, deletePlace, getOnePlace } from '@/services/places.service.js';
+import { changeStatus, deletePlace, getEventsPlace, getOnePlace } from '@/services/places.service.js';
 import { toFormateDateTime } from '@/utilities/date.js';
 import WarningCard from '../sharedViews/WarningCard.vue';
 import InProgressCard from '../sharedViews/inProgressCard.vue';
@@ -22,6 +22,13 @@ const error = ref(null);
 const archivingError = ref('');
 const deletionError = ref('');
 const visibleButtonGroup = ref(true);
+
+const eventsPlace = ref(null);
+
+async function getEvents(placeId) {
+    eventsPlace.value = await getEventsPlace(placeId)
+}
+
 let successTimer;
 
 const archivingState = ref({
@@ -124,7 +131,9 @@ onBeforeUnmount(() => clearTimeout(successTimer))
 
 onMounted(async () => {
     try {
-        place.value = await getOnePlace(route.params?.id)
+        const [loadedPlace, loadedEventsPlace] = await Promise.all([getOnePlace(route.params?.id), getEventsPlace(route.params?.id)])
+        place.value = loadedPlace
+        eventsPlace.value = loadedEventsPlace
         
     } catch (err) {
         error.value = err.message
@@ -155,16 +164,20 @@ onMounted(async () => {
             <TagStatus :status="place.status"/>
         </div>
         <p style="font-size: 0.8rem;">Dernière mise à jour enregistré : {{ toFormateDateTime(new Date(place.updatedAt  ?? place.createdAt))  }}</p>
-        <div style="display: flex; gap: 1rem;">
-            <MetricsCard 
+        
+        <!-- Metrics card -->
+        <div v-if="!eventsPlace" style="color: var(--red-soft);">Aucune donnée de metrique est disponible actuellement</div>
+        <div v-else style="display: flex; gap: 1rem;">
+            <MetricsCard
                 description="Consultations"
-                :value="6"
+                :value="eventsPlace.consulted"
             />
             <MetricsCard 
                 description="Demandes d'information"
-                :value="1"
+                :value="eventsPlace.requested"
             />
         </div>
+
         <section>
             <h2>Informations générales</h2>
             <section style="margin-bottom: 1rem;">

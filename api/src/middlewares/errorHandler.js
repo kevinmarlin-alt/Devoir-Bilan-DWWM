@@ -6,7 +6,9 @@ export const errorHandler = (err, req, res, next) => {
             error: {
                 code: err.code,
                 message: err.message,
-                ...(err.details ? { details: err.details } : {})
+                ...(err.details ? { details: err.details } : {}),
+                ...(process.env.NODE_ENV === 'development' ? { cause: err.cause } : {}),
+                
             }
         })
     }
